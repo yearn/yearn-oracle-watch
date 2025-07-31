@@ -1,15 +1,18 @@
 import React from 'react'
-import { useAprOracle } from '@/hooks/useAprOracle'
+import {
+  useVaultsWithLogos,
+  type VaultWithLogos,
+  type LoadingState,
+} from '@/hooks/useVaultsWithLogos'
 import Button from '@/components/shared/Button'
 import VaultSelectButton, {
   type KongVault,
 } from '@/components/shared/VaultSelectButton'
-import { InputTokenAmount } from '@/components/shared/InputTokenAmount2'
+import { InputDepositAmount } from '@/components/shared/InputDepositAmount'
 import { useInput } from '@/hooks/useInput'
 import { Modal } from '@/components/shared/Modal'
-import { getSvgAsset } from '@/utils/logos'
-import { getAddress } from 'viem'
 import { CHAIN_ID_TO_NAME } from '@/constants/chains'
+import YearnLoader from '@/components/shared/YearnLoader'
 
 const VaultQueryCard: React.FC = () => {
   // State and handlers at the top
@@ -25,11 +28,41 @@ const VaultQueryCard: React.FC = () => {
   const handleQuery = () => {
     alert('Query AprOracle')
   }
-  const { data } = useAprOracle()
-  console.log('Vaults Data:', data)
+  const { data, isLoading, error, loadingState } = useVaultsWithLogos()
+  console.log('Vaults Data with Logos:', data)
   const input = useInput(18) // Use actual useInput hook with 18 decimals
-  const vaultSymbol = 'yvUSDC'
+  const vaultSymbol = selectedVault?.asset?.symbol || 'yvUSDC'
   const balance = 0n
+
+  // Loading state messages with whimsy
+  const getLoadingMessage = (state: LoadingState): string => {
+    switch (state) {
+      case 'fetching-data':
+        return 'Fetching vault data from Kong...'
+      case 'generating-urls':
+        return 'Generating logo URLs...'
+      case 'preloading-images':
+        return 'Preloading vault logos...'
+      case 'preloading-images-1s':
+        return 'Wow! there must be a lot of logos...'
+      case 'preloading-images-2s':
+        return 'Almost there! I promise!'
+      case 'preloading-images-3s':
+        return 'Are you sure you need logos?'
+      case 'complete':
+        return 'Complete!'
+      default:
+        return 'Loading...'
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-full flex justify-center items-center">
+        <YearnLoader loadingState={getLoadingMessage(loadingState)} />
+      </div>
+    )
+  }
 
   return (
     <div className="w-full h-full pb-16 flex justify-center items-center gap-4">
@@ -47,6 +80,7 @@ const VaultQueryCard: React.FC = () => {
                 <VaultSelectButton
                   selectedVault={selectedVault}
                   onClick={handleSelectVault}
+                  disabled={isLoading}
                 />
               </div>
               {/* Vault Select Modal */}
@@ -68,9 +102,11 @@ const VaultQueryCard: React.FC = () => {
               >
                 <ModalData
                   data={data}
+                  isLoading={isLoading}
+                  error={error}
                   onClose={handleCloseVaultModal}
                   onSelect={(vault) => {
-                    setSelectedVault(vault)
+                    setSelectedVault(vault as KongVault)
                     handleCloseVaultModal()
                   }}
                 />
@@ -83,12 +119,13 @@ const VaultQueryCard: React.FC = () => {
                     Amount to Deposit
                   </div>
                 </div>
-                <InputTokenAmount
+                <InputDepositAmount
                   input={input as any}
                   className="w-full p-1 bg-black/5 rounded-[16px] outline outline-1 outline-black/10 -outline-offset-1"
                   symbol={selectedAsset}
                   defaultSymbol="USD"
                   balance={balance}
+                  currentVault={selectedVault}
                   onButtonClick={() =>
                     setSelectedAsset(
                       selectedAsset === 'USD' ? vaultSymbol : 'USD'
@@ -102,10 +139,10 @@ const VaultQueryCard: React.FC = () => {
                   className="w-full p-3 rounded-[14px] flex justify-center items-center gap-2.5"
                   variant="filled"
                   onClick={handleQuery}
-                  disabled={selectedVault === undefined}
+                  disabled={!selectedVault?.address || isLoading}
                 >
                   <span className="text-center text-white text-base font-bold leading-8 font-aeonik">
-                    Query AprOracle
+                    {isLoading ? 'Loading...' : 'Query AprOracle'}
                   </span>
                 </Button>
               </div>
@@ -149,12 +186,48 @@ export default VaultQueryCard
 // Vault list modal content as a separate component
 
 type ModalDataProps = {
-  data?: KongVault[]
+  data?: VaultWithLogos[]
+  isLoading?: boolean
+  error?: Error | null
   onClose: () => void
-  onSelect: (vault: KongVault) => void
+  onSelect: (vault: VaultWithLogos) => void
 }
 
-const ModalData: React.FC<ModalDataProps> = ({ data, onClose, onSelect }) => {
+const ModalData: React.FC<ModalDataProps> = ({
+  data,
+  isLoading,
+  error,
+  onClose,
+  onSelect,
+}) => {
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-4 p-4">
+        <div className="flex justify-center items-center h-32">
+          <div className="text-gray-500">Loading vaults...</div>
+        </div>
+        <Button className="mt-4" variant="outlined" onClick={onClose}>
+          Close
+        </Button>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col gap-4 p-4">
+        <div className="flex justify-center items-center h-32">
+          <div className="text-red-500">
+            Error loading vaults: {error.message}
+          </div>
+        </div>
+        <Button className="mt-4" variant="outlined" onClick={onClose}>
+          Close
+        </Button>
+      </div>
+    )
+  }
+
   const vaults = Array.isArray(data) && data.length > 0 ? data : []
 
   return (
@@ -173,10 +246,11 @@ const ModalData: React.FC<ModalDataProps> = ({ data, onClose, onSelect }) => {
             <div className="flex items-center gap-2 px-2">
               <img
                 className="w-8 h-8 min-w-8 min-h-8 max-w-8 max-h-8 relative"
-                src={getSvgAsset(
-                  Number(vault.chainId),
-                  getAddress(vault.asset?.address as string)
-                )}
+                src={
+                  vault.logos?.asset ||
+                  vault.preloadedImages?.asset?.src ||
+                  'https://placehold.co/32x32/cccccc/666666?text=?'
+                }
                 alt={vault.name as string}
                 referrerPolicy="no-referrer"
                 onError={(e) => {

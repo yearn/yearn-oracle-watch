@@ -10,6 +10,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu'
+import { type VaultWithLogos } from '@/hooks/useVaultsWithLogos'
 
 interface Props {
   input: ReturnType<typeof useInput>
@@ -21,11 +22,12 @@ interface Props {
   title?: string
   disabled?: boolean
   errorMessage?: string
+  currentVault?: VaultWithLogos
   onInputChange?: (value: bigint) => void
   onButtonClick?: () => void
 }
 
-export const InputTokenAmount: FC<Props> = ({
+export const InputDepositAmount: FC<Props> = ({
   input,
   symbol,
   placeholder,
@@ -34,6 +36,7 @@ export const InputTokenAmount: FC<Props> = ({
   onButtonClick,
   title,
   defaultSymbol = 'USD',
+  currentVault,
 }) => {
   const account = useAccount()
   const [
@@ -45,14 +48,16 @@ export const InputTokenAmount: FC<Props> = ({
   ] = input
   const disabled = _disabled || !account
 
+  // Get vault symbol from currentVault prop
+  const vaultAsset = currentVault?.asset?.symbol as string
+
   // Dropdown state
   const [open, setOpen] = React.useState(false)
   const [selected, setSelected] = React.useState<string>(
     symbol ?? defaultSymbol
   )
 
-  // Example: get vault asset from props or context (placeholder)
-  const vaultAsset = 'USDC' // Replace with actual vault asset logic
+  // Create options with USD and vault asset
   const options = [
     { label: 'USD', value: 'USD' },
     { label: vaultAsset, value: vaultAsset },
@@ -66,7 +71,7 @@ export const InputTokenAmount: FC<Props> = ({
   const handleSelect = (value: string) => {
     setSelected(value)
     setOpen(false)
-    // Placeholder for processing logic
+    // TODO: Add processing logic when symbol changes
     if (onButtonClick) onButtonClick()
   }
 
@@ -146,8 +151,32 @@ export const InputTokenAmount: FC<Props> = ({
                   selected === opt.value
                 )}
               >
-                {/* Placeholder circle image for token logo */}
-                <div className="w-6 h-6 rounded-full bg-gray-300 mr-2 flex-shrink-0" />
+                {/* Token logo */}
+                <div className="w-6 h-6 rounded-full mr-2 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                  {opt.value === 'USD' ? (
+                    <img
+                      src="images/tokens/dollarsign.svg"
+                      alt="dollar"
+                      className="w-6 h-6 rounded-full"
+                      onError={(e) => {
+                        e.currentTarget.src =
+                          'https://placehold.co/24x24/cccccc/666666?text=?'
+                      }}
+                    />
+                  ) : currentVault?.logos?.asset ? (
+                    <img
+                      src={currentVault.logos.asset}
+                      alt={vaultAsset}
+                      className="w-6 h-6 rounded-full"
+                      onError={(e) => {
+                        e.currentTarget.src =
+                          'https://placehold.co/24x24/cccccc/666666?text=?'
+                      }}
+                    />
+                  ) : (
+                    <div className="w-6 h-6 rounded-full bg-gray-300" />
+                  )}
+                </div>
                 {/* Option text, right-aligned */}
                 <div className="flex-1 text-right">{opt.label}</div>
               </DropdownMenuItem>

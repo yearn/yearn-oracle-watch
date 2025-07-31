@@ -23,7 +23,12 @@ export default defineConfig(({ mode }) => {
         jsx: 'automatic',
       },
       // Include workspace packages to be pre-bundled
-      include: ['@yearn-oracle-watch/sdk', '@yearn-oracle-watch/contracts'],
+      include: isDev
+        ? []
+        : ['@yearn-oracle-watch/sdk', '@yearn-oracle-watch/contracts'],
+      exclude: isDev
+        ? ['@yearn-oracle-watch/sdk', '@yearn-oracle-watch/contracts']
+        : [],
     },
     define: {
       global: 'globalThis',
@@ -41,8 +46,14 @@ export default defineConfig(({ mode }) => {
         // In production, Vite will use the package.json exports
         ...(isDev
           ? {
-              '@yearn-oracle-watch/sdk': path.resolve(__dirname, '../sdk/src/index.ts'),
-              '@yearn-oracle-watch/contracts': path.resolve(__dirname, '../contracts/src/wagmi.ts'),
+              '@yearn-oracle-watch/sdk': path.resolve(
+                __dirname,
+                '../sdk/src/index.ts'
+              ),
+              '@yearn-oracle-watch/contracts': path.resolve(
+                __dirname,
+                '../contracts/src/wagmi.ts'
+              ),
             }
           : {}),
       },

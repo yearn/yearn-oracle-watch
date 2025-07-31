@@ -1,19 +1,20 @@
 import { type ComponentProps, type FC } from 'react'
 import { getSvgAsset } from '@/utils/logos'
-import { getAddress } from 'viem'
+import { Address, getAddress } from 'viem'
 import { CHAIN_ID_TO_NAME } from '@/constants/chains'
 import { CaretDownIcon } from '@/components/shared/icons/CaretDownIcon'
 import Button from './Button'
 
 export type KongVault = {
-  address?: string | null
-  symbol?: string | null
-  name?: string | null
-  chainId?: number | null
+  address?: Address
+  symbol?: string
+  name?: string
+  chainId?: number
   asset?: {
-    decimals?: number | null
-    address?: string | null
-    name?: string | null
+    decimals?: number
+    address?: Address
+    name?: string
+    symbol?: string
   } | null
 }
 
