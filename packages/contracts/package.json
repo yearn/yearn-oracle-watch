@@ -1,0 +1,48 @@
+{
+  "name": "@yearn-oracle-watch/contracts",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/wagmi.js",
+  "types": "./dist/wagmi.d.ts",
+  "files": ["dist", "src"],
+  "exports": {
+    ".": {
+      "types": "./src/wagmi.ts",
+      "development": "./src/wagmi.ts",
+      "default": "./dist/wagmi.js"
+    },
+    "./*": {
+      "types": "./src/*.ts",
+      "development": "./src/*.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "devDependencies": {
+    "@tanstack/query-core": "*",
+    "@wagmi/cli": "*",
+    "typescript": "*"
+  },
+  "peerDependencies": {
+    "@types/node": "*",
+    "@wagmi/core": "*",
+    "abitype": "*",
+    "lodash": "*",
+    "react": "*",
+    "react-dom": "*",
+    "viem": "*",
+    "wagmi": "*"
+  },
+  "scripts": {
+    "build": "tsc -p ./tsconfig.build.json",
+    "build:types": "tsc -p ./tsconfig.build.json",
+    "format": "biome format . --write",
+    "format-and-lint": "bun run format && bun run lint:fix:unsafe",
+    "lint": "biome check .",
+    "lint:all": "bun run lint:fix:unsafe && bun run lint:types",
+    "lint:fix": "bun run lint --apply",
+    "lint:fix:unsafe": "bun run lint --write --unsafe",
+    "lint:types": ":",
+    "codegen": "wagmi generate && bun run codegen:patch",
+    "codegen:patch": "tsx src/codegen-patch.ts"
+  }
+}

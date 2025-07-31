@@ -1,0 +1,13 @@
+query GetVaultData {
+  vaults(v3: true, yearn: true) {
+    address
+    symbol
+    name
+    chainId
+    asset {
+      decimals
+      address
+      name
+    }
+  }
+}

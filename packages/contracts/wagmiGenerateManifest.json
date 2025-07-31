@@ -1,0 +1,13 @@
+{
+  "template": [],
+  "verified": [
+    {
+      "name": "AprOracle",
+      "address": {
+        "1": "0x1981AD9F44F2EA9aDd2dC4AD7D075c102C70aF92"
+      }
+    }
+  ],
+  "erc20": [],
+  "abiSelections": {}
+}

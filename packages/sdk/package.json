@@ -1,0 +1,51 @@
+{
+  "name": "@yearn-oracle-watch/sdk",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist", "src"],
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "development": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@yearn-oracle-watch/contracts": "workspace:*",
+    "graphql": "*",
+    "graphql-request": "^6.0.0",
+    "graphql-tag": "^2.12.6",
+    "lodash": "*",
+    "viem": "*"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "@tanstack/react-query": "*",
+    "typescript": "*"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/typescript": "^4.0.1",
+    "@graphql-codegen/typescript-graphql-request": "^5.0.0",
+    "@graphql-codegen/typescript-operations": "^4.0.1",
+    "merkletreejs": "^0.3.11",
+    "msw": "*",
+    "vite": "*",
+    "vitest": "*"
+  },
+  "scripts": {
+    "format": "biome format . --write",
+    "build": "tsc -p ./tsconfig.build.json",
+    "format-and-lint": "bun format && bun lint:fix:unsafe",
+    "lint": "biome check .",
+    "lint:all": "bun lint:fix:unsafe && bun lint:types",
+    "lint:fix": "bun lint --apply",
+    "lint:fix:unsafe": "bun lint --write --unsafe",
+    "lint:types": "tsc",
+    "codegen": "gql-gen --config codegen.yml",
+    "test": "vitest run -c ./vitest.config.ts",
+    "watch": "tsc -p ./tsconfig.build.json --watch"
+  }
+}

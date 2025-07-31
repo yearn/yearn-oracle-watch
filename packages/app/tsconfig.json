@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["src/**/*"],
+  "exclude": ["build", "node_modules"],
+  "compilerOptions": {
+    "types": ["vite/client", "vite-plugin-svgr/client"],
+    "baseUrl": ".",
+    "incremental": true,
+    "composite": true,
+    "rootDir": "src",
+    "tsBuildInfoFile": "./build/.tsbuildinfo",
+    "paths": {
+      "@/*": ["src/*"],
+      "@yearn-oracle-watch/sdk": ["../sdk/src"],
+      "@yearn-oracle-watch/sdk/*": ["../sdk/src/*"],
+      "@yearn-oracle-watch/contracts": ["../contracts/src"],
+      "@yearn-oracle-watch/contracts/*": ["../contracts/src/*"]
+    }
+  },
+  "references": [{ "path": "../contracts" }, { "path": "../sdk" }]
+}

@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "incremental": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "types": ["vite/client"],
+    "paths": {
+      "@yearn-oracle-watch/contracts": ["../contracts/src"],
+      "@yearn-oracle-watch/contracts/*": ["../contracts/src/*"]
+    }
+  },
+  "references": [{ "path": "../contracts" }]
+}

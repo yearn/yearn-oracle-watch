@@ -1,0 +1,31 @@
+overwrite: true
+generates:
+  ./src/queries/kong/generated.ts:
+    schema: "https://kong.yearn.farm/api/gql"
+    documents: "src/queries/kong/*.graphql"
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-graphql-request"
+    config:
+      typesPrefix: "kong_"
+  ./src/queries/kong/schema.graphql:
+    schema: "https://kong.yearn.farm/api/gql"
+    plugins:
+      - "schema-ast"
+
+config:
+  includeDirectives: true
+  pureMagicComment: true
+  withHOC: false
+  withHooks: true
+  withComponent: false
+  skipTypename: true
+  scalars:
+    BigDecimal: string
+    BigInt: string
+    BigNumber: string
+    Bytes: string
+    Date: Date
+    DateTime: number
+    ID: string

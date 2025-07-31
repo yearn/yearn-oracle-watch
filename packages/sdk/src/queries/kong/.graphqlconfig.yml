@@ -1,0 +1,11 @@
+projects:
+  app:
+    name: "Kong"
+    schemaPath: "./schema.graphql"
+    extensions:
+      endpoints:
+        hub:
+          url: "https://kong.yearn.farm/api/gql"
+          headers:
+            "user-agent": "JS GraphQL"
+          introspect: false
