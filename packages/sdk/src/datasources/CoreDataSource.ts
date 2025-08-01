@@ -2,7 +2,7 @@ import { KongDataSource } from 'src/datasources/KongDataSource'
 import { YDaemonDataSource } from 'src/datasources/YDaemonDataSource'
 import { SdkContext } from '../types'
 import { Address } from 'viem'
-import { aprOracleAbi } from '@yearn-oracle-watch/contracts'
+import { aprOracleAbi, aprOracleAddress } from '@yearn-oracle-watch/contracts'
 import { readContracts } from '@wagmi/core'
 
 export class CoreDataSource {
@@ -36,7 +36,7 @@ export class CoreDataSource {
   async getAprOracleData(vaultAddress: Address, delta: bigint) {
     const expectedAprContracts = [1, 10, 137].map((chainId) => {
       return {
-        address: vaultAddress,
+        address: aprOracleAddress[chainId as keyof typeof aprOracleAddress],
         abi: aprOracleAbi,
         functionName: 'getExpectedApr',
         args: [vaultAddress, delta],
