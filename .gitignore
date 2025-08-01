@@ -115,3 +115,7 @@ dist-ssr
 # Generated files
 packages/contracts/src/wagmi.ts
 
+# Copilot
+
+*/copilot-instructions.md
+.github/copilot-instructions.md

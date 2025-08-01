@@ -1,0 +1,319 @@
+import React, { useState, useCallback } from 'react'
+import type { ComponentType } from 'react'
+import MetadataModal from '@/components/shared/MetadataModal'
+import type { EntityType } from '@/hooks/useMetadata'
+
+export interface MetadataConfig {
+  entityType: EntityType
+  entityId: string
+  chainId: number
+}
+
+export interface WithMetadataProps {
+  enableMetadata?: boolean
+  metadataConfig?: MetadataConfig
+}
+
+export interface MetadataActions {
+  showMetadata: () => void
+  hideMetadata: () => void
+  isMetadataOpen: boolean
+}
+
+/**
+ * Higher-order component that adds metadata functionality to existing components.
+ *
+ * Usage:
+ * ```tsx
+ * const MyComponentWithMetadata = withMetadata(MyComponent)
+ *
+ * <MyComponentWithMetadata
+ *   enableMetadata={true}
+ *   metadataConfig={{
+ *     entityType: 'vault',
+ *     entityId: '0x123...',
+ *     chainId: 1
+ *   }}
+ *   // ... other props
+ * />
+ * ```
+ */
+export function withMetadata<P extends object>(
+  WrappedComponent: ComponentType<P>
+): ComponentType<P & WithMetadataProps> {
+  const MetadataEnhancedComponent = (props: P & WithMetadataProps) => {
+    const { enableMetadata = false, metadataConfig, ...wrappedProps } = props
+
+    const [isMetadataOpen, setIsMetadataOpen] = useState(false)
+    const [isHovered, setIsHovered] = useState(false)
+
+    const showMetadata = useCallback(() => {
+      if (enableMetadata && metadataConfig) {
+        setIsMetadataOpen(true)
+      }
+    }, [enableMetadata, metadataConfig])
+
+    const hideMetadata = useCallback(() => {
+      setIsMetadataOpen(false)
+    }, [])
+
+    const handleMiddleClick = useCallback(
+      (event: React.MouseEvent) => {
+        // Middle mouse button click (button 1)
+        if (event.button === 1) {
+          event.preventDefault()
+          showMetadata()
+        }
+      },
+      [showMetadata]
+    )
+
+    const handleClick = useCallback(
+      (event: React.MouseEvent) => {
+        // Handle middle-click via onClick as well (more reliable)
+        if (event.button === 1) {
+          event.preventDefault()
+          showMetadata()
+        }
+        // Call original onClick if it exists
+        if (
+          'onClick' in wrappedProps &&
+          typeof wrappedProps.onClick === 'function'
+        ) {
+          wrappedProps.onClick(event)
+        }
+      },
+      [showMetadata, wrappedProps]
+    )
+
+    const handleContextMenu = useCallback(
+      (event: React.MouseEvent) => {
+        // Don't prevent context menu - let users right-click normally
+        // Call original onContextMenu if it exists
+        if (
+          'onContextMenu' in wrappedProps &&
+          typeof wrappedProps.onContextMenu === 'function'
+        ) {
+          wrappedProps.onContextMenu(event)
+        }
+      },
+      [wrappedProps]
+    )
+
+    const handleAuxClick = useCallback(
+      (event: React.MouseEvent) => {
+        // Handle auxiliary button clicks (middle mouse)
+        if (event.button === 1) {
+          event.preventDefault()
+          showMetadata()
+        }
+      },
+      [showMetadata]
+    )
+
+    const handleKeyDown = useCallback(
+      (event: React.KeyboardEvent) => {
+        // Temporary: Add Ctrl+M as alternative trigger for testing
+        if (event.ctrlKey && event.key === 'm') {
+          event.preventDefault()
+          showMetadata()
+        }
+        // Call original onKeyDown if it exists
+        if (
+          'onKeyDown' in wrappedProps &&
+          typeof wrappedProps.onKeyDown === 'function'
+        ) {
+          wrappedProps.onKeyDown(event)
+        }
+      },
+      [showMetadata, wrappedProps]
+    )
+
+    const handleFocus = useCallback(
+      (event: React.FocusEvent) => {
+        // Keep focus behavior for accessibility, but don't change hover state
+        // Call original onFocus if it exists
+        if (
+          'onFocus' in wrappedProps &&
+          typeof wrappedProps.onFocus === 'function'
+        ) {
+          wrappedProps.onFocus(event)
+        }
+      },
+      [wrappedProps]
+    )
+
+    const handleBlur = useCallback(
+      (event: React.FocusEvent) => {
+        // Keep blur behavior for accessibility, but don't change hover state
+        // Call original onBlur if it exists
+        if (
+          'onBlur' in wrappedProps &&
+          typeof wrappedProps.onBlur === 'function'
+        ) {
+          wrappedProps.onBlur(event)
+        }
+      },
+      [wrappedProps]
+    )
+
+    const handleMouseEnter = useCallback(
+      (event: React.MouseEvent) => {
+        setIsHovered(true)
+        // Call original onMouseEnter if it exists
+        if (
+          'onMouseEnter' in wrappedProps &&
+          typeof wrappedProps.onMouseEnter === 'function'
+        ) {
+          wrappedProps.onMouseEnter(event)
+        }
+      },
+      [wrappedProps]
+    )
+
+    const handleMouseLeave = useCallback(
+      (event: React.MouseEvent) => {
+        setIsHovered(false)
+        // Call original onMouseLeave if it exists
+        if (
+          'onMouseLeave' in wrappedProps &&
+          typeof wrappedProps.onMouseLeave === 'function'
+        ) {
+          wrappedProps.onMouseLeave(event)
+        }
+      },
+      [wrappedProps]
+    )
+
+    // Enhanced props with metadata actions and event handlers
+    const enhancedProps = {
+      ...wrappedProps,
+      // Add metadata actions for components that want to trigger metadata programmatically
+      metadataActions: {
+        showMetadata,
+        hideMetadata,
+        isMetadataOpen,
+      } as MetadataActions,
+      // Add event handlers for middle-click detection
+      onClick: handleClick,
+      onMouseDown: (event: React.MouseEvent) => {
+        handleMiddleClick(event)
+        // Call original onMouseDown if it exists
+        if (
+          'onMouseDown' in wrappedProps &&
+          typeof wrappedProps.onMouseDown === 'function'
+        ) {
+          wrappedProps.onMouseDown(event)
+        }
+      },
+      onAuxClick: handleAuxClick,
+      onContextMenu: handleContextMenu,
+      onKeyDown: handleKeyDown,
+      onFocus: handleFocus,
+      onBlur: handleBlur,
+      onMouseEnter: handleMouseEnter,
+      onMouseLeave: handleMouseLeave,
+      // Add visual indicator for metadata-enabled components
+      style: {
+        ...('style' in wrappedProps && typeof wrappedProps.style === 'object'
+          ? wrappedProps.style
+          : {}),
+        // Keep default cursor - tooltip is sufficient indicator
+      },
+      title:
+        enableMetadata && metadataConfig
+          ? 'Middle-click or Ctrl+M for detailed metadata'
+          : 'title' in wrappedProps
+            ? wrappedProps.title
+            : undefined,
+    } as P
+
+    return (
+      <>
+        <div
+          style={{
+            position: 'relative',
+            display: 'inline-block',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Sliding binary panel - only show if metadata is enabled */}
+          {enableMetadata && metadataConfig && (
+            <div
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                bottom: 0,
+                width: '40px',
+                background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                transform: isHovered ? 'translateX(0)' : 'translateX(-100%)',
+                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                zIndex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '8px',
+                fontFamily: 'monospace',
+                color: 'rgba(255, 255, 255, 0.7)',
+                lineHeight: '10px',
+                writingMode: 'vertical-rl',
+                textOrientation: 'mixed',
+                userSelect: 'none',
+                pointerEvents: 'none',
+              }}
+            >
+              10110100
+              <br />
+              01001011
+              <br />
+              11010110
+              <br />
+              00110101
+            </div>
+          )}
+
+          {/* Main component with slide animation */}
+          <div
+            style={{
+              transform:
+                enableMetadata && metadataConfig && isHovered
+                  ? 'translateX(35px)'
+                  : 'translateX(0)',
+              transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              position: 'relative',
+              zIndex: 2,
+            }}
+          >
+            <WrappedComponent {...enhancedProps} />
+          </div>
+        </div>
+        {enableMetadata && metadataConfig && (
+          <MetadataModal
+            isOpen={isMetadataOpen}
+            onClose={hideMetadata}
+            entityType={metadataConfig.entityType}
+            entityId={metadataConfig.entityId}
+            chainId={metadataConfig.chainId}
+          />
+        )}
+      </>
+    )
+  }
+
+  // Set display name for debugging
+  MetadataEnhancedComponent.displayName = `withMetadata(${
+    WrappedComponent.displayName || WrappedComponent.name || 'Component'
+  })`
+
+  return MetadataEnhancedComponent
+}
+
+/**
+ * Hook to use metadata actions within a component enhanced with withMetadata
+ */
+export function useMetadataActions(): MetadataActions | null {
+  // This would be used within a component that's wrapped with withMetadata
+  // For now, return null - components can access metadataActions from props
+  return null
+}

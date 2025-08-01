@@ -55,4 +55,8 @@ export class KongDataSource extends BaseDataSource {
         },
       }))
   }
+
+  public async getVaultMetadata(address: string, chainId: number) {
+    return await this.gql.GetVaultMetadata({ address, chainId })
+  }
 }

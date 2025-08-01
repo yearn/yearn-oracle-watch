@@ -17,7 +17,7 @@ import YearnLoader from '@/components/shared/YearnLoader'
 const VaultQueryCard: React.FC = () => {
   // State and handlers at the top
   const [selectedAsset, setSelectedAsset] = React.useState('USD')
-  const [selectedVault, setSelectedVault] = React.useState({} as KongVault)
+  const [selectedVault, setSelectedVault] = React.useState({} as VaultWithLogos)
   const [vaultModalOpen, setVaultModalOpen] = React.useState(false)
   const handleSelectVault = () => {
     setVaultModalOpen(true)
@@ -78,9 +78,19 @@ const VaultQueryCard: React.FC = () => {
                   </div>
                 </div>
                 <VaultSelectButton
-                  selectedVault={selectedVault}
+                  selectedVault={selectedVault as any} // VaultWithLogos is compatible with KongVault
                   onClick={handleSelectVault}
                   disabled={isLoading}
+                  enableMetadata={!!selectedVault?.address}
+                  metadataConfig={
+                    selectedVault?.address
+                      ? {
+                          entityType: 'vault',
+                          entityId: selectedVault.address,
+                          chainId: selectedVault.chainId || 1,
+                        }
+                      : undefined
+                  }
                 />
               </div>
               {/* Vault Select Modal */}
@@ -106,7 +116,7 @@ const VaultQueryCard: React.FC = () => {
                   error={error}
                   onClose={handleCloseVaultModal}
                   onSelect={(vault) => {
-                    setSelectedVault(vault as KongVault)
+                    setSelectedVault(vault as VaultWithLogos)
                     handleCloseVaultModal()
                   }}
                 />
