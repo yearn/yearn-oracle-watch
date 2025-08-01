@@ -54,3 +54,11 @@ When making changes to the SDK (`packages/sdk`), follow these steps in order:
 4. Restart the development server to pick up the changes
 
 This ensures that any GraphQL codegen updates are applied and the SDK is properly rebuilt before the app tries to use the new functionality.
+
+## Git Commands for Recent Edits
+
+When I ask you to review recent edits or git commits, you can use the following git commands to inspect changes:
+
+- `git show <hash>`: View the full diff of a specific commit
+
+You will then have access to the full diff.
