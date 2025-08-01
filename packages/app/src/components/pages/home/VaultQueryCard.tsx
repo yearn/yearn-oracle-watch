@@ -58,7 +58,6 @@ const VaultQueryCard: React.FC = () => {
     []
   )
 
-
   const handleSelectVault = () => {
     setVaultModalOpen(true)
   }
@@ -134,7 +133,6 @@ const VaultQueryCard: React.FC = () => {
           selectedVault.chainId
         )
       : null
-
 
   const handleQuery = () => {
     if (!selectedVault?.address || !inputValue.formValue) {
@@ -272,19 +270,30 @@ const VaultQueryCard: React.FC = () => {
                 onClose={handleCloseSlidingModal}
                 title={
                   <div className="flex items-center gap-2 w-full">
-                    <input
-                      type="text"
-                      placeholder="Search vaults..."
-                      className="flex-1 px-4 py-2 rounded-lg bg-gray-0 text-base font-aeonik"
-                      value={''}
-                      onChange={() => {}}
-                      // TODO: Implement search state and logic
-                    />
+                    <div className="relative flex-1">
+                      <input
+                        type="text"
+                        placeholder="Search vaults..."
+                        className="flex-1 w-full px-4 py-2 pr-10 rounded-lg bg-gray-0 text-base font-aeonik"
+                        value={searchTerm}
+                        onChange={(e) => handleSearchChange(e.target.value)}
+                      />
+                      {searchTerm && (
+                        <button
+                          onClick={clearSearch}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                          type="button"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
                   </div>
                 }
               >
                 <ModalData
-                  data={data}
+                  data={filteredVaults}
+                  searchTerm={searchTerm}
                   isLoading={isLoading}
                   error={error}
                   onClose={handleCloseSlidingModal}
