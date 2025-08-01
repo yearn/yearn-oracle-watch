@@ -4,18 +4,16 @@ import { SdkContext } from '../types'
 import { Address } from 'viem'
 import { aprOracleAbi, aprOracleAddress } from '@yearn-oracle-watch/contracts'
 import { readContracts } from '@wagmi/core'
+import _ from 'lodash'
+import { calculateDelta, calculatePercentChange, formatApr } from 'src/utils/apr'
 
 export class CoreDataSource {
   public readonly kong: KongDataSource
   public readonly yDaemon: YDaemonDataSource
-  private readonly queryClient
   private readonly wagmiConfig
-  private readonly config
 
   constructor(context: SdkContext) {
-    this.queryClient = context.queryClient
     this.wagmiConfig = context.wagmiConfig
-    this.config = context.config
     this.kong = new KongDataSource(context, 'kong')
     this.yDaemon = new YDaemonDataSource(context, 'yDaemon')
   }
@@ -29,46 +27,43 @@ export class CoreDataSource {
     this.yDaemon.dispose()
   }
 
-  // getAprOracle(chainId: number): Promise<any> {
-  //   return this.kong.getVaultsData()
-  // }
-
-  async getAprOracleData(vaultAddress: Address, delta: bigint) {
-    const expectedAprContracts = [1, 10, 137].map((chainId) => {
-      return {
+  async getAprOracleData(vaultAddress: Address, chainId: number, delta: bigint) {
+    const expectedAprContracts = [
+      {
+        address: aprOracleAddress[chainId as keyof typeof aprOracleAddress],
+        abi: aprOracleAbi,
+        functionName: 'getExpectedApr',
+        args: [vaultAddress, 0n],
+        chainId,
+      },
+      {
         address: aprOracleAddress[chainId as keyof typeof aprOracleAddress],
         abi: aprOracleAbi,
         functionName: 'getExpectedApr',
         args: [vaultAddress, delta],
         chainId,
-      }
-    })
+      },
+    ] as any[]
 
     const expectedAprResults = await readContracts(this.wagmiConfig, {
       contracts: expectedAprContracts,
     })
 
-    return expectedAprResults
+    const [currentApr, projectedApr] = _.chain(expectedAprResults)
+      .map((v) => v.result as bigint)
+      .value() as [bigint, bigint]
 
-    // // Get current APR (with delta = 0)
-    // const currentAprQuery = useAprOracleGetExpectedApr({
-    //   args: vaultAddress ? [vaultAddress as Address, 0n] : undefined,
-    //   query: {
-    //     enabled: !!vaultAddress,
-    //     staleTime: 30_000, // 30 seconds
-    //   },
-    // })
+    const currentAprFormatted = currentApr ? formatApr(currentApr) : null
+    const projectedAprFormatted = projectedApr ? formatApr(projectedApr) : null
 
-    // // Get projected APR (with the provided delta)
-    // const projectedAprQuery = useAprOracleGetExpectedApr({
-    //   args:
-    //     vaultAddress && delta !== undefined
-    //       ? [vaultAddress as Address, delta]
-    //       : undefined,
-    //   query: {
-    //     enabled: !!vaultAddress && delta !== undefined,
-    //     staleTime: 30_000, // 30 seconds
-    //   },
-    // })
+    // Calculate percent change between current and projected APR
+    const percentChange = calculatePercentChange(currentAprFormatted, projectedAprFormatted)
+
+    return {
+      currentApr: currentAprFormatted,
+      projectedApr: projectedAprFormatted,
+      percentChange,
+      delta,
+    }
   }
 }

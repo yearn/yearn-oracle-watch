@@ -1,29 +1,28 @@
-import React from 'react'
-import {
-  useVaultsWithLogos,
-  type VaultWithLogos,
-  type LoadingState,
-} from '@/hooks/useVaultsWithLogos'
 import Button from '@/components/shared/Button'
-import VaultSelectButton, {
-  type KongVault,
-} from '@/components/shared/VaultSelectButton'
 import { InputDepositAmount } from '@/components/shared/InputDepositAmount'
-import { useInput } from '@/hooks/useInput'
 import { Modal } from '@/components/shared/Modal'
-import { CHAIN_ID_TO_NAME } from '@/constants/chains'
+import VaultSelectButton, { type KongVault } from '@/components/shared/VaultSelectButton'
 import YearnLoader from '@/components/shared/YearnLoader'
-import { useAprOracle, calculateDelta } from '@/hooks/useAprOracle'
-import { useTokenPrices, findTokenPrice } from '@/hooks/useTokenPrices'
+import { SupportedChain } from '@/config/supportedChains'
+import { CHAIN_ID_TO_NAME } from '@/constants/chains'
+import { useAprOracle } from '@/hooks/useAprOracle'
+import { useInput } from '@/hooks/useInput'
+import { findTokenPrice, useTokenPrices } from '@/hooks/useTokenPrices'
+import {
+  type LoadingState,
+  type VaultWithLogos,
+  useVaultsWithLogos,
+} from '@/hooks/useVaultsWithLogos'
+import { calculateDelta } from '@yearn-oracle-watch/sdk'
+import React from 'react'
+import { Address } from 'viem'
 
 const VaultQueryCard: React.FC = () => {
   // State and handlers at the top
   const [selectedAsset, setSelectedAsset] = React.useState('USD')
   const [selectedVault, setSelectedVault] = React.useState({} as KongVault)
   const [vaultModalOpen, setVaultModalOpen] = React.useState(false)
-  const [deltaValue, setDeltaValue] = React.useState<bigint | undefined>(
-    undefined
-  )
+  const [deltaValue, setDeltaValue] = React.useState<bigint | undefined>(undefined)
 
   const handleSelectVault = () => {
     setVaultModalOpen(true)
@@ -39,8 +38,15 @@ const VaultQueryCard: React.FC = () => {
   const [inputValue] = inputHook
 
   // APR Oracle integration
-  const aprOracleResult = useAprOracle({
-    vaultAddress: selectedVault?.address,
+  const {
+    data: aprOracleResult,
+    isLoading: isAprOracleLoading,
+    error: aprOracleError,
+  } = useAprOracle({
+    vault: {
+      address: selectedVault?.address as Address,
+      chainId: selectedVault?.chainId as SupportedChain,
+    },
     delta: deltaValue,
   })
 
@@ -48,11 +54,7 @@ const VaultQueryCard: React.FC = () => {
   const vaultSymbol = selectedVault?.asset?.symbol || 'yvUSDC'
   const assetPrice =
     pricesData && selectedVault?.asset?.address && selectedVault?.chainId
-      ? findTokenPrice(
-          pricesData,
-          selectedVault.asset.address,
-          selectedVault.chainId
-        )
+      ? findTokenPrice(pricesData, selectedVault.asset.address, selectedVault.chainId)
       : null
 
   const handleQuery = () => {
@@ -66,7 +68,7 @@ const VaultQueryCard: React.FC = () => {
       inputValue.formValue,
       selectedVault.asset?.decimals || 18,
       selectedAsset === 'USD',
-      assetPrice || undefined
+      assetPrice || undefined,
     )
 
     setDeltaValue(delta)
@@ -76,9 +78,7 @@ const VaultQueryCard: React.FC = () => {
   const balance = 0n
 
   // Find the full vault with logos for InputDepositAmount
-  const selectedVaultWithLogos = data?.find(
-    (vault) => vault.address === selectedVault?.address
-  )
+  const selectedVaultWithLogos = data?.find((vault) => vault.address === selectedVault?.address)
 
   // Loading state messages with whimsy
   const getLoadingMessage = (state: LoadingState): string => {
@@ -173,9 +173,7 @@ const VaultQueryCard: React.FC = () => {
                   balance={balance}
                   currentVault={selectedVaultWithLogos}
                   onButtonClick={() =>
-                    setSelectedAsset(
-                      selectedAsset === 'USD' ? vaultSymbol : 'USD'
-                    )
+                    setSelectedAsset(selectedAsset === 'USD' ? vaultSymbol : 'USD')
                   }
                 />
               </div>
@@ -200,11 +198,11 @@ const VaultQueryCard: React.FC = () => {
                   </div>
                   <div className="flex-1 text-right text-[#9E9E9E] text-base font-normal leading-8 font-aeonik-mono">
                     {selectedVault?.address
-                      ? aprOracleResult.isLoading
+                      ? isAprOracleLoading
                         ? 'Loading...'
-                        : aprOracleResult.error
+                        : aprOracleError
                           ? 'Error loading APR'
-                          : aprOracleResult.currentApr
+                          : aprOracleResult?.currentApr
                             ? aprOracleResult.currentApr
                             : 'N/A'
                       : 'select vault to see'}
@@ -216,11 +214,11 @@ const VaultQueryCard: React.FC = () => {
                   </div>
                   <div className="flex-1 text-right text-[#9E9E9E] text-base font-normal leading-8 font-aeonik-mono">
                     {deltaValue !== undefined
-                      ? aprOracleResult.isLoading
+                      ? isAprOracleLoading
                         ? 'Loading...'
-                        : aprOracleResult.error
+                        : aprOracleError
                           ? 'Error loading APR'
-                          : aprOracleResult.projectedApr
+                          : aprOracleResult?.projectedApr
                             ? aprOracleResult.projectedApr
                             : 'N/A'
                       : 'query to generate'}
@@ -232,10 +230,10 @@ const VaultQueryCard: React.FC = () => {
                   </div>
                   <div className="flex-1 text-right text-[#9E9E9E] text-base font-normal leading-8 font-aeonik-mono">
                     {deltaValue !== undefined ? (
-                      aprOracleResult.percentChange ? (
+                      aprOracleResult?.percentChange ? (
                         <span
                           className={
-                            aprOracleResult.percentChange.startsWith('+')
+                            aprOracleResult?.percentChange.startsWith('+')
                               ? 'text-green-600'
                               : aprOracleResult.percentChange.startsWith('-')
                                 ? 'text-red-600'
@@ -273,13 +271,7 @@ type ModalDataProps = {
   onSelect: (vault: VaultWithLogos) => void
 }
 
-const ModalData: React.FC<ModalDataProps> = ({
-  data,
-  isLoading,
-  error,
-  onClose,
-  onSelect,
-}) => {
+const ModalData: React.FC<ModalDataProps> = ({ data, isLoading, error, onClose, onSelect }) => {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-4 p-4">
@@ -297,9 +289,7 @@ const ModalData: React.FC<ModalDataProps> = ({
     return (
       <div className="flex flex-col gap-4 p-4">
         <div className="flex justify-center items-center h-32">
-          <div className="text-red-500">
-            Error loading vaults: {error.message}
-          </div>
+          <div className="text-red-500">Error loading vaults: {error.message}</div>
         </div>
         <Button className="mt-4" variant="outlined" onClick={onClose}>
           Close
@@ -313,10 +303,7 @@ const ModalData: React.FC<ModalDataProps> = ({
   return (
     <div className="flex flex-col gap-4 p-4">
       {/* Vault List */}
-      <div
-        className="overflow-y-auto w-full"
-        style={{ maxHeight: 350, minHeight: 100 }}
-      >
+      <div className="overflow-y-auto w-full" style={{ maxHeight: 350, minHeight: 100 }}>
         {vaults.map((vault, idx) => (
           <div
             key={vault.address || idx}
@@ -334,8 +321,7 @@ const ModalData: React.FC<ModalDataProps> = ({
                 alt={vault.name as string}
                 referrerPolicy="no-referrer"
                 onError={(e) => {
-                  e.currentTarget.src =
-                    'https://placehold.co/32x32/cccccc/666666?text=?'
+                  e.currentTarget.src = 'https://placehold.co/32x32/cccccc/666666?text=?'
                 }}
               />
               <div className="flex flex-col items-start justify-start">
