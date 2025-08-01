@@ -12,6 +12,8 @@ import { Modal } from '@/components/shared/Modal'
 import { SlidingModal } from '@/components/shared/SlidingModal'
 import { CHAIN_ID_TO_NAME } from '@/constants/chains'
 import YearnLoader from '@/components/shared/YearnLoader'
+import { useAprOracle, calculateDelta } from '@/hooks/useAprOracle'
+import { useTokenPrices, findTokenPrice } from '@/hooks/useTokenPrices'
 
 const VaultQueryCard: React.FC = () => {
   // State and handlers at the top
@@ -19,6 +21,11 @@ const VaultQueryCard: React.FC = () => {
   const [selectedVault, setSelectedVault] = React.useState({} as VaultWithLogos)
   const [vaultModalOpen, setVaultModalOpen] = React.useState(false)
   const [slidingModalOpen, setSlidingModalOpen] = React.useState(false)
+  const [deltaValue, setDeltaValue] = React.useState<bigint | undefined>(
+    undefined
+  )
+
+
   const handleSelectVault = () => {
     setVaultModalOpen(true)
   }
@@ -31,14 +38,55 @@ const VaultQueryCard: React.FC = () => {
   const handleCloseSlidingModal = () => {
     setSlidingModalOpen(false)
   }
-  const handleQuery = () => {
-    alert('Query AprOracle')
-  }
+
+  // Data hooks
   const { data, isLoading, error, loadingState } = useVaultsWithLogos()
-  console.log('Vaults Data with Logos:', data)
-  const input = useInput(18) // Use actual useInput hook with 18 decimals
+  const { data: pricesData } = useTokenPrices()
+  const inputHook = useInput(18) // Use actual useInput hook with 18 decimals
+  const [inputValue] = inputHook
+
+  // APR Oracle integration
+  const aprOracleResult = useAprOracle({
+    vaultAddress: selectedVault?.address,
+    delta: deltaValue,
+  })
+
+  // Vault and price calculations
   const vaultSymbol = selectedVault?.asset?.symbol || 'yvUSDC'
+  const assetPrice =
+    pricesData && selectedVault?.asset?.address && selectedVault?.chainId
+      ? findTokenPrice(
+          pricesData,
+          selectedVault.asset.address,
+          selectedVault.chainId
+        )
+      : null
+
+
+  const handleQuery = () => {
+    if (!selectedVault?.address || !inputValue.formValue) {
+      alert('Please select a vault and enter an amount')
+      return
+    }
+
+    // Calculate delta for the APR Oracle call
+    const delta = calculateDelta(
+      inputValue.formValue,
+      selectedVault.asset?.decimals || 18,
+      selectedAsset === 'USD',
+      assetPrice || undefined
+    )
+
+    setDeltaValue(delta)
+  }
+
+  console.log('Vaults Data with Logos:', data)
   const balance = 0n
+
+  // Find the full vault with logos for InputDepositAmount
+  const selectedVaultWithLogos = data?.find(
+    (vault) => vault.address === selectedVault?.address
+  )
 
   // Loading state messages with whimsy
   const getLoadingMessage = (state: LoadingState): string => {
@@ -171,12 +219,12 @@ const VaultQueryCard: React.FC = () => {
                   </div>
                 </div>
                 <InputDepositAmount
-                  input={input as any}
+                  input={inputHook}
                   className="w-full p-1 bg-black/5 rounded-[16px] outline outline-1 outline-black/10 -outline-offset-1"
                   symbol={selectedAsset}
                   defaultSymbol="USD"
                   balance={balance}
-                  currentVault={selectedVault}
+                  currentVault={selectedVaultWithLogos}
                   onButtonClick={() =>
                     setSelectedAsset(
                       selectedAsset === 'USD' ? vaultSymbol : 'USD'
@@ -204,7 +252,15 @@ const VaultQueryCard: React.FC = () => {
                     Current APY:
                   </div>
                   <div className="flex-1 text-right text-[#9E9E9E] text-base font-normal leading-8 font-aeonik-mono">
-                    select vault to see
+                    {selectedVault?.address
+                      ? aprOracleResult.isLoading
+                        ? 'Loading...'
+                        : aprOracleResult.error
+                          ? 'Error loading APR'
+                          : aprOracleResult.currentApr
+                            ? aprOracleResult.currentApr
+                            : 'N/A'
+                      : 'select vault to see'}
                   </div>
                 </div>
                 <div className="w-full h-8 px-5 overflow-hidden border-b border-[#1A51B2] flex justify-center items-center gap-2.5">
@@ -212,7 +268,15 @@ const VaultQueryCard: React.FC = () => {
                     Projected APY:
                   </div>
                   <div className="flex-1 text-right text-[#9E9E9E] text-base font-normal leading-8 font-aeonik-mono">
-                    query to generate
+                    {deltaValue !== undefined
+                      ? aprOracleResult.isLoading
+                        ? 'Loading...'
+                        : aprOracleResult.error
+                          ? 'Error loading APR'
+                          : aprOracleResult.projectedApr
+                            ? aprOracleResult.projectedApr
+                            : 'N/A'
+                      : 'query to generate'}
                   </div>
                 </div>
                 <div className="w-full h-8 px-5 overflow-hidden border-b border-[#1A51B2] flex justify-center items-center gap-2.5">
@@ -220,7 +284,25 @@ const VaultQueryCard: React.FC = () => {
                     Percent Change:
                   </div>
                   <div className="flex-1 text-right text-[#9E9E9E] text-base font-normal leading-8 font-aeonik-mono">
-                    query to generate
+                    {deltaValue !== undefined ? (
+                      aprOracleResult.percentChange ? (
+                        <span
+                          className={
+                            aprOracleResult.percentChange.startsWith('+')
+                              ? 'text-green-600'
+                              : aprOracleResult.percentChange.startsWith('-')
+                                ? 'text-red-600'
+                                : ''
+                          }
+                        >
+                          {aprOracleResult.percentChange}
+                        </span>
+                      ) : (
+                        'N/A'
+                      )
+                    ) : (
+                      'query to generate'
+                    )}
                   </div>
                 </div>
               </div>
