@@ -26,7 +26,10 @@ export const getNowUnix = () => toUnixTime(Date.now())
  * @param bn
  * @param scale (decimals)
  */
-export const exactToSimple = (bn?: bigint | string | number, scale?: number) => {
+export const exactToSimple = (
+  bn?: bigint | string | number,
+  scale?: number
+) => {
   // BigNumbers can be returned by wagmi's query cache. This should happen
   // once per-browser sesion until wagmi's localStorage is cleared or overwritten.
   let res = bn
@@ -77,7 +80,10 @@ export const formatValue = (value: number, format?: numbro.Format): string => {
  * @param value
  * @param format
  */
-export const formatCurrency = (value: number, format?: numbro.Format): string => {
+export const formatCurrency = (
+  value: number,
+  format?: numbro.Format
+): string => {
   return numbro(getSafeValue(value)).formatCurrency({
     mantissa: 2,
     average: true,
@@ -90,7 +96,10 @@ export const formatCurrency = (value: number, format?: numbro.Format): string =>
  * @param value
  * @param format
  */
-export const formatPercent = (value: number, format?: numbro.Format): string => {
+export const formatPercent = (
+  value: number,
+  format?: numbro.Format
+): string => {
   return numbro(getSafeValue(value)).format({
     mantissa: 2,
     average: false,
@@ -109,7 +118,7 @@ export const formatPercent = (value: number, format?: numbro.Format): string => 
 export const replaceStrings = (
   inputString: string,
   stringsToReplace: string[],
-  replacement: string,
+  replacement: string
 ): string => {
   return stringsToReplace.reduce((outputString, stringToReplace) => {
     const regex = new RegExp(stringToReplace, 'g')
@@ -121,10 +130,11 @@ export const replaceNetworkPath = (path: string, newNetwork?: string) =>
   path.replace(/\/(\d+)/, newNetwork ? `/${newNetwork}` : '')
 
 export const maxUint256 = BigInt(
-  '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+  '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
 )
 
-export const hashZero = '0x0000000000000000000000000000000000000000000000000000000000000000'
+export const hashZero =
+  '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 export function parseInputNumberString(input: string): string {
   const result = input.replace(/[^\d.,]/g, '').replace(/,/g, '.')
@@ -139,3 +149,5 @@ export function parseInputNumberString(input: string): string {
 
 export const scale = (bal?: bigint, val?: number, decimals?: number) =>
   ((bal || 0n) * simpleToExact(val || 0)) / BigInt(10 ** (decimals || 18))
+
+export * from './apr'
