@@ -12,8 +12,11 @@ import { Modal } from '@/components/shared/Modal'
 import { SlidingModal } from '@/components/shared/SlidingModal'
 import { CHAIN_ID_TO_NAME } from '@/constants/chains'
 import YearnLoader from '@/components/shared/YearnLoader'
-import { useAprOracle, calculateDelta } from '@/hooks/useAprOracle'
+import { useAprOracle } from '@/hooks/useAprOracle'
+import { calculateDelta } from '@yearn-oracle-watch/sdk'
 import { useTokenPrices, findTokenPrice } from '@/hooks/useTokenPrices'
+import { Address } from 'viem'
+import { SupportedChain } from '@/config/supportedChains'
 
 // Search utility function
 const searchVaults = (vaults: VaultWithLogos[], searchTerm: string) => {
@@ -109,8 +112,15 @@ const VaultQueryCard: React.FC = () => {
   }
 
   // APR Oracle integration
-  const aprOracleResult = useAprOracle({
-    vaultAddress: selectedVault?.address,
+  const {
+    data: aprOracleResult,
+    isLoading: isAprOracleLoading,
+    error: aprOracleError,
+  } = useAprOracle({
+    vault: {
+      address: selectedVault?.address as Address,
+      chainId: selectedVault?.chainId as SupportedChain,
+    },
     delta: deltaValue,
   })
 
@@ -327,11 +337,11 @@ const VaultQueryCard: React.FC = () => {
                   </div>
                   <div className="flex-1 text-right text-[#9E9E9E] text-base font-normal leading-8 font-aeonik-mono">
                     {selectedVault?.address
-                      ? aprOracleResult.isLoading
+                      ? isAprOracleLoading
                         ? 'Loading...'
-                        : aprOracleResult.error
+                        : aprOracleError
                           ? 'Error loading APR'
-                          : aprOracleResult.currentApr
+                          : aprOracleResult?.currentApr
                             ? aprOracleResult.currentApr
                             : 'N/A'
                       : 'select vault to see'}
@@ -343,11 +353,11 @@ const VaultQueryCard: React.FC = () => {
                   </div>
                   <div className="flex-1 text-right text-[#9E9E9E] text-base font-normal leading-8 font-aeonik-mono">
                     {deltaValue !== undefined
-                      ? aprOracleResult.isLoading
+                      ? isAprOracleLoading
                         ? 'Loading...'
-                        : aprOracleResult.error
+                        : aprOracleError
                           ? 'Error loading APR'
-                          : aprOracleResult.projectedApr
+                          : aprOracleResult?.projectedApr
                             ? aprOracleResult.projectedApr
                             : 'N/A'
                       : 'query to generate'}
@@ -359,10 +369,10 @@ const VaultQueryCard: React.FC = () => {
                   </div>
                   <div className="flex-1 text-right text-[#9E9E9E] text-base font-normal leading-8 font-aeonik-mono">
                     {deltaValue !== undefined ? (
-                      aprOracleResult.percentChange ? (
+                      aprOracleResult?.percentChange ? (
                         <span
                           className={
-                            aprOracleResult.percentChange.startsWith('+')
+                            aprOracleResult?.percentChange.startsWith('+')
                               ? 'text-green-600'
                               : aprOracleResult.percentChange.startsWith('-')
                                 ? 'text-red-600'
