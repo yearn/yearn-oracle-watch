@@ -68,10 +68,10 @@ const VaultQueryCard: React.FC = () => {
     <div className="w-full h-full pb-16 flex justify-center items-center gap-4">
       <div className="w-[500px] h-full max-h-[500px] flex flex-col justify-start items-start gap-2.5">
         <div className="w-full flex-1 p-3 bg-white/10 rounded-[36px] flex flex-col justify-start items-start gap-2.5">
-          <div className="w-full flex-1 p-2 bg-white rounded-[30px] overflow-hidden flex justify-start items-center gap-5">
-            <div className="flex-1 self-stretch px-3 py-[14px] rounded-[12px] flex flex-col justify-start items-center gap-5">
+          <div className="w-full flex-1 p-2 bg-white rounded-[30px] overflow-visible flex justify-start items-center gap-5">
+            <div className="flex-1 self-stretch px-3 py-[14px] rounded-[12px] overflow-visible flex flex-col justify-start items-center gap-5">
               {/* Select Vault */}
-              <div className="w-full p-2 overflow-hidden border-b border-[#1A51B2] flex flex-col justify-center items-start gap-2">
+              <div className="w-full p-2 overflow-visible border-b border-[#1A51B2] flex flex-col justify-center items-start gap-2">
                 <div className="px-3 flex justify-center items-center gap-2.5">
                   <div className="text-[#1E1E1E] text-base font-normal leading-8 font-aeonik">
                     Select a Yearn Vault to Query:

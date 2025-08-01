@@ -233,8 +233,10 @@ export function withMetadata<P extends object>(
         <div
           style={{
             position: 'relative',
-            display: 'inline-block',
-            overflow: 'hidden',
+            display: 'block', // Changed from 'inline-block' to allow full width
+            overflow: 'visible',
+            width: '100%', // Make sure wrapper takes full width
+            height: '100%', // Make sure wrapper takes full height
           }}
         >
           {/* Sliding binary panel - only show if metadata is enabled */}
@@ -242,47 +244,36 @@ export function withMetadata<P extends object>(
             <div
               style={{
                 position: 'absolute',
-                left: 0,
-                top: 0,
-                bottom: 0,
-                width: '40px',
+                left: isHovered ? '-5px' : '5px', // Slide out to the left on hover, default position under button
+                top: '0', // Start from the top of the button
+                bottom: '0', // Extend to the bottom of the button
+                width: '36px', // Make it larger
                 background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-                transform: isHovered ? 'translateX(0)' : 'translateX(-100%)',
-                transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                transition: 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 zIndex: 1,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '8px',
+                fontSize: '7px', // Slightly larger font for bigger panel
                 fontFamily: 'monospace',
-                color: 'rgba(255, 255, 255, 0.7)',
-                lineHeight: '10px',
+                color: 'rgba(255, 255, 255, 0.8)',
+                lineHeight: '9px',
                 writingMode: 'vertical-rl',
                 textOrientation: 'mixed',
                 userSelect: 'none',
                 pointerEvents: 'none',
+                borderRadius: '16px', // Match the button's rounded-[16px] class
               }}
-            >
-              10110100
-              <br />
-              01001011
-              <br />
-              11010110
-              <br />
-              00110101
-            </div>
+            />
           )}
 
-          {/* Main component with slide animation */}
+          {/* Main component - no longer moves */}
           <div
             style={{
-              transform:
-                enableMetadata && metadataConfig && isHovered
-                  ? 'translateX(35px)'
-                  : 'translateX(0)',
-              transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               position: 'relative',
               zIndex: 2,
+              width: '100%', // Ensure button takes full width
+              height: '100%', // Ensure button takes full height
             }}
           >
             <WrappedComponent {...enhancedProps} />
