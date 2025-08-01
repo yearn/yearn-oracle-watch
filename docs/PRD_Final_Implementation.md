@@ -463,7 +463,7 @@ const debouncedSearch = useMemo(
 
 **Search Input Enhancement:**
 
-- Replace placeholder search inputs in both `Modal` and `SlidingModal`
+- Replace placeholder search inputs in `Modal`
 - Add clear button when search term exists
 - Highlight matching text in results
 - Empty state when no results found
@@ -489,7 +489,7 @@ const ModalData: React.FC<ModalDataProps> = ({
 ### **Integration Points**
 
 - `VaultQueryCard.tsx`: Search state management
-- `Modal.tsx` & `SlidingModal.tsx`: Search input implementation
+- `Modal.tsx`: Search input implementation
 - `ModalData.tsx`: Filtered results display
 
 ### **Acceptance Criteria**

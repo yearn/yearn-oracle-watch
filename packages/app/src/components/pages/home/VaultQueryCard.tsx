@@ -15,6 +15,32 @@ import YearnLoader from '@/components/shared/YearnLoader'
 import { useAprOracle, calculateDelta } from '@/hooks/useAprOracle'
 import { useTokenPrices, findTokenPrice } from '@/hooks/useTokenPrices'
 
+// Search utility function
+const searchVaults = (vaults: VaultWithLogos[], searchTerm: string) => {
+  if (!searchTerm.trim()) return vaults
+
+  const term = searchTerm.toLowerCase()
+
+  return vaults.filter(
+    (vault) =>
+      vault.name?.toLowerCase().includes(term) ||
+      CHAIN_ID_TO_NAME[Number(vault.chainId)]?.toLowerCase().includes(term) ||
+      vault.address?.toLowerCase().includes(term)
+  )
+}
+
+// Debounce utility function
+const debounce = <T extends (...args: any[]) => void>(
+  func: T,
+  delay: number
+): ((...args: Parameters<T>) => void) => {
+  let timeoutId: NodeJS.Timeout
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => func(...args), delay)
+  }
+}
+
 const VaultQueryCard: React.FC = () => {
   // State and handlers at the top
   const [selectedAsset, setSelectedAsset] = React.useState('USD')
@@ -24,6 +50,10 @@ const VaultQueryCard: React.FC = () => {
   const [deltaValue, setDeltaValue] = React.useState<bigint | undefined>(
     undefined
   )
+  const [searchTerm, setSearchTerm] = React.useState('')
+  const [filteredVaults, setFilteredVaults] = React.useState<VaultWithLogos[]>(
+    []
+  )
 
 
   const handleSelectVault = () => {
@@ -31,6 +61,7 @@ const VaultQueryCard: React.FC = () => {
   }
   const handleCloseVaultModal = () => {
     setVaultModalOpen(false)
+    setSearchTerm('') // Clear search when closing modal
   }
   const handleOpenSlidingModal = () => {
     setSlidingModalOpen(true)
@@ -44,6 +75,38 @@ const VaultQueryCard: React.FC = () => {
   const { data: pricesData } = useTokenPrices()
   const inputHook = useInput(18) // Use actual useInput hook with 18 decimals
   const [inputValue] = inputHook
+
+  // Debounced search implementation
+  const debouncedSearch = React.useMemo(
+    () =>
+      debounce((term: string) => {
+        const filtered = searchVaults(data || [], term)
+        setFilteredVaults(filtered)
+      }, 150),
+    [data]
+  )
+
+  // Effect to handle search term changes
+  React.useEffect(() => {
+    if (data) {
+      debouncedSearch(searchTerm)
+    }
+  }, [searchTerm, data, debouncedSearch])
+
+  // Initialize filtered vaults when data loads
+  React.useEffect(() => {
+    if (data && !searchTerm) {
+      setFilteredVaults(data)
+    }
+  }, [data, searchTerm])
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value)
+  }
+
+  const clearSearch = () => {
+    setSearchTerm('')
+  }
 
   // APR Oracle integration
   const aprOracleResult = useAprOracle({
@@ -160,19 +223,30 @@ const VaultQueryCard: React.FC = () => {
                 onClose={handleCloseVaultModal}
                 title={
                   <div className="flex items-center gap-2 w-full">
-                    <input
-                      type="text"
-                      placeholder="Search vaults..."
-                      className="flex-1 px-4 py-2 rounded-lg bg-gray-0 text-base font-aeonik"
-                      value={''}
-                      onChange={() => {}}
-                      // TODO: Implement search state and logic
-                    />
+                    <div className="relative flex-1">
+                      <input
+                        type="text"
+                        placeholder="Search vaults..."
+                        className="flex-1 w-full px-4 py-2 pr-10 rounded-lg bg-gray-0 text-base font-aeonik"
+                        value={searchTerm}
+                        onChange={(e) => handleSearchChange(e.target.value)}
+                      />
+                      {searchTerm && (
+                        <button
+                          onClick={clearSearch}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                          type="button"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
                   </div>
                 }
               >
                 <ModalData
-                  data={data}
+                  data={filteredVaults}
+                  searchTerm={searchTerm}
                   isLoading={isLoading}
                   error={error}
                   onClose={handleCloseVaultModal}
@@ -320,6 +394,7 @@ export default VaultQueryCard
 
 type ModalDataProps = {
   data?: VaultWithLogos[]
+  searchTerm?: string
   isLoading?: boolean
   error?: Error | null
   onClose: () => void
@@ -328,6 +403,7 @@ type ModalDataProps = {
 
 const ModalData: React.FC<ModalDataProps> = ({
   data,
+  searchTerm,
   isLoading,
   error,
   onClose,
@@ -363,48 +439,98 @@ const ModalData: React.FC<ModalDataProps> = ({
 
   const vaults = Array.isArray(data) && data.length > 0 ? data : []
 
+  // Empty state when no results found after search
+  if (searchTerm && searchTerm.trim() && vaults.length === 0) {
+    return (
+      <div className="flex flex-col gap-4 p-4">
+        <div className="flex flex-col justify-center items-center h-32 gap-2">
+          <div className="text-gray-500 text-lg">No vaults found</div>
+          <div className="text-gray-400 text-sm">
+            Try searching for a different vault name, chain, or address
+          </div>
+        </div>
+        <Button className="mt-4" variant="outlined" onClick={onClose}>
+          Close
+        </Button>
+      </div>
+    )
+  }
+
+  // Helper function to highlight matching text
+  const highlightMatch = (text: string, searchTerm?: string) => {
+    if (!searchTerm || !searchTerm.trim()) return text
+
+    const term = searchTerm.toLowerCase()
+    const lowerText = text.toLowerCase()
+    const index = lowerText.indexOf(term)
+
+    if (index === -1) return text
+
+    const before = text.slice(0, index)
+    const match = text.slice(index, index + term.length)
+    const after = text.slice(index + term.length)
+
+    return (
+      <>
+        {before}
+        <span className="bg-yellow-200 font-semibold">{match}</span>
+        {after}
+      </>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-4 p-4">
+      {/* Search results count */}
+      {searchTerm && searchTerm.trim() && (
+        <div className="text-sm text-gray-600 px-2">
+          {vaults.length} vault{vaults.length !== 1 ? 's' : ''} found
+        </div>
+      )}
+
       {/* Vault List */}
       <div
         className="overflow-y-auto w-full"
         style={{ maxHeight: 350, minHeight: 100 }}
       >
-        {vaults.map((vault, idx) => (
-          <div
-            key={vault.address || idx}
-            className="h-[70px] px-6 py-1 bg-gray-100/50 overflow-hidden rounded-[16px] flex items-center gap-2 mb-3 cursor-pointer hover:bg-gray-200/50"
-            onClick={() => onSelect(vault)}
-          >
-            <div className="flex items-center gap-2 px-2">
-              <img
-                className="w-8 h-8 min-w-8 min-h-8 max-w-8 max-h-8 relative"
-                src={
-                  vault.logos?.asset ||
-                  vault.preloadedImages?.asset?.src ||
-                  'https://placehold.co/32x32/cccccc/666666?text=?'
-                }
-                alt={vault.name as string}
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  e.currentTarget.src =
+        {vaults.map((vault, idx) => {
+          const chainName = CHAIN_ID_TO_NAME[Number(vault.chainId)]
+          return (
+            <div
+              key={vault.address || idx}
+              className="h-[70px] px-6 py-1 bg-gray-100/50 overflow-hidden rounded-[16px] flex items-center gap-2 mb-3 cursor-pointer hover:bg-gray-200/50"
+              onClick={() => onSelect(vault)}
+            >
+              <div className="flex items-center gap-2 px-2">
+                <img
+                  className="w-8 h-8 min-w-8 min-h-8 max-w-8 max-h-8 relative"
+                  src={
+                    vault.logos?.asset ||
+                    vault.preloadedImages?.asset?.src ||
                     'https://placehold.co/32x32/cccccc/666666?text=?'
-                }}
-              />
-              <div className="flex flex-col items-start justify-start">
-                <div className="text-[#1E1E1E] text-[16px] font-aeonik font-normal leading-5">
-                  {vault.name}
-                </div>
-                <div className="text-center text-[#3D3D3D] text-[10px] font-aeonik font-normal leading-[14px]">
-                  {CHAIN_ID_TO_NAME[Number(vault.chainId)]}
-                </div>
-                <div className="text-center text-[#3D3D3D] text-[10px] font-aeonik font-normal leading-[14px]">
-                  {vault.address}
+                  }
+                  alt={vault.name as string}
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    e.currentTarget.src =
+                      'https://placehold.co/32x32/cccccc/666666?text=?'
+                  }}
+                />
+                <div className="flex flex-col items-start justify-start">
+                  <div className="text-[#1E1E1E] text-[16px] font-aeonik font-normal leading-5">
+                    {highlightMatch(vault.name || '', searchTerm)}
+                  </div>
+                  <div className="text-center text-[#3D3D3D] text-[10px] font-aeonik font-normal leading-[14px]">
+                    {highlightMatch(chainName || '', searchTerm)}
+                  </div>
+                  <div className="text-center text-[#3D3D3D] text-[10px] font-aeonik font-normal leading-[14px]">
+                    {highlightMatch(vault.address || '', searchTerm)}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
       <Button className="mt-4" variant="outlined" onClick={onClose}>
         Close
