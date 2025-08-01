@@ -1,10 +1,11 @@
-export type ChainId = 1 | 10 | 100 | 137 | 250 | 8453 | 42161 | 747474
+export type ChainId = 1 | 10 | 100 | 137 | 146 | 250 | 8453 | 42161 | 747474
 
 export const CHAIN_ID_TO_NAME: Record<number, string> = {
   1: 'Ethereum',
   10: 'Optimism',
   100: 'GnosisChain',
   137: 'Polygon',
+  146: 'Sonic',
   250: 'Fantom',
   8453: 'Base',
   42161: 'Arbitrum',
@@ -24,6 +25,7 @@ export const CHAIN_ID_TO_ICON: Record<number, string> = {
   10: 'https://token-assets-one.vercel.app/api/chains/10/logo-32.png',
   100: 'https://token-assets-one.vercel.app/api/chains/100/logo-32.png',
   137: 'https://token-assets-one.vercel.app/api/chains/137/logo-32.png',
+  146: 'https://token-assets-one.vercel.app/api/chains/146/logo-32.png',
   250: 'https://token-assets-one.vercel.app/api/chains/250/logo-32.png',
   8453: 'https://token-assets-one.vercel.app/api/chains/8453/logo-32.png',
   42161: 'https://token-assets-one.vercel.app/api/chains/42161/logo-32.png',
@@ -36,6 +38,7 @@ export const CHAIN_ID_TO_BLOCK_EXPLORER: Record<number, string> = {
   10: 'https://optimistic.etherscan.io',
   100: 'https://gnosisscan.io/',
   137: 'https://polygonscan.com',
+  146: 'https://sonicscan.org',
   250: 'https://ftmscan.com',
   8453: 'https://basescan.org/',
   42161: 'https://arbiscan.io',

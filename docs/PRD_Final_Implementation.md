@@ -204,8 +204,8 @@ As a user, I want to see current and projected APY values for vaults so I can un
 
 #### **Contract Function Usage**
 
-- **Current APY:** `getWeightedAverageApr(_vault, 0)`
-- **Projected APY:** `getWeightedAverageApr(_vault, _delta)`
+- **Current APY:** `getExpectedApr(_vault, 0)`
+- **Projected APY:** `getExpectedApr(_vault, _delta)`
 - **Delta Calculation:** User input converted to vault asset decimals
 
 #### **Hook Implementation**
@@ -214,15 +214,15 @@ As a user, I want to see current and projected APY values for vaults so I can un
 
 ```typescript
 import { Address } from 'viem'
-import { useAprOracleGetWeightedAverageApr } from '@contracts/wagmi'
+import { useAprOracleGetExpectedApr } from '@contracts/wagmi'
 
 export const useAprOracle = (vaultAddress?: string, delta?: bigint) => {
-  const currentApr = useAprOracleGetWeightedAverageApr({
+  const currentApr = useAprOracleGetExpectedApr({
     args: vaultAddress ? [vaultAddress as Address, 0n] : undefined,
     query: { enabled: !!vaultAddress }
   })
   
-  const projectedApr = useAprOracleGetWeightedAverageApr({
+  const projectedApr = useAprOracleGetExpectedApr({
     args: vaultAddress && delta ? [vaultAddress as Address, delta] : undefined,
     query: { enabled: !!vaultAddress && delta !== undefined }
   })
@@ -514,43 +514,46 @@ const ModalData: React.FC<ModalDataProps> = ({
    - ✅ Added proper TypeScript types and exports
    - ✅ All builds pass successfully
 
-2. **APR Oracle Hooks** 🔄 **IN PROGRESS**
-   - Create `useAprOracle` hook with wagmi contract calls
-   - Implement delta calculation logic
-   - Wire up to existing APR display in VaultQueryCard
+2. **APR Oracle Hooks** ✅ **COMPLETED**
+   - ✅ Created `useAprOracle` hook with wagmi contract calls
+   - ✅ Implemented delta calculation logic with robust error handling
+   - ✅ Wired up to existing APR display in VaultQueryCard
+   - ✅ Added proper formatting utilities (formatApr, calculatePercentChange)
+   - ✅ Integrated with price conversion for USD denomination switching
+   - ✅ All builds pass successfully
 
 ### **Phase 2: Data Layer (Day 2)**
 
-3. **Kong Data Integration**
+1. **Kong Data Integration**
    - Create `useKongData` hook for vault lists
    - Create `useVaultMetadata` hook for individual vault details
    - Separate concerns from APR Oracle logic
 
-4. **Architecture Validation**
+2. **Architecture Validation**
    - Ensure all hooks follow SDK DataSource pattern
    - Remove any direct API calls from app layer
    - Implement proper error handling and caching
 
 ### **Phase 3: Core Features (Day 3)**
 
-5. **Denomination Switching**
+1. **Denomination Switching**
    - Enhance InputDepositAmount with conversion logic
    - Implement state management for denomination
    - Add price-based conversion using `findTokenPrice`
 
-6. **Search Functionality**
+2. **Search Functionality**
    - Implement debounced search logic
    - Update modal components with functional search
    - Add filtering and empty states
 
 ### **Phase 4: Polish & Testing (Day 4)**
 
-7. **Integration Testing**
+1. **Integration Testing**
    - End-to-end user flow testing
    - Error handling validation
    - Performance optimization
 
-8. **UI/UX Refinements**
+2. **UI/UX Refinements**
    - Loading states and error messages
    - Animation improvements
    - Accessibility enhancements
