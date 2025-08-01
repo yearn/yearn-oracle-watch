@@ -39,3 +39,14 @@ When installing components or running commands in this project, please follow th
 - `"preinstall": "npx only-allow bun",` is set in the package.json under scripts. Please use Bun for all commands that involve a package manager.
 - when installing shadcn components, use `bunx shadcn@latest add <component-name>`
 - After installing a shadcn component, it is necessary to change the import path for cn from `import { cn } from "@/lib/utils"` to `import { cn } from "@/utils/cn"`
+
+## SDK Development Workflow
+
+When making changes to the SDK (`packages/sdk`), follow these steps in order:
+
+1. Make your changes to the SDK source files
+2. Run codegen: `cd packages/sdk && bun run codegen`
+3. Build the SDK: `bun run build` (from the SDK directory)
+4. Restart the development server to pick up the changes
+
+This ensures that any GraphQL codegen updates are applied and the SDK is properly rebuilt before the app tries to use the new functionality.
