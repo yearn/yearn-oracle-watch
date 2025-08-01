@@ -51,22 +51,66 @@ export class KongDataSource extends BaseDataSource {
   protected onDispose(): void {}
 
   public async getVaultsData(): Promise<NonNullableVaultData[]> {
-    const data = await this.gql.GetVaultData()
-    const vaults = (data.vaults || [])
-      .filter((vault): vault is NonNullable<typeof vault> => vault !== null)
-      .map((vault) => ({
-        address: (vault.address || '') as Address,
-        symbol: vault.symbol || '',
-        name: vault.name || '',
-        chainId: vault.chainId || 0,
-        asset: {
-          decimals: vault.asset?.decimals || 0,
-          address: (vault.asset?.address || '') as Address,
-          name: vault.asset?.name || '',
-          symbol: vault.asset?.symbol || '',
-        },
-      }))
-    return filterVaultsByChainIds(vaults, [747474, 250])
+    const start = performance.now()
+    let apiLogId = `kong-getVaultsData-${Date.now()}`
+    this.debugger.logApiCall({
+      id: apiLogId,
+      timestamp: Date.now(),
+      endpoint: 'GetVaultData',
+      method: 'GRAPHQL',
+      status: 'pending',
+      source: 'kong',
+      request: {},
+    })
+    try {
+      const data = await this.gql.GetVaultData()
+      const vaults = (data.vaults || [])
+        .filter((vault): vault is NonNullable<typeof vault> => vault !== null)
+        .map((vault) => ({
+          address: (vault.address || '') as Address,
+          symbol: vault.symbol || '',
+          name: vault.name || '',
+          chainId: vault.chainId || 0,
+          asset: {
+            decimals: vault.asset?.decimals || 0,
+            address: (vault.asset?.address || '') as Address,
+            name: vault.asset?.name || '',
+            symbol: vault.asset?.symbol || '',
+          },
+        }))
+      this.debugger.logApiCall({
+        id: apiLogId,
+        timestamp: Date.now(),
+        endpoint: 'GetVaultData',
+        method: 'GRAPHQL',
+        status: 'success',
+        duration: performance.now() - start,
+        source: 'kong',
+        request: {},
+        response: { data },
+      })
+      this.debugger.logDataTransform({
+        id: `kong-transform-${Date.now()}`,
+        timestamp: Date.now(),
+        source: 'getVaultsData',
+        input: data,
+        output: vaults,
+      })
+      return vaults
+    } catch (error) {
+      this.debugger.logApiCall({
+        id: apiLogId,
+        timestamp: Date.now(),
+        endpoint: 'GetVaultData',
+        method: 'GRAPHQL',
+        status: 'error',
+        duration: performance.now() - start,
+        source: 'kong',
+        request: {},
+        response: { error },
+      })
+      throw error
+    }
   }
 
   public async getVaultMetadata(address: string, chainId: number) {
