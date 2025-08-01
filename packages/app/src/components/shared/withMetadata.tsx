@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react'
 import type { ComponentType } from 'react'
-import MetadataModal from '@/components/shared/MetadataModal'
+import { useMetadataContext } from '@/context/MetadataContext'
 import type { EntityType } from '@/hooks/useMetadata'
 
 export interface MetadataConfig {
@@ -16,8 +16,7 @@ export interface WithMetadataProps {
 
 export interface MetadataActions {
   showMetadata: () => void
-  hideMetadata: () => void
-  isMetadataOpen: boolean
+  isMetadataEnabled: boolean
 }
 
 /**
@@ -43,19 +42,15 @@ export function withMetadata<P extends object>(
 ): ComponentType<P & WithMetadataProps> {
   const MetadataEnhancedComponent = (props: P & WithMetadataProps) => {
     const { enableMetadata = false, metadataConfig, ...wrappedProps } = props
+    const { openMetadata } = useMetadataContext()
 
-    const [isMetadataOpen, setIsMetadataOpen] = useState(false)
     const [isHovered, setIsHovered] = useState(false)
 
     const showMetadata = useCallback(() => {
       if (enableMetadata && metadataConfig) {
-        setIsMetadataOpen(true)
+        openMetadata(metadataConfig)
       }
-    }, [enableMetadata, metadataConfig])
-
-    const hideMetadata = useCallback(() => {
-      setIsMetadataOpen(false)
-    }, [])
+    }, [enableMetadata, metadataConfig, openMetadata])
 
     const handleMiddleClick = useCallback(
       (event: React.MouseEvent) => {
@@ -191,8 +186,7 @@ export function withMetadata<P extends object>(
       // Add metadata actions for components that want to trigger metadata programmatically
       metadataActions: {
         showMetadata,
-        hideMetadata,
-        isMetadataOpen,
+        isMetadataEnabled: enableMetadata && !!metadataConfig,
       } as MetadataActions,
       // Add event handlers for middle-click detection
       onClick: handleClick,
@@ -279,15 +273,6 @@ export function withMetadata<P extends object>(
             <WrappedComponent {...enhancedProps} />
           </div>
         </div>
-        {enableMetadata && metadataConfig && (
-          <MetadataModal
-            isOpen={isMetadataOpen}
-            onClose={hideMetadata}
-            entityType={metadataConfig.entityType}
-            entityId={metadataConfig.entityId}
-            chainId={metadataConfig.chainId}
-          />
-        )}
       </>
     )
   }

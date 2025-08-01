@@ -124,9 +124,9 @@ const generateExternalLinks = (
 
   return {
     analytics: `https://yearn-powerglove.vercel.app/vaults/${chainId}/${address}`,
-    userInterface: `https://yearn.fi/vault/${chainId}/${address}`,
+    userInterface: `https://yearn.fi/v3/${chainId}/${address}`,
     blockExplorer: `${blockExplorer}/address/${address}`,
-    github: 'https://github.com/yearn/yearn-vaults-v3',
+    github: 'https://github.com/yearn',
   }
 }
 

@@ -5,12 +5,11 @@ import {
   type LoadingState,
 } from '@/hooks/useVaultsWithLogos'
 import Button from '@/components/shared/Button'
-import VaultSelectButton, {
-  type KongVault,
-} from '@/components/shared/VaultSelectButton'
+import VaultSelectButton from '@/components/shared/VaultSelectButton'
 import { InputDepositAmount } from '@/components/shared/InputDepositAmount'
 import { useInput } from '@/hooks/useInput'
 import { Modal } from '@/components/shared/Modal'
+import { SlidingModal } from '@/components/shared/SlidingModal'
 import { CHAIN_ID_TO_NAME } from '@/constants/chains'
 import YearnLoader from '@/components/shared/YearnLoader'
 
@@ -19,11 +18,18 @@ const VaultQueryCard: React.FC = () => {
   const [selectedAsset, setSelectedAsset] = React.useState('USD')
   const [selectedVault, setSelectedVault] = React.useState({} as VaultWithLogos)
   const [vaultModalOpen, setVaultModalOpen] = React.useState(false)
+  const [slidingModalOpen, setSlidingModalOpen] = React.useState(false)
   const handleSelectVault = () => {
     setVaultModalOpen(true)
   }
   const handleCloseVaultModal = () => {
     setVaultModalOpen(false)
+  }
+  const handleOpenSlidingModal = () => {
+    setSlidingModalOpen(true)
+  }
+  const handleCloseSlidingModal = () => {
+    setSlidingModalOpen(false)
   }
   const handleQuery = () => {
     alert('Query AprOracle')
@@ -80,6 +86,13 @@ const VaultQueryCard: React.FC = () => {
                 <VaultSelectButton
                   selectedVault={selectedVault as any} // VaultWithLogos is compatible with KongVault
                   onClick={handleSelectVault}
+                  onAuxClick={(e) => {
+                    if (e.button === 1) {
+                      // Middle mouse button
+                      e.preventDefault()
+                      handleOpenSlidingModal()
+                    }
+                  }}
                   disabled={isLoading}
                   enableMetadata={!!selectedVault?.address}
                   metadataConfig={
@@ -121,6 +134,34 @@ const VaultQueryCard: React.FC = () => {
                   }}
                 />
               </Modal>
+              {/* Vault Select Sliding Modal - New sliding modal for secondary clicks */}
+              <SlidingModal
+                open={slidingModalOpen}
+                onClose={handleCloseSlidingModal}
+                title={
+                  <div className="flex items-center gap-2 w-full">
+                    <input
+                      type="text"
+                      placeholder="Search vaults..."
+                      className="flex-1 px-4 py-2 rounded-lg bg-gray-0 text-base font-aeonik"
+                      value={''}
+                      onChange={() => {}}
+                      // TODO: Implement search state and logic
+                    />
+                  </div>
+                }
+              >
+                <ModalData
+                  data={data}
+                  isLoading={isLoading}
+                  error={error}
+                  onClose={handleCloseSlidingModal}
+                  onSelect={(vault) => {
+                    setSelectedVault(vault as VaultWithLogos)
+                    handleCloseSlidingModal()
+                  }}
+                />
+              </SlidingModal>
 
               {/* Amount to Deposit */}
               <div className="w-full p-2 overflow-hidden border-b border-[#1A51B2] flex flex-col justify-center items-start">
