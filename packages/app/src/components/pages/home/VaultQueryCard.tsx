@@ -5,11 +5,12 @@ import {
   type LoadingState,
 } from '@/hooks/useVaultsWithLogos'
 import Button from '@/components/shared/Button'
-import VaultSelectButton from '@/components/shared/VaultSelectButton'
+import VaultSelectButton, {
+  type KongVault,
+} from '@/components/shared/VaultSelectButton'
 import { InputDepositAmount } from '@/components/shared/InputDepositAmount'
 import { useInput } from '@/hooks/useInput'
 import { Modal } from '@/components/shared/Modal'
-import { SlidingModal } from '@/components/shared/SlidingModal'
 import { CHAIN_ID_TO_NAME } from '@/constants/chains'
 import YearnLoader from '@/components/shared/YearnLoader'
 import { useAprOracle } from '@/hooks/useAprOracle'
@@ -47,9 +48,8 @@ const debounce = <T extends (...args: any[]) => void>(
 const VaultQueryCard: React.FC = () => {
   // State and handlers at the top
   const [selectedAsset, setSelectedAsset] = React.useState('USD')
-  const [selectedVault, setSelectedVault] = React.useState({} as VaultWithLogos)
+  const [selectedVault, setSelectedVault] = React.useState({} as KongVault)
   const [vaultModalOpen, setVaultModalOpen] = React.useState(false)
-  const [slidingModalOpen, setSlidingModalOpen] = React.useState(false)
   const [deltaValue, setDeltaValue] = React.useState<bigint | undefined>(
     undefined
   )
@@ -64,12 +64,6 @@ const VaultQueryCard: React.FC = () => {
   const handleCloseVaultModal = () => {
     setVaultModalOpen(false)
     setSearchTerm('') // Clear search when closing modal
-  }
-  const handleOpenSlidingModal = () => {
-    setSlidingModalOpen(true)
-  }
-  const handleCloseSlidingModal = () => {
-    setSlidingModalOpen(false)
   }
 
   // Data hooks
@@ -193,36 +187,19 @@ const VaultQueryCard: React.FC = () => {
     <div className="w-full h-full pb-16 flex justify-center items-center gap-4">
       <div className="w-[500px] h-full max-h-[500px] flex flex-col justify-start items-start gap-2.5">
         <div className="w-full flex-1 p-3 bg-white/10 rounded-[36px] flex flex-col justify-start items-start gap-2.5">
-          <div className="w-full flex-1 p-2 bg-white rounded-[30px] overflow-visible flex justify-start items-center gap-5">
-            <div className="flex-1 self-stretch px-3 py-[14px] rounded-[12px] overflow-visible flex flex-col justify-start items-center gap-5">
+          <div className="w-full flex-1 p-2 bg-white rounded-[30px] overflow-hidden flex justify-start items-center gap-5">
+            <div className="flex-1 self-stretch px-3 py-[14px] rounded-[12px] flex flex-col justify-start items-center gap-5">
               {/* Select Vault */}
-              <div className="w-full p-2 overflow-visible border-b border-[#1A51B2] flex flex-col justify-center items-start gap-2">
+              <div className="w-full p-2 overflow-hidden border-b border-[#1A51B2] flex flex-col justify-center items-start gap-2">
                 <div className="px-3 flex justify-center items-center gap-2.5">
                   <div className="text-[#1E1E1E] text-base font-normal leading-8 font-aeonik">
                     Select a Yearn Vault to Query:
                   </div>
                 </div>
                 <VaultSelectButton
-                  selectedVault={selectedVault as any} // VaultWithLogos is compatible with KongVault
+                  selectedVault={selectedVault}
                   onClick={handleSelectVault}
-                  onAuxClick={(e) => {
-                    if (e.button === 1) {
-                      // Middle mouse button
-                      e.preventDefault()
-                      handleOpenSlidingModal()
-                    }
-                  }}
                   disabled={isLoading}
-                  enableMetadata={!!selectedVault?.address}
-                  metadataConfig={
-                    selectedVault?.address
-                      ? {
-                          entityType: 'vault',
-                          entityId: selectedVault.address,
-                          chainId: selectedVault.chainId || 1,
-                        }
-                      : undefined
-                  }
                 />
               </div>
               {/* Vault Select Modal */}
@@ -259,50 +236,11 @@ const VaultQueryCard: React.FC = () => {
                   error={error}
                   onClose={handleCloseVaultModal}
                   onSelect={(vault) => {
-                    setSelectedVault(vault as VaultWithLogos)
+                    setSelectedVault(vault as KongVault)
                     handleCloseVaultModal()
                   }}
                 />
               </Modal>
-              {/* Vault Select Sliding Modal - New sliding modal for secondary clicks */}
-              <SlidingModal
-                open={slidingModalOpen}
-                onClose={handleCloseSlidingModal}
-                title={
-                  <div className="flex items-center gap-2 w-full">
-                    <div className="relative flex-1">
-                      <input
-                        type="text"
-                        placeholder="Search vaults..."
-                        className="flex-1 w-full px-4 py-2 pr-10 rounded-lg bg-gray-0 text-base font-aeonik"
-                        value={searchTerm}
-                        onChange={(e) => handleSearchChange(e.target.value)}
-                      />
-                      {searchTerm && (
-                        <button
-                          onClick={clearSearch}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                          type="button"
-                        >
-                          ✕
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                }
-              >
-                <ModalData
-                  data={filteredVaults}
-                  searchTerm={searchTerm}
-                  isLoading={isLoading}
-                  error={error}
-                  onClose={handleCloseSlidingModal}
-                  onSelect={(vault) => {
-                    setSelectedVault(vault as VaultWithLogos)
-                    handleCloseSlidingModal()
-                  }}
-                />
-              </SlidingModal>
 
               {/* Amount to Deposit */}
               <div className="w-full p-2 overflow-hidden border-b border-[#1A51B2] flex flex-col justify-center items-start">

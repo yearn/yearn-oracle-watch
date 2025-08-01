@@ -68,8 +68,4 @@ export class KongDataSource extends BaseDataSource {
       }))
     return filterVaultsByChainIds(vaults, [747474, 250])
   }
-
-  public async getVaultMetadata(address: string, chainId: number) {
-    return await this.gql.GetVaultMetadata({ address, chainId })
-  }
 }

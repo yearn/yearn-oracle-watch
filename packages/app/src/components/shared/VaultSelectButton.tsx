@@ -4,7 +4,6 @@ import { Address, getAddress } from 'viem'
 import { CHAIN_ID_TO_NAME } from '@/constants/chains'
 import { CaretDownIcon } from '@/components/shared/icons/CaretDownIcon'
 import Button from './Button'
-import { withMetadata, type WithMetadataProps } from './withMetadata'
 
 export type KongVault = {
   address?: Address
@@ -24,7 +23,7 @@ type VaultSelectButtonProps = {
 }
 
 const VaultSelectButton: FC<
-  VaultSelectButtonProps & ComponentProps<typeof Button> & WithMetadataProps
+  VaultSelectButtonProps & ComponentProps<typeof Button>
 > = ({ selectedVault, variant, children, className, ...props }) => {
   // Content for selected vault
   const selectedVaultContent = selectedVault?.address ? (
@@ -128,7 +127,4 @@ const VaultSelectButton: FC<
   )
 }
 
-// Create metadata-enabled version of VaultSelectButton
-const VaultSelectButtonWithMetadata = withMetadata(VaultSelectButton)
-
-export default VaultSelectButtonWithMetadata
+export default VaultSelectButton
