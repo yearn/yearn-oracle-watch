@@ -32,33 +32,70 @@ export class CoreDataSource {
     chainId: number,
     delta: bigint
   ) {
+    console.log('🔍 getAprOracleData called with:', {
+      vaultAddress,
+      chainId,
+      delta: delta.toString(),
+    })
+
     const expectedAprContracts = [
       {
         address: aprOracleAddress[chainId as keyof typeof aprOracleAddress],
         abi: aprOracleAbi,
-        functionName: 'getExpectedApr',
-        args: [vaultAddress, 0n],
+        functionName: 'getExpectedApr' as const,
+        args: [vaultAddress, 0n] as const,
         chainId,
       },
       {
         address: aprOracleAddress[chainId as keyof typeof aprOracleAddress],
         abi: aprOracleAbi,
-        functionName: 'getExpectedApr',
-        args: [vaultAddress, delta],
+        functionName: 'getExpectedApr' as const,
+        args: [vaultAddress, delta] as const,
         chainId,
       },
-    ] as any[]
+    ]
+
+    console.log('📋 Contract calls prepared:', {
+      oracleAddress: aprOracleAddress[chainId as keyof typeof aprOracleAddress],
+      contractsCount: expectedAprContracts.length,
+      contracts: expectedAprContracts.map((c) => ({
+        functionName: c.functionName,
+        args: c.args.map((arg: Address | bigint) =>
+          typeof arg === 'bigint' ? arg.toString() : arg
+        ),
+      })),
+    })
 
     const expectedAprResults = await readContracts(this.wagmiConfig, {
       contracts: expectedAprContracts,
     })
 
+    console.log(
+      '📊 Raw contract results:',
+      expectedAprResults.map((result, index) => ({
+        index,
+        status: result.status,
+        result: result.result ? (result.result as bigint).toString() : null,
+        error: result.error,
+      }))
+    )
+
     const [currentApr, projectedApr] = _.chain(expectedAprResults)
       .map((v) => v.result as bigint)
       .value() as [bigint, bigint]
 
+    console.log('🔢 Extracted APR values:', {
+      currentApr: currentApr ? currentApr.toString() : null,
+      projectedApr: projectedApr ? projectedApr.toString() : null,
+    })
+
     const currentAprFormatted = currentApr ? formatApr(currentApr) : null
     const projectedAprFormatted = projectedApr ? formatApr(projectedApr) : null
+
+    console.log('✨ Formatted APR values:', {
+      currentAprFormatted,
+      projectedAprFormatted,
+    })
 
     // Calculate percent change between current and projected APR
     const percentChange = calculatePercentChange(
@@ -66,11 +103,20 @@ export class CoreDataSource {
       projectedAprFormatted
     )
 
-    return {
+    console.log('📈 Calculated percent change:', percentChange)
+
+    const result = {
       currentApr: currentAprFormatted,
       projectedApr: projectedAprFormatted,
       percentChange,
       delta,
     }
+
+    console.log('🎯 Final result:', {
+      ...result,
+      delta: result.delta.toString(),
+    })
+
+    return result
   }
 }
