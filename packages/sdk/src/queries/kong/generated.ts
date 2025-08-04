@@ -100,6 +100,14 @@ export type kong_Debt = {
   totalLossUsd?: Maybe<Scalars['Float']['output']>;
 };
 
+export type kong_Deposit = {
+  amount: Scalars['String']['output'];
+  chainId: Scalars['Int']['output'];
+  recipient: Scalars['String']['output'];
+  shares: Scalars['String']['output'];
+  vaultAddress: Scalars['String']['output'];
+};
+
 export type kong_Erc20 = {
   address?: Maybe<Scalars['String']['output']>;
   chainId?: Maybe<Scalars['Int']['output']>;
@@ -209,6 +217,7 @@ export type kong_Query = {
   accountants?: Maybe<Array<Maybe<kong_Accountant>>>;
   allocator?: Maybe<kong_Allocator>;
   bananas?: Maybe<Scalars['String']['output']>;
+  deposits?: Maybe<Array<Maybe<kong_Deposit>>>;
   latestBlocks?: Maybe<Array<Maybe<kong_LatestBlock>>>;
   monitor?: Maybe<kong_Monitor>;
   newSplitterLogs?: Maybe<Array<Maybe<kong_NewSplitterLog>>>;
@@ -264,6 +273,12 @@ export type kong_QueryAccountantsArgs = {
 export type kong_QueryAllocatorArgs = {
   chainId: Scalars['Int']['input'];
   vault: Scalars['String']['input'];
+};
+
+
+export type kong_QueryDepositsArgs = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  chainId?: InputMaybe<Scalars['Int']['input']>;
 };
 
 

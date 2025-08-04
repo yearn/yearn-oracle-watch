@@ -5,7 +5,7 @@ import {
   type LoadingState,
 } from '@/hooks/useVaultsWithLogos'
 import Button from '@/components/shared/Button'
-import VaultSelectButton from '@/components/shared/VaultSelectButton'
+import { VaultSelectButtonWithDebug as VaultSelectButton } from '@/components/shared/VaultSelectButton'
 import { InputDepositAmount } from '@/components/shared/InputDepositAmount'
 import { useInput } from '@/hooks/useInput'
 import { Modal } from '@/components/shared/Modal'
@@ -213,6 +213,8 @@ const VaultQueryCard: React.FC = () => {
                     }
                   }}
                   disabled={isLoading}
+                  enableDebug={true}
+                  debugLabel="VaultSelectButton"
                   enableMetadata={!!selectedVault?.address}
                   metadataConfig={
                     selectedVault?.address

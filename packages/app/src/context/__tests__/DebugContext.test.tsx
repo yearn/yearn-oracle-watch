@@ -4,7 +4,16 @@ import { DebugProvider, useDebugContext } from '../DebugContext'
 
 describe('DebugContext', () => {
   function TestComponent() {
-    const { isEnabled, logLevel, enabledModules, logs, addLog, clearLogs, setLogLevel, toggleModule } = useDebugContext()
+    const {
+      isEnabled,
+      logLevel,
+      enabledModules,
+      logs,
+      addLog,
+      clearLogs,
+      setLogLevel,
+      toggleModule,
+    } = useDebugContext()
     return (
       <div>
         <span data-testid="enabled">{String(isEnabled)}</span>
@@ -12,8 +21,23 @@ describe('DebugContext', () => {
         <span data-testid="modules">{enabledModules.join(',')}</span>
         <span data-testid="logs">{logs.length}</span>
         <button onClick={() => setLogLevel('warn')}>Set Warn</button>
-        <button onClick={() => toggleModule('performance')}>Toggle Performance</button>
-        <button onClick={() => addLog({ id: '1', timestamp: Date.now(), level: 'info', module: 'api', source: 'test', message: 'msg' })}>Add Log</button>
+        <button onClick={() => toggleModule('performance')}>
+          Toggle Performance
+        </button>
+        <button
+          onClick={() =>
+            addLog({
+              id: '1',
+              timestamp: Date.now(),
+              level: 'info',
+              module: 'api',
+              source: 'test',
+              message: 'msg',
+            })
+          }
+        >
+          Add Log
+        </button>
         <button onClick={clearLogs}>Clear Logs</button>
       </div>
     )
