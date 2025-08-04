@@ -12,7 +12,7 @@ const root = createRoot(document.getElementById('root')!)
 root.render(
   <StrictMode>
     <Providers>
-      <Navigation />
+      <Navigation showConnectButton={false} />
       <ChainGuard>
         <Router>
           <Route path="/" element={<Home />} />

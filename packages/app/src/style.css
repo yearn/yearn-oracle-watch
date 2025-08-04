@@ -38,20 +38,45 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Add Aeonik font custom properties */
+  --font-aeonik: 'Aeonik', sans-serif;
+  --font-aeonik-mono: 'Aeonik Mono', monospace;
+}
+
+@font-face {
+  font-family: 'Aeonik';
+  src:
+    url('/fonts/Aeonik-Regular.woff2') format('woff2'),
+    url('/fonts/Aeonik-Regular.woff') format('woff'),
+    url('/fonts/Aeonik-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aeonik';
+  src:
+    url('/fonts/Aeonik-Bold.woff2') format('woff2'),
+    url('/fonts/Aeonik-Bold.woff') format('woff'),
+    url('/fonts/Aeonik-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
   font-family: 'Aeonik Mono';
-  src: url('public/fonts/AeonikMono-Regular.eot');
+  src: url('/fonts/AeonikMono-Regular.eot');
   src:
     local('Aeonik Mono Regular'),
     local('AeonikMono-Regular'),
-    url('public/fonts/AeonikMono-Regular.eot?#iefix')
-      format('embedded-opentype'),
-    url('public/fonts/AeonikMono-Regular.woff2') format('woff2'),
-    url('public/fonts/AeonikMono-Regular.woff') format('woff'),
-    url('public/fonts/AeonikMono-Regular.ttf') format('truetype'),
-    url('public/fonts/AeonikMono-Regular.svg#AeonikMono-Regular') format('svg');
+    url('/fonts/AeonikMono-Regular.eot?#iefix') format('embedded-opentype'),
+    url('/fonts/AeonikMono-Regular.woff2') format('woff2'),
+    url('/fonts/AeonikMono-Regular.woff') format('woff'),
+    url('/fonts/AeonikMono-Regular.ttf') format('truetype'),
+    url('/fonts/AeonikMono-Regular.svg#AeonikMono-Regular') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -59,15 +84,15 @@
 
 @font-face {
   font-family: 'Aeonik Mono';
-  src: url('public/fonts/AeonikMono-Bold.eot');
+  src: url('/fonts/AeonikMono-Bold.eot');
   src:
     local('Aeonik Mono Bold'),
     local('AeonikMono-Bold'),
-    url('public/fonts/AeonikMono-Bold.eot?#iefix') format('embedded-opentype'),
-    url('public/fonts/AeonikMono-Bold.woff2') format('woff2'),
-    url('public/fonts/AeonikMono-Bold.woff') format('woff'),
-    url('public/fonts/AeonikMono-Bold.ttf') format('truetype'),
-    url('public/fonts/AeonikMono-Bold.svg#AeonikMono-Bold') format('svg');
+    url('/fonts/AeonikMono-Bold.eot?#iefix') format('embedded-opentype'),
+    url('/fonts/AeonikMono-Bold.woff2') format('woff2'),
+    url('/fonts/AeonikMono-Bold.woff') format('woff'),
+    url('/fonts/AeonikMono-Bold.ttf') format('truetype'),
+    url('/fonts/AeonikMono-Bold.svg#AeonikMono-Bold') format('svg');
   font-weight: bold;
   font-style: normal;
   font-display: swap;
@@ -75,7 +100,7 @@
 
 @font-face {
   font-family: 'Aeonik Fono';
-  src: url('public/fonts/AeonikFono-Regular.otf');
+  src: url('/fonts/AeonikFono-Regular.otf');
   src: local('Aeonik Fono Regular'), local('AeonikFono-Regular');
 
   font-weight: normal;
@@ -273,5 +298,15 @@ p {
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Add Aeonik font utility classes */
+@layer utilities {
+  .font-aeonik {
+    font-family: var(--font-aeonik);
+  }
+  .font-aeonik-mono {
+    font-family: var(--font-aeonik-mono);
   }
 }

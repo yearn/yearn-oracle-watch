@@ -41,15 +41,60 @@ const VaultSelectButton: FC<
             'https://placehold.co/32x32/cccccc/666666?text=?'
         }}
       />
-      <div className="flex flex-col items-start justify-start ml-2">
-        <div className="text-[#1E1E1E] text-base font-normal leading-6 font-aeonik">
-          {selectedVault.name}
+      <div className="flex flex-col items-start justify-start ml-2 flex-1 min-w-0">
+        <div
+          className="text-[#1E1E1E] text-base font-normal leading-6 w-full whitespace-nowrap overflow-hidden text-ellipsis text-left"
+          title={selectedVault.name}
+        >
+          <span>{selectedVault.name}</span>
         </div>
         <div className="text-[#1E1E1E] text-xs font-normal leading-4 font-aeonik">
           {CHAIN_ID_TO_NAME[Number(selectedVault.chainId)]}
         </div>
-        <div className="text-[#1E1E1E] text-xs font-normal leading-4 font-aeonik">
-          {selectedVault.address}
+        <div className="flex items-center gap-1">
+          <div className="text-[#1E1E1E] text-xs font-normal leading-4 font-aeonik">
+            {selectedVault.address}
+          </div>
+          <button
+            type="button"
+            className="p-0.5 rounded hover:bg-black/10 transition"
+            onClick={(e) => {
+              e.stopPropagation()
+              if (selectedVault.address) {
+                navigator.clipboard.writeText(selectedVault.address)
+              }
+            }}
+            title="Copy address"
+            tabIndex={0}
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 20 20"
+              fill="none"
+              aria-hidden="true"
+            >
+              <rect
+                x="6"
+                y="6"
+                width="10"
+                height="10"
+                rx="2"
+                stroke="#1E1E1E"
+                strokeWidth="1.5"
+              />
+              <rect
+                x="4"
+                y="4"
+                width="10"
+                height="10"
+                rx="2"
+                stroke="#1E1E1E"
+                strokeWidth="1.5"
+                opacity="0.3"
+              />
+            </svg>
+          </button>
         </div>
       </div>
       <CaretDownIcon className="ml-auto" color="#1E1E1E" />
@@ -73,7 +118,7 @@ const VaultSelectButton: FC<
 
   // Dynamic inner div styling based on content type
   const innerDivClassName = selectedVaultContent
-    ? 'w-full flex-1 px-6 py-1 bg-transparent rounded-[14px] flex justify-center items-center gap-2.5'
+    ? 'w-full flex-1 px-6 py-1 bg-transparent rounded-[14px] flex justify-start items-center gap-2.5'
     : 'w-full flex-1 px-6 py-1 bg-[#1A51B2] hover:bg-[#1c4ca1] rounded-[14px] flex justify-center items-center gap-2.5'
 
   return (

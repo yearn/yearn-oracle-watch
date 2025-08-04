@@ -1,14 +1,44 @@
+import { SupportedChain } from '@/config/supportedChains'
+import { useSdk } from '@/context/Sdk'
 import { useQuery } from '@tanstack/react-query'
-import { useSdk } from '../context/Sdk'
-import { queryKeys } from '../utils/queryKeys'
+import { Address } from 'viem'
 
-export const useAprOracle = () => {
+export interface UseAprOracleParams {
+  vault?: {
+    address: string
+    chainId: number
+  }
+  delta?: bigint
+}
+
+export interface AprOracleResult {
+  currentApr: string | null
+  projectedApr: string | null
+  percentChange: string | null
+  isLoading: boolean
+  error: Error | null
+}
+
+export const useAprOracle = (params?: UseAprOracleParams) => {
+  const { vault, delta: inputDelta } = params || {}
+  const delta = inputDelta !== undefined ? inputDelta : 0n
+  const { address: vaultAddress, chainId } = vault || {}
   const sdk = useSdk()
 
+  console.log('params', params)
+  console.log(
+    `Vault Address: ${vaultAddress}, Chain ID: ${chainId}, Deposit: ${Number(delta)}`
+  )
+
   return useQuery({
-    queryKey: queryKeys.vaults(),
-    queryFn: () => sdk.core.kong.getVaultsData(),
-    staleTime: 0, // seconds * millisenconds
-    gcTime: 0, // seconds * milliseconds
+    queryKey: ['apr-oracle', vaultAddress, chainId, Number(delta)],
+    queryFn: () =>
+      sdk.core.getAprOracleData(
+        vaultAddress as Address,
+        chainId as SupportedChain,
+        delta || 0n
+      ),
+    enabled: !!vaultAddress && !!chainId && delta !== undefined,
+    staleTime: 30_000, // 30 seconds
   })
 }

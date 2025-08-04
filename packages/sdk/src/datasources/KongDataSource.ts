@@ -1,10 +1,22 @@
+/**
+ * Removes vaults from the array that have chainIds matching any in the excludeChainIds array.
+ * @param vaults Array of NonNullableVaultData
+ * @param excludeChainIds Array of chain IDs to exclude
+ * @returns Filtered array of vaults
+ */
+export function filterVaultsByChainIds(
+  vaults: NonNullableVaultData[],
+  excludeChainIds: number[]
+): NonNullableVaultData[] {
+  return vaults.filter((vault) => !excludeChainIds.includes(vault.chainId))
+}
 import { Address } from 'viem'
 import { createCachedSdk } from '../graphql/cache'
 import type { CachedSdk } from '../graphql/types'
 import { getSdk as kong_getSdk } from '../queries/kong/generated'
 import { BaseDataSource } from './BaseDataSource'
 
-type NonNullableVaultData = {
+export type NonNullableVaultData = {
   address: Address
   symbol: string
   name: string
@@ -40,7 +52,7 @@ export class KongDataSource extends BaseDataSource {
 
   public async getVaultsData(): Promise<NonNullableVaultData[]> {
     const data = await this.gql.GetVaultData()
-    return (data.vaults || [])
+    const vaults = (data.vaults || [])
       .filter((vault): vault is NonNullable<typeof vault> => vault !== null)
       .map((vault) => ({
         address: (vault.address || '') as Address,
@@ -54,5 +66,6 @@ export class KongDataSource extends BaseDataSource {
           symbol: vault.asset?.symbol || '',
         },
       }))
+    return filterVaultsByChainIds(vaults, [747474, 250])
   }
 }
