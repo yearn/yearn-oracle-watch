@@ -144,7 +144,6 @@ export const InputDepositAmount: FC<Props> = ({
             'placeholder:text-gray-400',
             'font-aeonik-mono'
           )}
-          style={{ width: '6.5em' }}
         />
         <div className="flex-1 h-1" />
         <DropdownMenu open={open} onOpenChange={setOpen}>
