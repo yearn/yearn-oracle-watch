@@ -1,4 +1,5 @@
 import React from 'react'
+import { useSearchParams } from 'react-router-dom'
 // import {
 //   useVaultsWithLogos,
 //   type VaultWithLogos,
@@ -48,6 +49,9 @@ const debounce = <T extends (...args: any[]) => void>(
 }
 
 const VaultQueryCard: React.FC = () => {
+  // URL search params hook
+  const [searchParams, setSearchParams] = useSearchParams()
+
   // State and handlers at the top
   const [selectedAsset, setSelectedAsset] = React.useState('USD')
   const [selectedVault, setSelectedVault] = React.useState({} as KongVault)
@@ -66,11 +70,48 @@ const VaultQueryCard: React.FC = () => {
     setSearchTerm('') // Clear search when closing modal
   }
 
+  // Function to update URL with vault selection
+  const updateUrlWithVault = (vault: VaultData | null) => {
+    if (vault) {
+      const newParams = new URLSearchParams(searchParams)
+      newParams.set('vault', vault.address)
+      newParams.set('chainId', vault.chainId.toString())
+      setSearchParams(newParams, { replace: true })
+    } else {
+      // Remove vault params when no vault selected
+      const newParams = new URLSearchParams(searchParams)
+      newParams.delete('vault')
+      newParams.delete('chainId')
+      setSearchParams(newParams, { replace: true })
+    }
+  }
+
   // Data hooks
   const { data, isLoading, error } = useGetVaults()
   const { data: pricesData } = useTokenPrices()
-  const inputHook = useInput(18) // Use actual useInput hook with 18 decimals
+  const inputHook = useInput(18)
   const [inputValue] = inputHook
+
+  // Effect to load vault from URL params when data is available
+  React.useEffect(() => {
+    if (data && data.length > 0) {
+      const vaultAddress = searchParams.get('vault')
+      const chainId = searchParams.get('chainId')
+
+      if (vaultAddress && chainId) {
+        const foundVault = data.find(
+          (vault) =>
+            vault.address.toLowerCase() === vaultAddress.toLowerCase() &&
+            vault.chainId === Number(chainId)
+        )
+
+        if (foundVault && !selectedVault?.address) {
+          setSelectedVault(foundVault as KongVault)
+          setDeltaValue(0n) // Trigger initial APR Oracle call
+        }
+      }
+    }
+  }, [data, searchParams, selectedVault?.address])
 
   // Debounced search implementation
   const debouncedSearch = React.useMemo(
@@ -249,6 +290,7 @@ const VaultQueryCard: React.FC = () => {
                   onSelect={(vault) => {
                     setSelectedVault(vault as KongVault)
                     setDeltaValue(0n) // Set delta to 0n to trigger initial APR Oracle call
+                    updateUrlWithVault(vault) // Add this line to update URL
                     handleCloseVaultModal()
                   }}
                 />
