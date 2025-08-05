@@ -12,3 +12,76 @@ query GetVaultData {
     }
   }
 }
+
+query GetVaultMetadata($address: String!, $chainId: Int!) {
+  vault(address: $address, chainId: $chainId) {
+    address
+    name
+    symbol
+    chainId
+
+    asset {
+      address
+      name
+      symbol
+      decimals
+    }
+
+    apy {
+      grossApr
+      net
+      inceptionNet
+      monthlyNet
+      weeklyNet
+    }
+
+    fees {
+      managementFee
+      performanceFee
+    }
+
+    risk {
+      auditScore
+      codeReviewScore
+      complexityScore
+      protocolSafetyScore
+      teamKnowledgeScore
+      testingScore
+      label
+    }
+
+    governance
+    management
+    guardian
+
+    sparklines {
+      apy {
+        address
+        blockTime
+        chainId
+        close
+        label
+      }
+      tvl {
+        address
+        blockTime
+        chainId
+        close
+        label
+      }
+    }
+
+    strategies
+
+    totalAssets
+    totalSupply
+    pricePerShare
+
+    meta {
+      description
+      displayName
+      displaySymbol
+      protocols
+    }
+  }
+}
