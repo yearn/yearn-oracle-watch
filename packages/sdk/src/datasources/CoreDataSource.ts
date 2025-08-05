@@ -42,14 +42,14 @@ export class CoreDataSource {
       {
         address: aprOracleAddress[chainId as keyof typeof aprOracleAddress],
         abi: aprOracleAbi,
-        functionName: 'getExpectedApr' as const,
+        functionName: 'getStrategyApr' as const,
         args: [vaultAddress, 0n] as const,
         chainId,
       },
       {
         address: aprOracleAddress[chainId as keyof typeof aprOracleAddress],
         abi: aprOracleAbi,
-        functionName: 'getExpectedApr' as const,
+        functionName: 'getStrategyApr' as const,
         args: [vaultAddress, delta] as const,
         chainId,
       },

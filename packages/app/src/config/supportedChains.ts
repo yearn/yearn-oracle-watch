@@ -12,9 +12,9 @@ import {
 // !INJECTED
 export const supportedChains = [
   mainnet,
-  polygon,
   optimism,
   gnosis,
+  polygon,
   sonic,
   base,
   arbitrum,

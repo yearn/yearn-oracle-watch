@@ -18,6 +18,7 @@
     "build:app": "bun run --filter ./packages/app build",
     "build": "bun run build:gen && bun run build:deps && bun run build:app",
     "build:debug": "echo 'Starting codegen...' && bun run build:gen && echo 'Codegen complete. Starting deps build...' && bun run build:deps && echo 'Deps complete. Checking files...' && ls -la packages/contracts/dist/ && ls -la packages/sdk/dist/ && echo 'Starting app build...' && bun run build:app",
+    "serve": "bun run --filter ./packages/app serve",
     "format-and-lint": "bun run --filter \"./packages/*\" format-and-lint",
     "lint:types": "bun run --filter \"./packages/*\" lint:types",
     "test": "bun run --filter \"./packages/*\" test",
