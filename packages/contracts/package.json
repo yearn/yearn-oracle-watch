@@ -3,17 +3,20 @@
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/wagmi.js",
+  "module": "./dist/wagmi.js",
   "types": "./dist/wagmi.d.ts",
   "files": ["dist", "src"],
   "exports": {
     ".": {
-      "types": "./src/wagmi.ts",
-      "development": "./src/wagmi.ts",
+      "types": "./dist/wagmi.d.ts",
+      "import": "./dist/wagmi.js",
+      "require": "./dist/wagmi.js",
       "default": "./dist/wagmi.js"
     },
     "./*": {
-      "types": "./src/*.ts",
-      "development": "./src/*.ts",
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js",
+      "require": "./dist/*.js",
       "default": "./dist/*.js"
     }
   },
