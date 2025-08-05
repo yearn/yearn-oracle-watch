@@ -5,7 +5,10 @@
   "main": "./dist/wagmi.js",
   "module": "./dist/wagmi.js",
   "types": "./dist/wagmi.d.ts",
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "exports": {
     ".": {
       "types": "./dist/wagmi.d.ts",
