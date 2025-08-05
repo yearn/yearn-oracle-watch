@@ -2,7 +2,9 @@
   "name": "yearn-oracle-watch",
   "private": true,
   "type": "module",
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "changeset:release": "bun run build && changeset publish",
     "changeset:version": "changeset version && bun install --lockfile-only",
@@ -12,14 +14,15 @@
     "build:contracts": "bun run --filter ./packages/contracts build",
     "build:sdk": "bun run --filter ./packages/sdk build",
     "build:deps": "bun run build:contracts && bun run build:sdk",
-    "build:gen": "bun run --filter ./packages/contracts codegen",
+    "build:gen": "bun run --filter ./packages/contracts codegen && bun run --filter ./packages/sdk codegen",
     "build:app": "bun run --filter ./packages/app build",
     "build": "bun run build:gen && bun run build:deps && bun run build:app",
+    "build:debug": "echo 'Starting codegen...' && bun run build:gen && echo 'Codegen complete. Starting deps build...' && bun run build:deps && echo 'Deps complete. Checking files...' && ls -la packages/contracts/dist/ && ls -la packages/sdk/dist/ && echo 'Starting app build...' && bun run build:app",
     "format-and-lint": "bun run --filter \"./packages/*\" format-and-lint",
     "lint:types": "bun run --filter \"./packages/*\" lint:types",
     "test": "bun run --filter \"./packages/*\" test",
     "start:app": "bun run --filter ./packages/app start",
-    "clean": "rm -rf node_modules packages/**/node_modules packages/**/build packages/contracts/src/wagmi.ts"
+    "clean": "rm -rf node_modules packages/**/node_modules packages/**/build packages/**/dist packages/contracts/src/wagmi.ts"
   },
   "dependencies": {
     "@tanstack/query-core": "^5.80.2",

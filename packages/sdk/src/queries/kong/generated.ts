@@ -785,14 +785,6 @@ export type kong_GetVaultDataQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type kong_GetVaultDataQuery = { vaults?: Array<{ address?: string | null, symbol?: string | null, name?: string | null, chainId?: number | null, asset?: { decimals?: number | null, address?: string | null, name?: string | null, symbol?: string | null } | null } | null> | null };
 
-export type kong_GetVaultMetadataQueryVariables = Exact<{
-  address: Scalars['String']['input'];
-  chainId: Scalars['Int']['input'];
-}>;
-
-
-export type kong_GetVaultMetadataQuery = { vault?: { address?: string | null, name?: string | null, symbol?: string | null, chainId?: number | null, governance?: string | null, management?: string | null, guardian?: string | null, strategies?: Array<string | null> | null, totalAssets?: string | null, totalSupply?: string | null, pricePerShare?: string | null, asset?: { address?: string | null, name?: string | null, symbol?: string | null, decimals?: number | null } | null, apy?: { grossApr?: number | null, net?: number | null, inceptionNet?: number | null, monthlyNet?: number | null, weeklyNet?: number | null } | null, fees?: { managementFee?: number | null, performanceFee?: number | null } | null, risk?: { auditScore?: number | null, codeReviewScore?: number | null, complexityScore?: number | null, protocolSafetyScore?: number | null, teamKnowledgeScore?: number | null, testingScore?: number | null, label?: string | null } | null, sparklines?: { apy?: Array<{ address: string, blockTime: string, chainId: number, close: number, label: string } | null> | null, tvl?: Array<{ address: string, blockTime: string, chainId: number, close: number, label: string } | null> | null } | null, meta?: { description?: string | null, displayName?: string | null, displaySymbol?: string | null, protocols?: Array<string | null> | null } | null } | null };
-
 
 export const GetVaultDataDocument = /*#__PURE__*/ gql`
     query GetVaultData {
@@ -810,71 +802,6 @@ export const GetVaultDataDocument = /*#__PURE__*/ gql`
   }
 }
     `;
-export const GetVaultMetadataDocument = /*#__PURE__*/ gql`
-    query GetVaultMetadata($address: String!, $chainId: Int!) {
-  vault(address: $address, chainId: $chainId) {
-    address
-    name
-    symbol
-    chainId
-    asset {
-      address
-      name
-      symbol
-      decimals
-    }
-    apy {
-      grossApr
-      net
-      inceptionNet
-      monthlyNet
-      weeklyNet
-    }
-    fees {
-      managementFee
-      performanceFee
-    }
-    risk {
-      auditScore
-      codeReviewScore
-      complexityScore
-      protocolSafetyScore
-      teamKnowledgeScore
-      testingScore
-      label
-    }
-    governance
-    management
-    guardian
-    sparklines {
-      apy {
-        address
-        blockTime
-        chainId
-        close
-        label
-      }
-      tvl {
-        address
-        blockTime
-        chainId
-        close
-        label
-      }
-    }
-    strategies
-    totalAssets
-    totalSupply
-    pricePerShare
-    meta {
-      description
-      displayName
-      displaySymbol
-      protocols
-    }
-  }
-}
-    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string) => Promise<T>;
 
@@ -885,9 +812,6 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
   return {
     GetVaultData(variables?: kong_GetVaultDataQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<kong_GetVaultDataQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<kong_GetVaultDataQuery>(GetVaultDataDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetVaultData', 'query');
-    },
-    GetVaultMetadata(variables: kong_GetVaultMetadataQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<kong_GetVaultMetadataQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<kong_GetVaultMetadataQuery>(GetVaultMetadataDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'GetVaultMetadata', 'query');
     }
   };
 }

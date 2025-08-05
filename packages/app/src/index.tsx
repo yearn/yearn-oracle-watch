@@ -17,7 +17,7 @@ root.render(
     <Providers>
       <DebugProvider>
         <MetadataProvider>
-          <Navigation />
+          <Navigation showConnectButton={false}/>
           <ChainGuard>
             <MainLayout>
               <Router>

@@ -1,6 +1,6 @@
 import { useAccount } from '@/hooks/useAccount'
 import { useInput } from '@/hooks/useInput'
-import { exactToSimple, simpleToExact } from '@/utils'
+import { simpleToExact } from '@/utils'
 import { cn } from '@/utils/cn'
 import React, { ChangeEvent, FC } from 'react'
 import { CaretDownIcon } from '@/components/shared/icons/CaretDownIcon'
@@ -10,7 +10,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu'
-import { type VaultWithLogos } from '@/hooks/useVaultsWithLogos'
+import { type VaultData } from '@/hooks/useGetVaults'
+import { getSvgAsset } from '@/utils/logos'
 
 interface Props {
   input: ReturnType<typeof useInput>
@@ -22,9 +23,11 @@ interface Props {
   title?: string
   disabled?: boolean
   errorMessage?: string
-  currentVault?: VaultWithLogos
+  currentVault?: VaultData
+  assetPrice?: number | null
   onInputChange?: (value: bigint) => void
   onButtonClick?: () => void
+  onCurrencyChange?: (newCurrency: string) => void
 }
 
 export const InputDepositAmount: FC<Props> = ({
@@ -37,6 +40,8 @@ export const InputDepositAmount: FC<Props> = ({
   title,
   defaultSymbol = 'USD',
   currentVault,
+  assetPrice,
+  onCurrencyChange,
 }) => {
   const account = useAccount()
   const [
@@ -45,8 +50,9 @@ export const InputDepositAmount: FC<Props> = ({
       activity: [, setActive],
     },
     handleChangeInput,
+    setFormValue,
   ] = input
-  const disabled = _disabled || !account
+  const disabled = _disabled
 
   // Get vault symbol from currentVault prop
   const vaultAsset = currentVault?.asset?.symbol as string
@@ -68,10 +74,52 @@ export const InputDepositAmount: FC<Props> = ({
     onInputChange?.(simpleToExact(event.target.value))
   }
 
+  // Currency conversion function
+  const convertValue = (
+    fromCurrency: string,
+    toCurrency: string,
+    value: string
+  ): string => {
+    if (!value || !assetPrice || parseFloat(value) === 0) return value
+
+    const numericValue = parseFloat(value)
+    if (isNaN(numericValue)) return value
+
+    // Convert from USD to asset
+    if (fromCurrency === 'USD' && toCurrency === vaultAsset) {
+      const convertedValue = numericValue / assetPrice
+      return convertedValue.toString()
+    }
+
+    // Convert from asset to USD
+    if (fromCurrency === vaultAsset && toCurrency === 'USD') {
+      const convertedValue = numericValue * assetPrice
+      return convertedValue.toString()
+    }
+
+    // No conversion needed (same currency)
+    return value
+  }
+
   const handleSelect = (value: string) => {
-    setSelected(value)
+    const previousCurrency = selected
+    const newCurrency = value
+
+    // Only convert if currency actually changed and we have a price
+    if (previousCurrency !== newCurrency && assetPrice && formValue) {
+      const convertedValue = convertValue(
+        previousCurrency,
+        newCurrency,
+        formValue
+      )
+      setFormValue(convertedValue)
+    }
+
+    setSelected(newCurrency)
     setOpen(false)
-    // TODO: Add processing logic when symbol changes
+
+    // Notify parent of currency change
+    onCurrencyChange?.(newCurrency)
     if (onButtonClick) onButtonClick()
   }
 
@@ -91,7 +139,7 @@ export const InputDepositAmount: FC<Props> = ({
           onFocus={() => setActive(true)}
           onBlur={() => setActive(false)}
           className={cn(
-            'self-stretch px-2 rounded-[12px] bg-transparent outline-none text-xl font-normal leading-8 font-mono min-w-0',
+            'self-stretch px-6 rounded-[12px] bg-transparent outline-none text-xl font-normal leading-8 font-mono min-w-0',
             disabled ? 'text-gray-700' : 'text-[#1E1E1E]',
             'placeholder:text-gray-400',
             'font-aeonik-mono'
@@ -163,15 +211,14 @@ export const InputDepositAmount: FC<Props> = ({
                           'https://placehold.co/24x24/cccccc/666666?text=?'
                       }}
                     />
-                  ) : currentVault?.logos?.asset ? (
+                  ) : currentVault?.chainId && currentVault?.asset?.address ? (
                     <img
-                      src={currentVault.logos.asset}
+                      src={getSvgAsset(
+                        currentVault.chainId,
+                        currentVault.asset.address
+                      )}
                       alt={vaultAsset}
                       className="w-6 h-6 rounded-full"
-                      onError={(e) => {
-                        e.currentTarget.src =
-                          'https://placehold.co/24x24/cccccc/666666?text=?'
-                      }}
                     />
                   ) : (
                     <div className="w-6 h-6 rounded-full bg-gray-300" />

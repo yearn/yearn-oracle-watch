@@ -16,7 +16,7 @@ import type { CachedSdk } from '../graphql/types'
 import { getSdk as kong_getSdk } from '../queries/kong/generated'
 import { BaseDataSource } from './BaseDataSource'
 
-type NonNullableVaultData = {
+export type NonNullableVaultData = {
   address: Address
   symbol: string
   name: string
@@ -111,9 +111,5 @@ export class KongDataSource extends BaseDataSource {
       })
       throw error
     }
-  }
-
-  public async getVaultMetadata(address: string, chainId: number) {
-    return await this.gql.GetVaultMetadata({ address, chainId })
   }
 }

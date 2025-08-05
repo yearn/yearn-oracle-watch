@@ -26,6 +26,9 @@ export const useAprOracle = (params?: UseAprOracleParams) => {
   const sdk = useSdk()
 
   console.log('params', params)
+  console.log(
+    `Vault Address: ${vaultAddress}, Chain ID: ${chainId}, Deposit: ${Number(delta)}`
+  )
 
   return useQuery({
     queryKey: ['apr-oracle', vaultAddress, chainId, Number(delta)],
@@ -35,7 +38,7 @@ export const useAprOracle = (params?: UseAprOracleParams) => {
         chainId as SupportedChain,
         delta || 0n
       ),
-    enabled: !!vaultAddress && !!chainId && !!delta,
+    enabled: !!vaultAddress && !!chainId && delta !== undefined,
     staleTime: 30_000, // 30 seconds
   })
 }

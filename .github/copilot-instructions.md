@@ -2,10 +2,6 @@
 
 - If you feel that you need more information to do your best work, please ask for it. If you are unsure about the context or the requirements, do not hesitate to request clarification.
 
-## Documentation
-
-- **Metadata Component PRD**: See `/docs/PRD_Metadata_Component.md` for comprehensive requirements for the universal metadata component system that displays vault data via middle mouse button clicks.
-
 ## Button Component Architecture
 
 When creating or modifying button components in this project, follow these patterns:
