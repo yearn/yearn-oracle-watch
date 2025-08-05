@@ -89,6 +89,14 @@ type Debt {
   totalLossUsd: Float
 }
 
+type Deposit {
+  amount: String!
+  chainId: Int!
+  recipient: String!
+  shares: String!
+  vaultAddress: String!
+}
+
 type Erc20 {
   address: String
   chainId: Int
@@ -198,6 +206,7 @@ type Query {
   accountants(chainId: Int): [Accountant]
   allocator(chainId: Int!, vault: String!): Allocator
   bananas: String
+  deposits(address: String, chainId: Int): [Deposit]
   latestBlocks(chainId: Int): [LatestBlock]
   monitor: Monitor
   newSplitterLogs(address: String, chainId: Int, manager: String, managerRecipient: String, splitter: String): [NewSplitterLog]
