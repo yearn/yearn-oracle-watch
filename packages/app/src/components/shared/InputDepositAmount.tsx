@@ -52,7 +52,7 @@ export const InputDepositAmount: FC<Props> = ({
     handleChangeInput,
     setFormValue,
   ] = input
-  const disabled = _disabled || !account
+  const disabled = _disabled
 
   // Get vault symbol from currentVault prop
   const vaultAsset = currentVault?.asset?.symbol as string
