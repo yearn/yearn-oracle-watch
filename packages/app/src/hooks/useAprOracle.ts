@@ -25,11 +25,6 @@ export const useAprOracle = (params?: UseAprOracleParams) => {
   const { address: vaultAddress, chainId } = vault || {}
   const sdk = useSdk()
 
-  console.log('params', params)
-  console.log(
-    `Vault Address: ${vaultAddress}, Chain ID: ${chainId}, Deposit: ${Number(delta)}`
-  )
-
   return useQuery({
     queryKey: ['apr-oracle', vaultAddress, chainId, Number(delta)],
     queryFn: () =>
