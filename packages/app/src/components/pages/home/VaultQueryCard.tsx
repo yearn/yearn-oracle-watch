@@ -406,8 +406,8 @@ const ModalData: React.FC<ModalDataProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-4 p-4">
-        <div className="flex justify-center items-center h-32">
+      <div className="flex flex-col gap-1 p-4">
+        <div className="flex justify-center items-center h-[490px]">
           <div className="text-gray-500">Loading vaults...</div>
         </div>
         <Button className="mt-4" variant="outlined" onClick={onClose}>
@@ -419,13 +419,13 @@ const ModalData: React.FC<ModalDataProps> = ({
 
   if (error) {
     return (
-      <div className="flex flex-col gap-4 p-4">
-        <div className="flex justify-center items-center h-32">
+      <div className="flex flex-col gap-1 p-4 pt-0">
+        <div className="flex justify-center items-center h-[490px]">
           <div className="text-red-500">
             Error loading vaults: {error.message}
           </div>
         </div>
-        <Button className="mt-4" variant="outlined" onClick={onClose}>
+        <Button className="mt-2" variant="outlined" onClick={onClose}>
           Close
         </Button>
       </div>
@@ -437,14 +437,14 @@ const ModalData: React.FC<ModalDataProps> = ({
   // Empty state when no results found after search
   if (searchTerm?.trim() && vaults.length === 0) {
     return (
-      <div className="flex flex-col gap-4 p-4">
-        <div className="flex flex-col justify-center items-center h-32 gap-2">
+      <div className="flex flex-col gap-1 p-4 pt-0">
+        <div className="flex flex-col justify-center items-center h-[490px] gap-2">
           <div className="text-gray-500 text-lg">No vaults found</div>
           <div className="text-gray-400 text-sm">
             Try searching for a different vault name, chain, or address
           </div>
         </div>
-        <Button className="mt-4" variant="outlined" onClick={onClose}>
+        <Button className="mt-2" variant="outlined" onClick={onClose}>
           Close
         </Button>
       </div>
@@ -453,13 +453,6 @@ const ModalData: React.FC<ModalDataProps> = ({
 
   return (
     <div className="flex flex-col gap-1 p-4 pt-0">
-      {/* Search results count */}
-      {/* {searchTerm?.trim() && (
-        <div className="text-sm text-gray-600 px-2">
-          {vaults.length} vault{vaults.length !== 1 ? 's' : ''} found
-        </div>
-      )} */}
-
       {/* Virtual Scrolling Vault List */}
       <VirtualScrollList
         items={vaults}
