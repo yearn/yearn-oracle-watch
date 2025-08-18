@@ -50,9 +50,7 @@ export const Modal: FC<PropsWithChildren<Props>> = ({
             {hasHeader && (
               <div className="flex items-center justify-between p-6 border-b border-gray-200">
                 {typeof title === 'string' ? (
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    {title}
-                  </h2>
+                  <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
                 ) : (
                   <div className="flex-1 flex items-center">{title}</div>
                 )}
@@ -65,12 +63,7 @@ export const Modal: FC<PropsWithChildren<Props>> = ({
                   className="text-gray-400 hover:text-gray-500 transition-colors cursor-pointer ml-2"
                   aria-label="Close modal"
                 >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -88,7 +81,7 @@ export const Modal: FC<PropsWithChildren<Props>> = ({
         </div>
       </>
     ),
-    [onClose, title, maxWidth, children]
+    [onClose, title, maxWidth, children],
   )
 
   useEffect(() => {

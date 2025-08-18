@@ -2,7 +2,7 @@ import type { QueryClient } from '@tanstack/query-core'
 import type { Config } from '@wagmi/core'
 import { GraphQLClient } from 'graphql-request'
 import { NetworkError } from '../errors'
-import type { SdkContext, SdkConfig } from '../types'
+import type { SdkConfig, SdkContext } from '../types'
 
 interface DataSource {
   initialize(): Promise<void>

@@ -2,7 +2,11 @@ schema {
   query: Query
 }
 
-directive @cacheControl(inheritMaxAge: Boolean, maxAge: Int, scope: CacheControlScope) on FIELD_DEFINITION | INTERFACE | OBJECT | UNION
+directive @cacheControl(
+  inheritMaxAge: Boolean
+  maxAge: Int
+  scope: CacheControlScope
+) on FIELD_DEFINITION | INTERFACE | OBJECT | UNION
 
 type AccountRole {
   account: String!
@@ -52,7 +56,9 @@ type Apy {
   weeklyNet: Float
 }
 
-"""BigInt override"""
+"""
+BigInt override
+"""
 scalar BigInt
 
 enum CacheControlScope {
@@ -209,8 +215,20 @@ type Query {
   deposits(address: String, chainId: Int): [Deposit]
   latestBlocks(chainId: Int): [LatestBlock]
   monitor: Monitor
-  newSplitterLogs(address: String, chainId: Int, manager: String, managerRecipient: String, splitter: String): [NewSplitterLog]
-  newYieldSplitterLogs(address: String, chainId: Int, splitter: String, vault: String, want: String): [NewYieldSplitterLog]
+  newSplitterLogs(
+    address: String
+    chainId: Int
+    manager: String
+    managerRecipient: String
+    splitter: String
+  ): [NewSplitterLog]
+  newYieldSplitterLogs(
+    address: String
+    chainId: Int
+    splitter: String
+    vault: String
+    want: String
+  ): [NewYieldSplitterLog]
   prices(address: String, chainId: Int, timestamp: BigInt): [Price]
   projects(chainId: Int): [Project]
   riskScores: [RiskScore]
@@ -218,14 +236,31 @@ type Query {
   strategy(address: String, chainId: Int): Strategy
   strategyReports(address: String, chainId: Int): [StrategyReport]
   things(chainId: Int, labels: [String]!): [Thing]
-  timeseries(address: String, chainId: Int, component: String, label: String!, limit: Int, period: String, timestamp: BigInt, yearn: Boolean): [Output]
+  timeseries(
+    address: String
+    chainId: Int
+    component: String
+    label: String!
+    limit: Int
+    period: String
+    timestamp: BigInt
+    yearn: Boolean
+  ): [Output]
   transfers(address: String, chainId: Int): [Transfer]
   tvls(address: String, chainId: Int!, limit: Int, period: String, timestamp: BigInt): [Tvl]
   vault(address: String, chainId: Int): Vault
   vaultAccounts(chainId: Int, vault: String): [AccountRole]
   vaultReports(address: String, chainId: Int): [VaultReport]
   vaultStrategies(chainId: Int, vault: String): [Strategy]
-  vaults(addresses: [String], apiVersion: String, chainId: Int, erc4626: Boolean, v3: Boolean, vaultType: Int, yearn: Boolean): [Vault]
+  vaults(
+    addresses: [String]
+    apiVersion: String
+    chainId: Int
+    erc4626: Boolean
+    v3: Boolean
+    vaultType: Int
+    yearn: Boolean
+  ): [Vault]
   vestingEscrowCreatedLogs(recipient: String): [VestingEscrowCreatedLog]
 }
 
@@ -520,6 +555,7 @@ type Vault {
   profitUnlockingRate: BigInt
   projectId: String
   projectName: String
+  registry: String
   rewards: String
   risk: RiskScore
   role_manager: String

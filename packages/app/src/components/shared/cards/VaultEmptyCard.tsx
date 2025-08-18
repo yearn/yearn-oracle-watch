@@ -8,9 +8,7 @@ export const VaultEmptyCard: FC = () => {
       }
     >
       <p className={'text-[18px] font-medium text-white/75'}>{'No positions found'}</p>
-      <p className={'text-[14px] font-medium text-white/50'}>
-        {'Your positions will show here'}
-      </p>
+      <p className={'text-[14px] font-medium text-white/50'}>{'Your positions will show here'}</p>
     </div>
   )
 }

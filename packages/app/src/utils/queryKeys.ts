@@ -10,8 +10,7 @@ export const queryKeys = {
 export const queryHelpers = {
   clearChainQueries: (queryClient: QueryClient) => {
     return queryClient.removeQueries({
-      predicate: (query) =>
-        query.queryKey[0] === 'yDaemon' || query.queryKey[0] === 'kong',
+      predicate: (query) => query.queryKey[0] === 'yDaemon' || query.queryKey[0] === 'kong',
     })
   },
   removeChainQueries: (queryClient: QueryClient, chainId: number) => {

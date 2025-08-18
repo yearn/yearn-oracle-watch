@@ -2,7 +2,7 @@ import { SupportedChain, getSupportedChain, supportedChains } from '@/config/sup
 import { createChainsContext } from '@/context/ChainsContext'
 import { FC, PropsWithChildren, useMemo } from 'react'
 import { useAccount, useChainId, useSwitchChain } from 'wagmi'
-import { mainnet, type Chain } from 'wagmi/chains'
+import { type Chain, mainnet } from 'wagmi/chains'
 
 // !INJECTED
 export const DEFAULT_CHAIN = mainnet.id

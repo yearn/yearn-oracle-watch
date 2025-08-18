@@ -1,6 +1,6 @@
-import { useSdk } from '../context/Sdk'
 import { useQuery } from '@tanstack/react-query'
 import type { TPricesChain } from '@yearn-oracle-watch/sdk'
+import { useSdk } from '../context/Sdk'
 
 export const useTokenPrices = () => {
   const sdk = useSdk()
@@ -14,13 +14,13 @@ export const useTokenPrices = () => {
 export const findTokenPrice = (
   prices: TPricesChain,
   address: string,
-  chainId: number
+  chainId: number,
 ): number | null => {
   const chainPrices = prices[chainId.toString()]
   if (!chainPrices) return null
 
   // Try original case first, then lowercase
-  let priceString = chainPrices[address] || chainPrices[address.toLowerCase()]
+  const priceString = chainPrices[address] || chainPrices[address.toLowerCase()]
 
   if (!priceString) {
     console.log(`No price found for ${address} on chain ${chainId}`)
@@ -29,5 +29,5 @@ export const findTokenPrice = (
   }
 
   // Convert from smallest unit (typically 6 decimals for USD prices)
-  return parseFloat(priceString) / 1_000_000
+  return Number.parseFloat(priceString) / 1_000_000
 }

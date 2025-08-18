@@ -1,25 +1,25 @@
-import React from 'react'
-import { useSearchParams } from 'react-router-dom'
+import Button from '@/components/shared/Button'
+import { InputDepositAmount } from '@/components/shared/InputDepositAmount'
+import { Modal } from '@/components/shared/Modal'
+import VaultSelectButton, {
+  type KongVault,
+} from '@/components/shared/VaultSelectButton'
+import YearnLoader from '@/components/shared/YearnLoader'
+import { SupportedChain } from '@/config/supportedChains'
+import { CHAIN_ID_TO_NAME } from '@/constants/chains'
+import { useAprOracle } from '@/hooks/useAprOracle'
 // import {
 //   useVaultsWithLogos,
 //   type VaultWithLogos,
 //   type LoadingState,
 // } from '@/hooks/useVaultsWithLogos'
-import { useGetVaults, type VaultData } from '@/hooks/useGetVaults'
-import Button from '@/components/shared/Button'
-import VaultSelectButton, {
-  type KongVault,
-} from '@/components/shared/VaultSelectButton'
-import { InputDepositAmount } from '@/components/shared/InputDepositAmount'
+import { type VaultData, useGetVaults } from '@/hooks/useGetVaults'
 import { useInput } from '@/hooks/useInput'
-import { Modal } from '@/components/shared/Modal'
-import { CHAIN_ID_TO_NAME } from '@/constants/chains'
-import YearnLoader from '@/components/shared/YearnLoader'
-import { useAprOracle } from '@/hooks/useAprOracle'
+import { findTokenPrice, useTokenPrices } from '@/hooks/useTokenPrices'
 import { calculateDelta } from '@yearn-oracle-watch/sdk'
-import { useTokenPrices, findTokenPrice } from '@/hooks/useTokenPrices'
+import React from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Address } from 'viem'
-import { SupportedChain } from '@/config/supportedChains'
 import { getSvgAsset } from '../../../utils/logos'
 
 // Search utility function
@@ -353,7 +353,7 @@ const VaultQueryCard: React.FC = () => {
                           {aprOracleResult.currentApr}
                         </span>
                       ) : (
-                        <span className="text-[#9E9E9E]">N/A</span>
+                        <span className="text-[#9E9E9E]">Error</span>
                       )
                     ) : (
                       <span className="text-[#9E9E9E]">Select vault</span>
@@ -377,7 +377,7 @@ const VaultQueryCard: React.FC = () => {
                           {aprOracleResult.projectedApr}
                         </span>
                       ) : (
-                        <span className="text-[#9E9E9E]">N/A</span>
+                        <span className="text-[#9E9E9E]">Error</span>
                       )
                     ) : (
                       <span className="text-[#9E9E9E]">
@@ -405,7 +405,7 @@ const VaultQueryCard: React.FC = () => {
                           {aprOracleResult.percentChange}
                         </span>
                       ) : (
-                        <span className="text-[#9E9E9E]">N/A</span>
+                        <span className="text-[#9E9E9E]">Error</span>
                       )
                     ) : (
                       <span className="text-[#9E9E9E]">
@@ -475,7 +475,7 @@ const ModalData: React.FC<ModalDataProps> = ({
   const vaults = Array.isArray(data) && data.length > 0 ? data : []
 
   // Empty state when no results found after search
-  if (searchTerm && searchTerm.trim() && vaults.length === 0) {
+  if (searchTerm?.trim() && vaults.length === 0) {
     return (
       <div className="flex flex-col gap-4 p-4">
         <div className="flex flex-col justify-center items-center h-32 gap-2">
@@ -517,7 +517,7 @@ const ModalData: React.FC<ModalDataProps> = ({
   return (
     <div className="flex flex-col gap-4 p-4">
       {/* Search results count */}
-      {searchTerm && searchTerm.trim() && (
+      {searchTerm?.trim() && (
         <div className="text-sm text-gray-600 px-2">
           {vaults.length} vault{vaults.length !== 1 ? 's' : ''} found
         </div>

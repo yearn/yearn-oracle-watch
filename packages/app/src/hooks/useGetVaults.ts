@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
+import { Address } from 'viem'
 import { useSdk } from '../context/Sdk'
 import { queryKeys } from '../utils/queryKeys'
-import { Address } from 'viem'
 
 export type VaultData = {
   address: Address

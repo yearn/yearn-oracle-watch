@@ -10,7 +10,7 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "tsBuildInfoFile": "./dist/.tsbuildinfo",
-    "types": ["vite/client"],
+    "types": ["vite/client", "node"],
     "paths": {
       "@yearn-oracle-watch/contracts": ["../contracts/src"],
       "@yearn-oracle-watch/contracts/*": ["../contracts/src/*"]

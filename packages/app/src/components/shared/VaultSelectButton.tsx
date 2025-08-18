@@ -1,8 +1,8 @@
-import { type ComponentProps, type FC } from 'react'
-import { getSvgAsset } from '@/utils/logos'
-import { Address, getAddress } from 'viem'
-import { CHAIN_ID_TO_NAME } from '@/constants/chains'
 import { CaretDownIcon } from '@/components/shared/icons/CaretDownIcon'
+import { CHAIN_ID_TO_NAME } from '@/constants/chains'
+import { getSvgAsset } from '@/utils/logos'
+import { type ComponentProps, type FC } from 'react'
+import { Address, getAddress } from 'viem'
 import Button from './Button'
 
 export type KongVault = {
@@ -22,9 +22,13 @@ type VaultSelectButtonProps = {
   selectedVault?: KongVault | null
 }
 
-const VaultSelectButton: FC<
-  VaultSelectButtonProps & ComponentProps<typeof Button>
-> = ({ selectedVault, variant, children, className, ...props }) => {
+const VaultSelectButton: FC<VaultSelectButtonProps & ComponentProps<typeof Button>> = ({
+  selectedVault,
+  variant,
+  children,
+  className,
+  ...props
+}) => {
   // Content for selected vault
   const selectedVaultContent = selectedVault?.address ? (
     <div className="w-full flex items-center gap-2 pt-1 pb-2">
@@ -32,13 +36,12 @@ const VaultSelectButton: FC<
         className="w-8 h-8 min-w-8 min-h-8 max-w-8 max-h-8 relative"
         src={getSvgAsset(
           Number(selectedVault.chainId),
-          getAddress(selectedVault.asset?.address as string)
+          getAddress(selectedVault.asset?.address as string),
         )}
         alt={selectedVault.name as string}
         referrerPolicy="no-referrer"
         onError={(e) => {
-          e.currentTarget.src =
-            'https://placehold.co/32x32/cccccc/666666?text=?'
+          e.currentTarget.src = 'https://placehold.co/32x32/cccccc/666666?text=?'
         }}
       />
       <div className="flex flex-col items-start justify-start ml-2 flex-1 min-w-0">
@@ -67,22 +70,8 @@ const VaultSelectButton: FC<
             title="Copy address"
             tabIndex={0}
           >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 20 20"
-              fill="none"
-              aria-hidden="true"
-            >
-              <rect
-                x="6"
-                y="6"
-                width="10"
-                height="10"
-                rx="2"
-                stroke="#1E1E1E"
-                strokeWidth="1.5"
-              />
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <rect x="6" y="6" width="10" height="10" rx="2" stroke="#1E1E1E" strokeWidth="1.5" />
               <rect
                 x="4"
                 y="4"
@@ -105,9 +94,7 @@ const VaultSelectButton: FC<
   const noVaultContent = (
     <div className="w-full h-full flex items-center justify-end">
       <div className="flex items-center">
-        <div className="text-white text-base font-normal leading-8 font-aeonik">
-          Select Vault
-        </div>
+        <div className="text-white text-base font-normal leading-8 font-aeonik">Select Vault</div>
         <CaretDownIcon className="ml-2" color="white" />
       </div>
     </div>
@@ -123,9 +110,7 @@ const VaultSelectButton: FC<
 
   return (
     <Button className={vaultButtonClassName} overrideStyling={true} {...props}>
-      <div className={innerDivClassName}>
-        {selectedVaultContent || noVaultContent}
-      </div>
+      <div className={innerDivClassName}>{selectedVaultContent || noVaultContent}</div>
     </Button>
   )
 }

@@ -1,6 +1,6 @@
 import { FC } from 'react'
-import { useTokenPrices, findTokenPrice } from '../../../hooks/useTokenPrices'
 import { useSdk } from '../../../context/Sdk'
+import { findTokenPrice, useTokenPrices } from '../../../hooks/useTokenPrices'
 
 export const TokenPricesTest: FC = () => {
   const sdk = useSdk()
@@ -75,14 +75,12 @@ export const TokenPricesTest: FC = () => {
   const chainsWithData = Object.keys(prices)
   const totalTokens = Object.values(prices).reduce(
     (sum, chainPrices) => sum + Object.keys(chainPrices).length,
-    0
+    0,
   )
 
   return (
     <div className="border border-green-300 rounded-lg p-4 m-4 bg-green-50">
-      <h3 className="text-lg font-semibold mb-2">
-        ✅ Token Prices Test - SUCCESS
-      </h3>
+      <h3 className="text-lg font-semibold mb-2">✅ Token Prices Test - SUCCESS</h3>
 
       <div className="mb-4">
         <p>
@@ -114,8 +112,7 @@ export const TokenPricesTest: FC = () => {
               </span>
               {!price && (
                 <div className="text-xs text-gray-600 ml-4">
-                  Lower: {lowerExists ? '✓' : '✗'} | Upper:{' '}
-                  {upperExists ? '✓' : '✗'} | Original:{' '}
+                  Lower: {lowerExists ? '✓' : '✗'} | Upper: {upperExists ? '✓' : '✗'} | Original:{' '}
                   {originalExists ? '✓' : '✗'}
                 </div>
               )}
@@ -133,7 +130,7 @@ export const TokenPricesTest: FC = () => {
                 .map(([address, price]) => (
                   <div key={address} className="mb-1">
                     {address}: {price} ($
-                    {(parseFloat(price) / 1_000_000).toFixed(2)})
+                    {(Number.parseFloat(price) / 1_000_000).toFixed(2)})
                   </div>
                 ))
             : 'No data for chain 1'}
@@ -173,9 +170,7 @@ export const TokenPricesTest: FC = () => {
       </div>
 
       <details className="text-xs">
-        <summary className="cursor-pointer font-semibold">
-          View Raw Data (first 100 chars)
-        </summary>
+        <summary className="cursor-pointer font-semibold">View Raw Data (first 100 chars)</summary>
         <pre className="mt-2 p-2 bg-gray-100 rounded overflow-auto">
           {JSON.stringify(prices, null, 2).substring(0, 500)}...
         </pre>

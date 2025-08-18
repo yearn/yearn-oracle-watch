@@ -5,10 +5,7 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist",
-    "src"
-  ],
+  "files": ["dist", "src"],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -35,6 +32,7 @@
     "@graphql-codegen/typescript": "^4.0.1",
     "@graphql-codegen/typescript-graphql-request": "^5.0.0",
     "@graphql-codegen/typescript-operations": "^4.0.1",
+    "@types/node": "*",
     "merkletreejs": "^0.3.11",
     "msw": "*",
     "vite": "*",
