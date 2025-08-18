@@ -25,13 +25,18 @@
     "wagmi": "*"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
     "@types/react": "*",
     "@types/react-dom": "*",
     "@vitejs/plugin-react": "*",
+    "jsdom": "^25.0.1",
     "typescript": "*",
     "vite": "*",
     "vite-plugin-svgr": "*",
-    "vite-tsconfig-paths": "*"
+    "vite-tsconfig-paths": "*",
+    "vitest": "*"
   },
   "scripts": {
     "start": "vite",
@@ -44,6 +49,9 @@
     "lint:all": "bun run lint:fix:unsafe && bun run lint:types",
     "lint:fix": "bun run lint --apply",
     "lint:fix:unsafe": "bun run lint --write --unsafe",
-    "lint:types": "tsc -p tsconfig.build.json --noEmit"
+    "lint:types": "tsc -p tsconfig.build.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui"
   }
 }

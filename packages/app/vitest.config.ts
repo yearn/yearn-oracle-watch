@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import path from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
@@ -6,10 +7,8 @@ import svgr from 'vite-plugin-svgr'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig(({ mode }) => {
-  const isDev = mode === 'development'
-
-  // Load env file from workspace root
-  const env = loadEnv(mode, path.resolve(__dirname, '../..'), '')
+  // Load env file from the root directory (two levels up)
+  const env = loadEnv(mode, path.resolve(__dirname, '../../'), '')
 
   // Convert RPC_URI_FOR_* to VITE_RPC_URI_FOR_* for compatibility with the wagmi config
   const envWithVitePrefix = {
@@ -29,25 +28,26 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       svgr(),
       tsconfigPaths({
-        // This ensures vite-tsconfig-paths uses the local tsconfig
         root: __dirname,
       }),
     ],
-    optimizeDeps: {
-      esbuildOptions: {
-        jsx: 'automatic',
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, 'src'),
+        // Use source files in test environment for better debugging
+        '@yearn-oracle-watch/sdk': path.resolve(
+          __dirname,
+          '../sdk/src/index.ts'
+        ),
+        '@yearn-oracle-watch/contracts': path.resolve(
+          __dirname,
+          '../contracts/src/wagmi.ts'
+        ),
       },
-      // Include workspace packages to be pre-bundled
-      include: isDev
-        ? []
-        : ['@yearn-oracle-watch/sdk', '@yearn-oracle-watch/contracts'],
-      exclude: isDev
-        ? ['@yearn-oracle-watch/sdk', '@yearn-oracle-watch/contracts']
-        : [],
     },
     define: {
       global: 'globalThis',
-      // Define environment variables for the frontend
+      // Make environment variables available to the test code
       'import.meta.env.VITE_RPC_URI_FOR_1': JSON.stringify(
         envWithVitePrefix.VITE_RPC_URI_FOR_1
       ),
@@ -73,32 +73,42 @@ export default defineConfig(({ mode }) => {
         envWithVitePrefix.VITE_WALLETCONNECT_PROJECT_ID
       ),
     },
-    server: {
-      port: 3000,
-    },
-    build: {
-      outDir: 'build',
-    },
-    resolve: {
-      alias: {
-        '@': path.resolve(__dirname, 'src'),
-        // In development, use source files directly
-        // In production, Vite will use the package.json exports
-        ...(isDev
-          ? {
-              '@yearn-oracle-watch/sdk': path.resolve(
-                __dirname,
-                '../sdk/src/index.ts'
-              ),
-              '@yearn-oracle-watch/contracts': path.resolve(
-                __dirname,
-                '../contracts/src/wagmi.ts'
-              ),
-            }
-          : {}),
+    test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: ['./src/tests/setup.ts'],
+      css: true,
+      // Test file patterns
+      include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+      exclude: [
+        'node_modules',
+        'dist',
+        'build',
+        '.next',
+        '.nuxt',
+        '.vercel',
+        '.swc',
+      ],
+      // Timeouts for blockchain operations
+      testTimeout: 60000, // Increased for blockchain calls
+      hookTimeout: 30000,
+      // Reporter configuration
+      reporter: ['verbose', 'json'],
+      outputFile: {
+        json: './test-results.json',
       },
-      // This tells Vite to use the 'development' export condition in dev mode
-      conditions: isDev ? ['development'] : [],
+      // Coverage configuration (optional)
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'json', 'html'],
+        exclude: [
+          'node_modules/',
+          'src/tests/',
+          '**/*.d.ts',
+          '**/*.config.*',
+          '**/coverage/**',
+        ],
+      },
     },
   }
 })

@@ -1,0 +1,58 @@
+{
+  "numTotalTestSuites": 2,
+  "numPassedTestSuites": 2,
+  "numFailedTestSuites": 0,
+  "numPendingTestSuites": 0,
+  "numTotalTests": 2,
+  "numPassedTests": 2,
+  "numFailedTests": 0,
+  "numPendingTests": 0,
+  "numTodoTests": 0,
+  "snapshot": {
+    "added": 0,
+    "failure": false,
+    "filesAdded": 0,
+    "filesRemoved": 0,
+    "filesRemovedList": [],
+    "filesUnmatched": 0,
+    "filesUpdated": 0,
+    "matched": 0,
+    "total": 0,
+    "unchecked": 0,
+    "uncheckedKeysByFile": [],
+    "unmatched": 0,
+    "updated": 0,
+    "didUpdate": false
+  },
+  "startTime": 1755548575104,
+  "success": true,
+  "testResults": [
+    {
+      "assertionResults": [
+        {
+          "ancestorTitles": ["APR Oracle Comprehensive Testing"],
+          "fullName": "APR Oracle Comprehensive Testing should test APR Oracle functionality across all vaults using SDK directly",
+          "status": "passed",
+          "title": "should test APR Oracle functionality across all vaults using SDK directly",
+          "duration": 88914.753786,
+          "failureMessages": [],
+          "meta": {}
+        },
+        {
+          "ancestorTitles": ["APR Oracle Comprehensive Testing"],
+          "fullName": "APR Oracle Comprehensive Testing should provide chain and asset analysis",
+          "status": "passed",
+          "title": "should provide chain and asset analysis",
+          "duration": 0.5548700000072131,
+          "failureMessages": [],
+          "meta": {}
+        }
+      ],
+      "startTime": 1755548578357,
+      "endTime": 1755548667272.555,
+      "status": "passed",
+      "message": "",
+      "name": "/home/ross/code/yearn/yearn-oracle-watch/packages/app/src/tests/aprOracleDirectSdk.test.tsx"
+    }
+  ]
+}
