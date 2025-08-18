@@ -64,7 +64,6 @@ const VaultQueryCard: React.FC = () => {
   }
   const handleCloseVaultModal = () => {
     setVaultModalOpen(false)
-    setSearchTerm('') // Clear search when closing modal
   }
 
   // Function to update URL with vault selection
@@ -238,15 +237,6 @@ const VaultQueryCard: React.FC = () => {
                         value={searchTerm}
                         onChange={(e) => handleSearchChange(e.target.value)}
                       />
-                      {searchTerm && (
-                        <button
-                          onClick={clearSearch}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                          type="button"
-                        >
-                          ✕
-                        </button>
-                      )}
                     </div>
                   </div>
                 }
@@ -464,11 +454,11 @@ const ModalData: React.FC<ModalDataProps> = ({
   return (
     <div className="flex flex-col gap-1 p-4 pt-0">
       {/* Search results count */}
-      {searchTerm?.trim() && (
+      {/* {searchTerm?.trim() && (
         <div className="text-sm text-gray-600 px-2">
           {vaults.length} vault{vaults.length !== 1 ? 's' : ''} found
         </div>
-      )}
+      )} */}
 
       {/* Virtual Scrolling Vault List */}
       <VirtualScrollList
