@@ -7,6 +7,25 @@ import { calculatePercentChange, formatApr } from 'src/utils/apr'
 import { Address } from 'viem'
 import { SdkContext } from '../types'
 
+// Environment check for development logging
+const isDevelopment = (() => {
+  try {
+    return (
+      (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') ||
+      (typeof window !== 'undefined' && window.location?.hostname === 'localhost')
+    )
+  } catch {
+    return false
+  }
+})()
+
+// Development-only logging helper
+const devLog = (...args: Parameters<typeof console.log>) => {
+  if (isDevelopment) {
+    console.log(...args)
+  }
+}
+
 export class CoreDataSource {
   public readonly kong: KongDataSource
   public readonly yDaemon: YDaemonDataSource
@@ -27,12 +46,8 @@ export class CoreDataSource {
     this.yDaemon.dispose()
   }
 
-  async getAprOracleData(
-    vaultAddress: Address,
-    chainId: number,
-    delta: bigint
-  ) {
-    console.log('🔍 getAprOracleData called with:', {
+  async getAprOracleData(vaultAddress: Address, chainId: number, delta: bigint) {
+    devLog('🔍 getAprOracleData called with:', {
       vaultAddress,
       chainId,
       delta: delta.toString(),
@@ -55,13 +70,13 @@ export class CoreDataSource {
       },
     ]
 
-    console.log('📋 Contract calls prepared:', {
+    devLog('📋 Contract calls prepared:', {
       oracleAddress: aprOracleAddress[chainId as keyof typeof aprOracleAddress],
       contractsCount: expectedAprContracts.length,
       contracts: expectedAprContracts.map((c) => ({
         functionName: c.functionName,
         args: c.args.map((arg: Address | bigint) =>
-          typeof arg === 'bigint' ? arg.toString() : arg
+          typeof arg === 'bigint' ? arg.toString() : arg,
         ),
       })),
     })
@@ -70,14 +85,14 @@ export class CoreDataSource {
       contracts: expectedAprContracts,
     })
 
-    console.log(
+    devLog(
       '📊 Raw contract results:',
       expectedAprResults.map((result, index) => ({
         index,
         status: result.status,
         result: result.result ? (result.result as bigint).toString() : null,
         error: result.error,
-      }))
+      })),
     )
 
     // Check for failed calls and create fallback contracts
@@ -89,9 +104,7 @@ export class CoreDataSource {
     const finalResults = [...expectedAprResults]
 
     if (failedIndices.length > 0) {
-      console.log(
-        `🔄 Found ${failedIndices.length} failed calls, attempting fallback to getExpectedApr`
-      )
+      devLog(`🔄 Found ${failedIndices.length} failed calls, attempting fallback to getExpectedApr`)
 
       const fallbackContracts = failedIndices.map((index) => ({
         address: aprOracleAddress[chainId as keyof typeof aprOracleAddress],
@@ -101,14 +114,13 @@ export class CoreDataSource {
         chainId,
       }))
 
-      console.log('📋 Fallback contract calls prepared:', {
-        oracleAddress:
-          aprOracleAddress[chainId as keyof typeof aprOracleAddress],
+      devLog('📋 Fallback contract calls prepared:', {
+        oracleAddress: aprOracleAddress[chainId as keyof typeof aprOracleAddress],
         contractsCount: fallbackContracts.length,
         contracts: fallbackContracts.map((c) => ({
           functionName: c.functionName,
           args: c.args.map((arg: Address | bigint) =>
-            typeof arg === 'bigint' ? arg.toString() : arg
+            typeof arg === 'bigint' ? arg.toString() : arg,
           ),
         })),
       })
@@ -117,25 +129,23 @@ export class CoreDataSource {
         contracts: fallbackContracts,
       })
 
-      console.log(
+      devLog(
         '📊 Fallback contract results:',
         fallbackResults.map((result, index) => ({
           originalIndex: failedIndices[index],
           status: result.status,
           result: result.result ? (result.result as bigint).toString() : null,
           error: result.error,
-        }))
+        })),
       )
 
       // Replace failed results with fallback results
       failedIndices.forEach((originalIndex, fallbackIndex) => {
         if (fallbackResults[fallbackIndex].status === 'success') {
           finalResults[originalIndex] = fallbackResults[fallbackIndex]
-          console.log(
-            `✅ Successfully recovered index ${originalIndex} using getExpectedApr fallback`
-          )
+          devLog(`✅ Successfully recovered index ${originalIndex} using getExpectedApr fallback`)
         } else {
-          console.log(`❌ Fallback also failed for index ${originalIndex}`)
+          devLog(`❌ Fallback also failed for index ${originalIndex}`)
         }
       })
     }
@@ -144,30 +154,23 @@ export class CoreDataSource {
       .map((v) => v.result as bigint)
       .value() as [bigint, bigint]
 
-    console.log('🔢 Extracted APR values:', {
+    devLog('🔢 Extracted APR values:', {
       currentApr: currentApr ? currentApr.toString() : null,
       projectedApr: projectedApr ? projectedApr.toString() : null,
     })
 
-    const currentAprFormatted = currentApr
-      ? formatApr(currentApr)
-      : formatApr(0n)
-    const projectedAprFormatted = projectedApr
-      ? formatApr(projectedApr)
-      : formatApr(0n)
+    const currentAprFormatted = currentApr ? formatApr(currentApr) : formatApr(0n)
+    const projectedAprFormatted = projectedApr ? formatApr(projectedApr) : formatApr(0n)
 
-    console.log('✨ Formatted APR values:', {
+    devLog('✨ Formatted APR values:', {
       currentAprFormatted,
       projectedAprFormatted,
     })
 
     // Calculate percent change between current and projected APR
-    const percentChange = calculatePercentChange(
-      currentAprFormatted,
-      projectedAprFormatted
-    )
+    const percentChange = calculatePercentChange(currentAprFormatted, projectedAprFormatted)
 
-    console.log('📈 Calculated percent change:', percentChange)
+    devLog('📈 Calculated percent change:', percentChange)
 
     const result = {
       currentApr: currentAprFormatted,
@@ -176,7 +179,7 @@ export class CoreDataSource {
       delta,
     }
 
-    console.log('🎯 Final result:', {
+    devLog('🎯 Final result:', {
       ...result,
       delta: result.delta.toString(),
     })

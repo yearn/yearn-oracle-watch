@@ -32,6 +32,7 @@
     "@graphql-codegen/typescript": "^4.0.1",
     "@graphql-codegen/typescript-graphql-request": "^5.0.0",
     "@graphql-codegen/typescript-operations": "^4.0.1",
+    "@types/node": "*",
     "merkletreejs": "^0.3.11",
     "msw": "*",
     "vite": "*",
