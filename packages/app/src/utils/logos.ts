@@ -1,5 +1,5 @@
 import { Address } from 'viem'
 
 export function getSvgAsset(chainId: number, address: Address): string {
-  return `https://token-assets-one.vercel.app/api/tokens/${chainId}/${address}/logo.svg`
+  return `https://cdn.jsdelivr.net/gh/yearn/tokenassets@main/tokens/${chainId}/${address.toLowerCase()}/logo-32.png`
 }

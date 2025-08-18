@@ -3,22 +3,7 @@ import { formatPercent } from '.'
 
 export const formatApr = (aprValue: bigint): string => {
   const aprNumber = Number(aprValue)
-
-  // Determine scale based on magnitude
-  let percentage: number
-  if (aprNumber > 1e15) {
-    // Scale: 1e18 (100% = 1e18)
-    percentage = aprNumber / 1e16 // Convert to percentage (divide by 1e18 then multiply by 100)
-  } else if (aprNumber > 1e6) {
-    // Scale: 1e8 or similar (100% = 100000000)
-    percentage = aprNumber / 1e6
-  } else if (aprNumber > 1000) {
-    // Scale: basis points (100% = 10000)
-    percentage = aprNumber / 100
-  } else {
-    // Scale: already in percentage (100% = 100)
-    percentage = aprNumber
-  }
+  const percentage = aprNumber / 1e16 // Convert to percentage (divide by 1e18 then multiply by 100)
 
   return formatPercent(percentage, { mantissa: 2 })
 }
@@ -28,7 +13,7 @@ export const formatApr = (aprValue: bigint): string => {
  */
 export const calculatePercentChange = (
   currentApr: string | null,
-  projectedApr: string | null,
+  projectedApr: string | null
 ): string | null => {
   if (!currentApr || !projectedApr) return null
 
@@ -52,7 +37,7 @@ export const calculateDelta = (
   userInput: string,
   assetDecimals: number,
   isDenominationUSD = false,
-  assetPrice?: number,
+  assetPrice?: number
 ): bigint => {
   if (!userInput || Number.parseFloat(userInput) === 0) return 0n
 

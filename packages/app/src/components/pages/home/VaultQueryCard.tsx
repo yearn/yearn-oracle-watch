@@ -4,23 +4,20 @@ import { Modal } from '@/components/shared/Modal'
 import VaultSelectButton, {
   type KongVault,
 } from '@/components/shared/VaultSelectButton'
+import { VaultListItem } from '@/components/shared/VaultListItem'
 import YearnLoader from '@/components/shared/YearnLoader'
+import { VirtualScrollList } from '@/components/ui/VirtualScrollList'
 import { SupportedChain } from '@/config/supportedChains'
-import { CHAIN_ID_TO_NAME } from '@/constants/chains'
 import { useAprOracle } from '@/hooks/useAprOracle'
-// import {
-//   useVaultsWithLogos,
-//   type VaultWithLogos,
-//   type LoadingState,
-// } from '@/hooks/useVaultsWithLogos'
 import { type VaultData, useGetVaults } from '@/hooks/useGetVaults'
 import { useInput } from '@/hooks/useInput'
+import { usePreloadTokenImages } from '@/hooks/usePreloadTokenImages'
 import { findTokenPrice, useTokenPrices } from '@/hooks/useTokenPrices'
 import { calculateDelta } from '@yearn-oracle-watch/sdk'
 import React from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Address } from 'viem'
-import { getSvgAsset } from '../../../utils/logos'
+import { CHAIN_ID_TO_NAME } from '@/constants/chains'
 
 // Search utility function
 const searchVaults = (vaults: VaultData[], searchTerm: string) => {
@@ -91,6 +88,9 @@ const VaultQueryCard: React.FC = () => {
   const { data: pricesData } = useTokenPrices()
   const inputHook = useInput(18)
   const [inputValue] = inputHook
+
+  // Start preloading images as soon as vault data is available
+  usePreloadTokenImages(data || [])
 
   // Effect to load vault from URL params when data is available
   React.useEffect(() => {
@@ -195,36 +195,6 @@ const VaultQueryCard: React.FC = () => {
   const selectedVaultWithLogos = data?.find(
     (vault) => vault.address === selectedVault?.address
   )
-
-  // // Loading state messages with whimsy
-  // const getLoadingMessage = (state: LoadingState): string => {
-  //   switch (state) {
-  //     case 'fetching-data':
-  //       return 'Fetching vault data from Kong...'
-  //     case 'generating-urls':
-  //       return 'Generating logo URLs...'
-  //     case 'preloading-images':
-  //       return 'Preloading vault logos...'
-  //     case 'preloading-images-1s':
-  //       return 'Wow! there must be a lot of logos...'
-  //     case 'preloading-images-2s':
-  //       return 'Almost there! I promise!'
-  //     case 'preloading-images-3s':
-  //       return 'Are you sure you need logos?'
-  //     case 'complete':
-  //       return 'Complete!'
-  //     default:
-  //       return 'Loading...'
-  //   }
-  // }
-
-  // if (isLoading) {
-  //   return (
-  //     <div className="w-full h-full flex justify-center items-center">
-  //       <YearnLoader loadingState={getLoadingMessage(loadingState)} />
-  //     </div>
-  //   )
-  // }
 
   if (isLoading) {
     return (
@@ -491,31 +461,8 @@ const ModalData: React.FC<ModalDataProps> = ({
     )
   }
 
-  // Helper function to highlight matching text
-  const highlightMatch = (text: string, searchTerm?: string) => {
-    if (!searchTerm || !searchTerm.trim()) return text
-
-    const term = searchTerm.toLowerCase()
-    const lowerText = text.toLowerCase()
-    const index = lowerText.indexOf(term)
-
-    if (index === -1) return text
-
-    const before = text.slice(0, index)
-    const match = text.slice(index, index + term.length)
-    const after = text.slice(index + term.length)
-
-    return (
-      <>
-        {before}
-        <span className="bg-yellow-200 font-semibold">{match}</span>
-        {after}
-      </>
-    )
-  }
-
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-1 p-4 pt-0">
       {/* Search results count */}
       {searchTerm?.trim() && (
         <div className="text-sm text-gray-600 px-2">
@@ -523,43 +470,24 @@ const ModalData: React.FC<ModalDataProps> = ({
         </div>
       )}
 
-      {/* Vault List */}
-      <div
-        className="overflow-y-auto w-full"
-        style={{ maxHeight: 350, minHeight: 100 }}
-      >
-        {vaults.map((vault, idx) => {
-          const chainName = CHAIN_ID_TO_NAME[Number(vault.chainId)]
-          return (
-            <div
-              key={vault.address || idx}
-              className="h-[70px] px-6 py-1 bg-gray-100/50 overflow-hidden rounded-[16px] flex items-center gap-2 mb-3 cursor-pointer hover:bg-gray-200/50"
-              onClick={() => onSelect(vault)}
-            >
-              <div className="flex items-center gap-2 px-2">
-                <img
-                  className="w-8 h-8 min-w-8 min-h-8 max-w-8 max-h-8 relative"
-                  src={getSvgAsset(vault.chainId, vault.asset.address)}
-                  alt={vault.name as string}
-                  referrerPolicy="no-referrer"
-                />
-                <div className="flex flex-col items-start justify-start">
-                  <div className="text-[#1E1E1E] text-[16px] font-aeonik font-normal leading-5">
-                    {highlightMatch(vault.name || '', searchTerm)}
-                  </div>
-                  <div className="text-center text-[#3D3D3D] text-[10px] font-aeonik font-normal leading-[14px]">
-                    {highlightMatch(chainName || '', searchTerm)}
-                  </div>
-                  <div className="text-center text-[#3D3D3D] text-[10px] font-aeonik font-normal leading-[14px]">
-                    {highlightMatch(vault.address || '', searchTerm)}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-      <Button className="mt-4" variant="outlined" onClick={onClose}>
+      {/* Virtual Scrolling Vault List */}
+      <VirtualScrollList
+        items={vaults}
+        itemHeight={70} // 70px item height
+        containerHeight={490} // 70px * 7 rows
+        className="w-full"
+        renderItem={(vault, index, isVisible) => (
+          <VaultListItem
+            key={vault.address || index}
+            vault={vault}
+            searchTerm={searchTerm}
+            isVisible={isVisible}
+            onClick={() => onSelect(vault)}
+          />
+        )}
+      />
+
+      <Button className="mt-2" variant="outlined" onClick={onClose}>
         Close
       </Button>
     </div>
