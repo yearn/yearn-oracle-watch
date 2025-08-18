@@ -1,11 +1,4 @@
-import {
-  type ComponentProps,
-  type FC,
-  type ReactNode,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import { type ComponentProps, type FC, type ReactNode, useEffect, useRef, useState } from 'react'
 import {
   type UseSimulateContractReturnType,
   useChains,
@@ -71,8 +64,7 @@ const TxButton: FC<Props & ComponentProps<typeof Button>> = ({
   const isLoading = override === 'loading'
   const isSuccess = override === 'success'
 
-  const disabled =
-    _disabled || !prepareWrite.isSuccess || isLoading || isSimulating
+  const disabled = _disabled || !prepareWrite.isSuccess || isLoading || isSimulating
 
   const ButtonContentType: ButtonState | undefined = (() => {
     if (wrongNetwork) return 'wrongChain'
@@ -87,18 +79,8 @@ const TxButton: FC<Props & ComponentProps<typeof Button>> = ({
   const ButtonContent: Record<ButtonState, ReactNode> = {
     success: (
       <div className="flex items-center gap-2">
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M5 13l4 4L19 7"
-          />
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
         </svg>
         Success!
       </div>
@@ -111,12 +93,7 @@ const TxButton: FC<Props & ComponentProps<typeof Button>> = ({
     ),
     error: (
       <div className="flex items-center gap-2">
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -129,12 +106,7 @@ const TxButton: FC<Props & ComponentProps<typeof Button>> = ({
     ),
     approved: (
       <div className="flex items-center gap-2">
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -236,27 +208,20 @@ const TxButton: FC<Props & ComponentProps<typeof Button>> = ({
       isDisabled={disabled || wrongNetwork}
       isBusy={isLoading}
       className={`w-full h-[3.25rem] ${props.className || ''}`}
-      onClick={async (
-        event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>
-      ) => {
+      onClick={async (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
         ref.current = [event?.clientX, event?.clientY]
 
         const overrides = await (async () => {
           if (!prepareWrite.data?.request || !client) return {}
           try {
-            const gasEstimate = await client.estimateContractGas(
-              prepareWrite.data.request as any
-            )
+            const gasEstimate = await client.estimateContractGas(prepareWrite.data.request as any)
             if (gasEstimate) {
               const gas = (gasEstimate * BigInt(110)) / BigInt(100) // 10% buffer
               return { gas }
             }
             return {}
           } catch (error) {
-            console.error(
-              `Failed estimation for ${prepareWrite.data.request.functionName}`,
-              error
-            )
+            console.error(`Failed estimation for ${prepareWrite.data.request.functionName}`, error)
             return {}
           }
         })()
@@ -270,11 +235,7 @@ const TxButton: FC<Props & ComponentProps<typeof Button>> = ({
             })
             .catch((error) => {
               setOverride(undefined)
-              addNotification(
-                'error',
-                undefined,
-                `Failed to submit ${transactionName}`
-              )
+              addNotification('error', undefined, `Failed to submit ${transactionName}`)
               console.error('Transaction failed:', error)
             })
         }

@@ -1,25 +1,23 @@
-import React from 'react'
-import { useSearchParams } from 'react-router-dom'
+import Button from '@/components/shared/Button'
+import { InputDepositAmount } from '@/components/shared/InputDepositAmount'
+import { Modal } from '@/components/shared/Modal'
+import VaultSelectButton, { type KongVault } from '@/components/shared/VaultSelectButton'
+import YearnLoader from '@/components/shared/YearnLoader'
+import { SupportedChain } from '@/config/supportedChains'
+import { CHAIN_ID_TO_NAME } from '@/constants/chains'
+import { useAprOracle } from '@/hooks/useAprOracle'
 // import {
 //   useVaultsWithLogos,
 //   type VaultWithLogos,
 //   type LoadingState,
 // } from '@/hooks/useVaultsWithLogos'
-import { useGetVaults, type VaultData } from '@/hooks/useGetVaults'
-import Button from '@/components/shared/Button'
-import VaultSelectButton, {
-  type KongVault,
-} from '@/components/shared/VaultSelectButton'
-import { InputDepositAmount } from '@/components/shared/InputDepositAmount'
+import { type VaultData, useGetVaults } from '@/hooks/useGetVaults'
 import { useInput } from '@/hooks/useInput'
-import { Modal } from '@/components/shared/Modal'
-import { CHAIN_ID_TO_NAME } from '@/constants/chains'
-import YearnLoader from '@/components/shared/YearnLoader'
-import { useAprOracle } from '@/hooks/useAprOracle'
+import { findTokenPrice, useTokenPrices } from '@/hooks/useTokenPrices'
 import { calculateDelta } from '@yearn-oracle-watch/sdk'
-import { useTokenPrices, findTokenPrice } from '@/hooks/useTokenPrices'
+import React from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Address } from 'viem'
-import { SupportedChain } from '@/config/supportedChains'
 import { getSvgAsset } from '../../../utils/logos'
 
 // Search utility function
@@ -32,14 +30,14 @@ const searchVaults = (vaults: VaultData[], searchTerm: string) => {
     (vault) =>
       vault.name?.toLowerCase().includes(term) ||
       CHAIN_ID_TO_NAME[Number(vault.chainId)]?.toLowerCase().includes(term) ||
-      vault.address?.toLowerCase().includes(term)
+      vault.address?.toLowerCase().includes(term),
   )
 }
 
 // Debounce utility function
 const debounce = <T extends (...args: any[]) => void>(
   func: T,
-  delay: number
+  delay: number,
 ): ((...args: Parameters<T>) => void) => {
   let timeoutId: NodeJS.Timeout
   return (...args: Parameters<T>) => {
@@ -56,9 +54,7 @@ const VaultQueryCard: React.FC = () => {
   const [selectedAsset, setSelectedAsset] = React.useState('USD')
   const [selectedVault, setSelectedVault] = React.useState({} as KongVault)
   const [vaultModalOpen, setVaultModalOpen] = React.useState(false)
-  const [deltaValue, setDeltaValue] = React.useState<bigint | undefined>(
-    undefined
-  )
+  const [deltaValue, setDeltaValue] = React.useState<bigint | undefined>(undefined)
   const [searchTerm, setSearchTerm] = React.useState('')
   const [filteredVaults, setFilteredVaults] = React.useState<VaultData[]>([])
 
@@ -102,7 +98,7 @@ const VaultQueryCard: React.FC = () => {
         const foundVault = data.find(
           (vault) =>
             vault.address.toLowerCase() === vaultAddress.toLowerCase() &&
-            vault.chainId === Number(chainId)
+            vault.chainId === Number(chainId),
         )
 
         if (foundVault && !selectedVault?.address) {
@@ -120,7 +116,7 @@ const VaultQueryCard: React.FC = () => {
         const filtered = searchVaults(data || [], term)
         setFilteredVaults(filtered)
       }, 150),
-    [data]
+    [data],
   )
 
   // Effect to handle search term changes
@@ -162,11 +158,7 @@ const VaultQueryCard: React.FC = () => {
   const vaultSymbol = selectedVault?.asset?.symbol || 'yvUSDC'
   const assetPrice =
     pricesData && selectedVault?.asset?.address && selectedVault?.chainId
-      ? findTokenPrice(
-          pricesData,
-          selectedVault.asset.address,
-          selectedVault.chainId
-        )
+      ? findTokenPrice(pricesData, selectedVault.asset.address, selectedVault.chainId)
       : null
 
   const handleQuery = () => {
@@ -183,7 +175,7 @@ const VaultQueryCard: React.FC = () => {
       inputAmount,
       selectedVault.asset?.decimals || 18,
       selectedAsset === 'USD',
-      assetPrice || undefined
+      assetPrice || undefined,
     )
 
     setDeltaValue(delta)
@@ -192,9 +184,7 @@ const VaultQueryCard: React.FC = () => {
   const balance = 0n
 
   // Find the full vault with logos for InputDepositAmount
-  const selectedVaultWithLogos = data?.find(
-    (vault) => vault.address === selectedVault?.address
-  )
+  const selectedVaultWithLogos = data?.find((vault) => vault.address === selectedVault?.address)
 
   // // Loading state messages with whimsy
   // const getLoadingMessage = (state: LoadingState): string => {
@@ -311,13 +301,9 @@ const VaultQueryCard: React.FC = () => {
                   balance={balance}
                   currentVault={selectedVaultWithLogos}
                   assetPrice={assetPrice}
-                  onCurrencyChange={(newCurrency) =>
-                    setSelectedAsset(newCurrency)
-                  }
+                  onCurrencyChange={(newCurrency) => setSelectedAsset(newCurrency)}
                   onButtonClick={() =>
-                    setSelectedAsset(
-                      selectedAsset === 'USD' ? vaultSymbol : 'USD'
-                    )
+                    setSelectedAsset(selectedAsset === 'USD' ? vaultSymbol : 'USD')
                   }
                 />
               </div>
@@ -345,13 +331,9 @@ const VaultQueryCard: React.FC = () => {
                       isAprOracleLoading ? (
                         <span className="text-[#9E9E9E]">Loading...</span>
                       ) : aprOracleError ? (
-                        <span className="text-[#9E9E9E]">
-                          Error loading APR
-                        </span>
+                        <span className="text-[#9E9E9E]">Error loading APR</span>
                       ) : aprOracleResult?.currentApr ? (
-                        <span className="text-[#1E1E1E]">
-                          {aprOracleResult.currentApr}
-                        </span>
+                        <span className="text-[#1E1E1E]">{aprOracleResult.currentApr}</span>
                       ) : (
                         <span className="text-[#9E9E9E]">N/A</span>
                       )
@@ -369,20 +351,14 @@ const VaultQueryCard: React.FC = () => {
                       isAprOracleLoading ? (
                         <span className="text-[#9E9E9E]">Loading...</span>
                       ) : aprOracleError ? (
-                        <span className="text-[#9E9E9E]">
-                          Error loading APR
-                        </span>
+                        <span className="text-[#9E9E9E]">Error loading APR</span>
                       ) : aprOracleResult?.projectedApr ? (
-                        <span className="text-[#1E1E1E]">
-                          {aprOracleResult.projectedApr}
-                        </span>
+                        <span className="text-[#1E1E1E]">{aprOracleResult.projectedApr}</span>
                       ) : (
                         <span className="text-[#9E9E9E]">N/A</span>
                       )
                     ) : (
-                      <span className="text-[#9E9E9E]">
-                        Input deposit value
-                      </span>
+                      <span className="text-[#9E9E9E]">Input deposit value</span>
                     )}
                   </div>
                 </div>
@@ -408,9 +384,7 @@ const VaultQueryCard: React.FC = () => {
                         <span className="text-[#9E9E9E]">N/A</span>
                       )
                     ) : (
-                      <span className="text-[#9E9E9E]">
-                        Input deposit value
-                      </span>
+                      <span className="text-[#9E9E9E]">Input deposit value</span>
                     )}
                   </div>
                 </div>
@@ -461,9 +435,7 @@ const ModalData: React.FC<ModalDataProps> = ({
     return (
       <div className="flex flex-col gap-4 p-4">
         <div className="flex justify-center items-center h-32">
-          <div className="text-red-500">
-            Error loading vaults: {error.message}
-          </div>
+          <div className="text-red-500">Error loading vaults: {error.message}</div>
         </div>
         <Button className="mt-4" variant="outlined" onClick={onClose}>
           Close
@@ -475,7 +447,7 @@ const ModalData: React.FC<ModalDataProps> = ({
   const vaults = Array.isArray(data) && data.length > 0 ? data : []
 
   // Empty state when no results found after search
-  if (searchTerm && searchTerm.trim() && vaults.length === 0) {
+  if (searchTerm?.trim() && vaults.length === 0) {
     return (
       <div className="flex flex-col gap-4 p-4">
         <div className="flex flex-col justify-center items-center h-32 gap-2">
@@ -517,17 +489,14 @@ const ModalData: React.FC<ModalDataProps> = ({
   return (
     <div className="flex flex-col gap-4 p-4">
       {/* Search results count */}
-      {searchTerm && searchTerm.trim() && (
+      {searchTerm?.trim() && (
         <div className="text-sm text-gray-600 px-2">
           {vaults.length} vault{vaults.length !== 1 ? 's' : ''} found
         </div>
       )}
 
       {/* Vault List */}
-      <div
-        className="overflow-y-auto w-full"
-        style={{ maxHeight: 350, minHeight: 100 }}
-      >
+      <div className="overflow-y-auto w-full" style={{ maxHeight: 350, minHeight: 100 }}>
         {vaults.map((vault, idx) => {
           const chainName = CHAIN_ID_TO_NAME[Number(vault.chainId)]
           return (

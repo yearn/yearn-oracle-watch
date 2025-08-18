@@ -28,11 +28,7 @@ export const useAprOracle = (params?: UseAprOracleParams) => {
   return useQuery({
     queryKey: ['apr-oracle', vaultAddress, chainId, Number(delta)],
     queryFn: () =>
-      sdk.core.getAprOracleData(
-        vaultAddress as Address,
-        chainId as SupportedChain,
-        delta || 0n
-      ),
+      sdk.core.getAprOracleData(vaultAddress as Address, chainId as SupportedChain, delta || 0n),
     enabled: !!vaultAddress && !!chainId && delta !== undefined,
     staleTime: 30_000, // 30 seconds
   })

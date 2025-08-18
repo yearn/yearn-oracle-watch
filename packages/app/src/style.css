@@ -1,6 +1,6 @@
-@import '@rainbow-me/rainbowkit/styles.css';
-@import 'tailwindcss';
-@import 'tw-animate-css';
+@import "@rainbow-me/rainbowkit/styles.css";
+@import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -40,68 +40,57 @@
   --sidebar-ring: oklch(0.708 0 0);
 
   /* Add Aeonik font custom properties */
-  --font-aeonik: 'Aeonik', sans-serif;
-  --font-aeonik-mono: 'Aeonik Mono', monospace;
+  --font-aeonik: "Aeonik", sans-serif;
+  --font-aeonik-mono: "Aeonik Mono", monospace;
 }
 
 @font-face {
-  font-family: 'Aeonik';
-  src:
-    url('/fonts/Aeonik-Regular.woff2') format('woff2'),
-    url('/fonts/Aeonik-Regular.woff') format('woff'),
-    url('/fonts/Aeonik-Regular.ttf') format('truetype');
+  font-family: "Aeonik";
+  src: url("/fonts/Aeonik-Regular.woff2") format("woff2"), url("/fonts/Aeonik-Regular.woff")
+    format("woff"), url("/fonts/Aeonik-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Aeonik';
-  src:
-    url('/fonts/Aeonik-Bold.woff2') format('woff2'),
-    url('/fonts/Aeonik-Bold.woff') format('woff'),
-    url('/fonts/Aeonik-Bold.ttf') format('truetype');
+  font-family: "Aeonik";
+  src: url("/fonts/Aeonik-Bold.woff2") format("woff2"), url("/fonts/Aeonik-Bold.woff")
+    format("woff"), url("/fonts/Aeonik-Bold.ttf") format("truetype");
   font-weight: bold;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Aeonik Mono';
-  src: url('/fonts/AeonikMono-Regular.eot');
-  src:
-    local('Aeonik Mono Regular'),
-    local('AeonikMono-Regular'),
-    url('/fonts/AeonikMono-Regular.eot?#iefix') format('embedded-opentype'),
-    url('/fonts/AeonikMono-Regular.woff2') format('woff2'),
-    url('/fonts/AeonikMono-Regular.woff') format('woff'),
-    url('/fonts/AeonikMono-Regular.ttf') format('truetype'),
-    url('/fonts/AeonikMono-Regular.svg#AeonikMono-Regular') format('svg');
+  font-family: "Aeonik Mono";
+  src: url("/fonts/AeonikMono-Regular.eot");
+  src: local("Aeonik Mono Regular"), local("AeonikMono-Regular"),
+    url("/fonts/AeonikMono-Regular.eot?#iefix") format("embedded-opentype"),
+    url("/fonts/AeonikMono-Regular.woff2") format("woff2"), url("/fonts/AeonikMono-Regular.woff")
+    format("woff"), url("/fonts/AeonikMono-Regular.ttf") format("truetype"),
+    url("/fonts/AeonikMono-Regular.svg#AeonikMono-Regular") format("svg");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Aeonik Mono';
-  src: url('/fonts/AeonikMono-Bold.eot');
-  src:
-    local('Aeonik Mono Bold'),
-    local('AeonikMono-Bold'),
-    url('/fonts/AeonikMono-Bold.eot?#iefix') format('embedded-opentype'),
-    url('/fonts/AeonikMono-Bold.woff2') format('woff2'),
-    url('/fonts/AeonikMono-Bold.woff') format('woff'),
-    url('/fonts/AeonikMono-Bold.ttf') format('truetype'),
-    url('/fonts/AeonikMono-Bold.svg#AeonikMono-Bold') format('svg');
+  font-family: "Aeonik Mono";
+  src: url("/fonts/AeonikMono-Bold.eot");
+  src: local("Aeonik Mono Bold"), local("AeonikMono-Bold"), url("/fonts/AeonikMono-Bold.eot?#iefix")
+    format("embedded-opentype"), url("/fonts/AeonikMono-Bold.woff2") format("woff2"),
+    url("/fonts/AeonikMono-Bold.woff") format("woff"), url("/fonts/AeonikMono-Bold.ttf")
+    format("truetype"), url("/fonts/AeonikMono-Bold.svg#AeonikMono-Bold") format("svg");
   font-weight: bold;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Aeonik Fono';
-  src: url('/fonts/AeonikFono-Regular.otf');
-  src: local('Aeonik Fono Regular'), local('AeonikFono-Regular');
+  font-family: "Aeonik Fono";
+  src: url("/fonts/AeonikFono-Regular.otf");
+  src: local("Aeonik Fono Regular"), local("AeonikFono-Regular");
 
   font-weight: normal;
   font-style: normal;
@@ -134,65 +123,65 @@ p {
   @apply cursor-pointer px-5 flex justify-center items-center h-10 text-base transition-all relative;
   border-radius: var(--default-rounded);
 
-  &[data-variant='filled'] {
+  &[data-variant="filled"] {
     @apply bg-[#1A51B2] font-semibold border border-transparent;
     &:disabled {
       @apply bg-[#1A51B2] opacity-40;
     }
-    &:not(:disabled):not([aria-busy='true']):hover {
+    &:not(:disabled):not([aria-busy="true"]):hover {
       @apply bg-[#1c4ca1];
     }
   }
-  &[data-variant='loading'] {
+  &[data-variant="loading"] {
     @apply text-neutral-900 bg-blue-200 font-semibold border border-transparent;
     &:disabled {
       @apply bg-blue-200 opacity-40;
     }
   }
-  &[data-variant='light'] {
+  &[data-variant="light"] {
     @apply text-neutral-900 bg-neutral-100 border border-transparent;
     &:disabled {
       @apply opacity-40;
     }
-    &:not(:disabled):not([aria-busy='true']):hover {
+    &:not(:disabled):not([aria-busy="true"]):hover {
       @apply bg-neutral-200;
     }
   }
-  &[data-variant='outlined'] {
+  &[data-variant="outlined"] {
     @apply text-neutral-900 bg-transparent border border-neutral-500;
     &:disabled {
       @apply opacity-40;
     }
-    &:not(:disabled):not([aria-busy='true']):hover {
+    &:not(:disabled):not([aria-busy="true"]):hover {
       @apply bg-[#1A51B2] text-white;
     }
   }
-  &[data-variant='error'] {
+  &[data-variant="error"] {
     @apply text-neutral-900  font-semibold border border-transparent;
     &:disabled {
       @apply bg-neutral-200 opacity-40;
     }
-    &:not(:disabled):not([aria-busy='true']):hover {
+    &:not(:disabled):not([aria-busy="true"]):hover {
       @apply bg-neutral-200;
     }
-    &[aria-busy='true'] svg {
+    &[aria-busy="true"] svg {
       @apply text-neutral-900;
     }
   }
 
   /* vault-select variant custom style */
-  &[data-variant='vault-select'] {
+  &[data-variant="vault-select"] {
     @apply w-full h-[70px] p-1 bg-[#F2F2F2] rounded-[16px] flex flex-col justify-center items-center gap-2.5 cursor-pointer;
     border: none;
     position: relative;
     &:disabled {
       @apply opacity-40 cursor-not-allowed;
     }
-    &:not(:disabled):not([aria-busy='true']):hover {
+    &:not(:disabled):not([aria-busy="true"]):hover {
       @apply bg-[#e0e0e0];
     }
   }
-  &[aria-busy='true'] {
+  &[aria-busy="true"] {
     @apply cursor-wait;
     color: transparent !important;
   }

@@ -1,11 +1,11 @@
+import { readContracts } from '@wagmi/core'
+import { aprOracleAbi, aprOracleAddress } from '@yearn-oracle-watch/contracts'
+import _ from 'lodash'
 import { KongDataSource } from 'src/datasources/KongDataSource'
 import { YDaemonDataSource } from 'src/datasources/YDaemonDataSource'
-import { SdkContext } from '../types'
-import { Address } from 'viem'
-import { aprOracleAbi, aprOracleAddress } from '@yearn-oracle-watch/contracts'
-import { readContracts } from '@wagmi/core'
-import _ from 'lodash'
 import { calculatePercentChange, formatApr } from 'src/utils/apr'
+import { Address } from 'viem'
+import { SdkContext } from '../types'
 
 export class CoreDataSource {
   public readonly kong: KongDataSource
@@ -27,11 +27,7 @@ export class CoreDataSource {
     this.yDaemon.dispose()
   }
 
-  async getAprOracleData(
-    vaultAddress: Address,
-    chainId: number,
-    delta: bigint
-  ) {
+  async getAprOracleData(vaultAddress: Address, chainId: number, delta: bigint) {
     console.log('🔍 getAprOracleData called with:', {
       vaultAddress,
       chainId,
@@ -61,7 +57,7 @@ export class CoreDataSource {
       contracts: expectedAprContracts.map((c) => ({
         functionName: c.functionName,
         args: c.args.map((arg: Address | bigint) =>
-          typeof arg === 'bigint' ? arg.toString() : arg
+          typeof arg === 'bigint' ? arg.toString() : arg,
         ),
       })),
     })
@@ -77,7 +73,7 @@ export class CoreDataSource {
         status: result.status,
         result: result.result ? (result.result as bigint).toString() : null,
         error: result.error,
-      }))
+      })),
     )
 
     const [currentApr, projectedApr] = _.chain(expectedAprResults)
@@ -98,10 +94,7 @@ export class CoreDataSource {
     })
 
     // Calculate percent change between current and projected APR
-    const percentChange = calculatePercentChange(
-      currentAprFormatted,
-      projectedAprFormatted
-    )
+    const percentChange = calculatePercentChange(currentAprFormatted, projectedAprFormatted)
 
     console.log('📈 Calculated percent change:', percentChange)
 

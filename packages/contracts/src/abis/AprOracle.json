@@ -1,8 +1,6 @@
 [
   {
-    "inputs": [
-      { "internalType": "address", "name": "_governance", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "address", "name": "_governance", "type": "address" }],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
@@ -26,13 +24,9 @@
     "type": "event"
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "_vault", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "address", "name": "_vault", "type": "address" }],
     "name": "getCurrentApr",
-    "outputs": [
-      { "internalType": "uint256", "name": "apr", "type": "uint256" }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "apr", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -42,9 +36,7 @@
       { "internalType": "int256", "name": "_delta", "type": "int256" }
     ],
     "name": "getExpectedApr",
-    "outputs": [
-      { "internalType": "uint256", "name": "apr", "type": "uint256" }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "apr", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -54,9 +46,7 @@
       { "internalType": "int256", "name": "_debtChange", "type": "int256" }
     ],
     "name": "getStrategyApr",
-    "outputs": [
-      { "internalType": "uint256", "name": "apr", "type": "uint256" }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "apr", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -95,9 +85,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      { "internalType": "address", "name": "_newGovernance", "type": "address" }
-    ],
+    "inputs": [{ "internalType": "address", "name": "_newGovernance", "type": "address" }],
     "name": "transferGovernance",
     "outputs": [],
     "stateMutability": "nonpayable",

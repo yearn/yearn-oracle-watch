@@ -6,7 +6,7 @@
  */
 export function filterVaultsByChainIds(
   vaults: NonNullableVaultData[],
-  excludeChainIds: number[]
+  excludeChainIds: number[],
 ): NonNullableVaultData[] {
   return vaults.filter((vault) => !excludeChainIds.includes(vault.chainId))
 }
@@ -40,12 +40,7 @@ export class KongDataSource extends BaseDataSource {
     if (!this.graphqlClient) {
       throw new Error('GraphQL client not initialized')
     }
-    this.gql = createCachedSdk(
-      this.sourceName,
-      kong_getSdk,
-      this.graphqlClient,
-      this.queryClient
-    )
+    this.gql = createCachedSdk(this.sourceName, kong_getSdk, this.graphqlClient, this.queryClient)
   }
 
   protected onDispose(): void {}

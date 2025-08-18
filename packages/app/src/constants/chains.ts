@@ -14,9 +14,7 @@ export const CHAIN_ID_TO_NAME: Record<number, string> = {
 }
 
 export function getChainIdByName(name: string): number | undefined {
-  const entry = Object.entries(CHAIN_ID_TO_NAME).find(
-    ([, chainName]) => chainName === name
-  )
+  const entry = Object.entries(CHAIN_ID_TO_NAME).find(([, chainName]) => chainName === name)
   return entry ? Number(entry[0]) : undefined
 }
 

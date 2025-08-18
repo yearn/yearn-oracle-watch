@@ -1,17 +1,17 @@
-import { useAccount } from '@/hooks/useAccount'
-import { useInput } from '@/hooks/useInput'
-import { simpleToExact } from '@/utils'
-import { cn } from '@/utils/cn'
-import React, { ChangeEvent, FC } from 'react'
 import { CaretDownIcon } from '@/components/shared/icons/CaretDownIcon'
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useAccount } from '@/hooks/useAccount'
 import { type VaultData } from '@/hooks/useGetVaults'
+import { useInput } from '@/hooks/useInput'
+import { simpleToExact } from '@/utils'
+import { cn } from '@/utils/cn'
 import { getSvgAsset } from '@/utils/logos'
+import React, { ChangeEvent, FC } from 'react'
 
 interface Props {
   input: ReturnType<typeof useInput>
@@ -59,9 +59,7 @@ export const InputDepositAmount: FC<Props> = ({
 
   // Dropdown state
   const [open, setOpen] = React.useState(false)
-  const [selected, setSelected] = React.useState<string>(
-    symbol ?? defaultSymbol
-  )
+  const [selected, setSelected] = React.useState<string>(symbol ?? defaultSymbol)
 
   // Create options with USD and vault asset
   const options = [
@@ -75,15 +73,11 @@ export const InputDepositAmount: FC<Props> = ({
   }
 
   // Currency conversion function
-  const convertValue = (
-    fromCurrency: string,
-    toCurrency: string,
-    value: string
-  ): string => {
-    if (!value || !assetPrice || parseFloat(value) === 0) return value
+  const convertValue = (fromCurrency: string, toCurrency: string, value: string): string => {
+    if (!value || !assetPrice || Number.parseFloat(value) === 0) return value
 
-    const numericValue = parseFloat(value)
-    if (isNaN(numericValue)) return value
+    const numericValue = Number.parseFloat(value)
+    if (Number.isNaN(numericValue)) return value
 
     // Convert from USD to asset
     if (fromCurrency === 'USD' && toCurrency === vaultAsset) {
@@ -107,11 +101,7 @@ export const InputDepositAmount: FC<Props> = ({
 
     // Only convert if currency actually changed and we have a price
     if (previousCurrency !== newCurrency && assetPrice && formValue) {
-      const convertedValue = convertValue(
-        previousCurrency,
-        newCurrency,
-        formValue
-      )
+      const convertedValue = convertValue(previousCurrency, newCurrency, formValue)
       setFormValue(convertedValue)
     }
 
@@ -142,7 +132,7 @@ export const InputDepositAmount: FC<Props> = ({
             'self-stretch px-6 rounded-[12px] bg-transparent outline-none text-xl font-normal leading-8 font-mono min-w-0',
             disabled ? 'text-gray-700' : 'text-[#1E1E1E]',
             'placeholder:text-gray-400',
-            'font-aeonik-mono'
+            'font-aeonik-mono',
           )}
         />
         <div className="flex-1 h-1" />
@@ -152,7 +142,7 @@ export const InputDepositAmount: FC<Props> = ({
               type="button"
               className={cn(
                 'self-stretch flex flex-row items-center justify-end gap-2.5 px-0 py-0 transition',
-                'bg-white/50 outline outline-1 outline-black/10 -outline-offset-1 hover:bg-white/70 rounded-[14px]'
+                'bg-white/50 outline outline-1 outline-black/10 -outline-offset-1 hover:bg-white/70 rounded-[14px]',
               )}
               style={{
                 height: '48px',
@@ -161,7 +151,7 @@ export const InputDepositAmount: FC<Props> = ({
             >
               <div
                 className={cn(
-                  'w-full px-6 py-1 flex justify-end items-center gap-3 rounded-[12px]'
+                  'w-full px-6 py-1 flex justify-end items-center gap-3 rounded-[12px]',
                 )}
               >
                 <div className="text-right text-[#3D3D3D] text-base font-normal leading-8 font-aeonik">
@@ -171,7 +161,7 @@ export const InputDepositAmount: FC<Props> = ({
                   <CaretDownIcon
                     className={cn(
                       'ml-1 w-4 h-4 transition-transform duration-200',
-                      open ? 'rotate-90' : 'rotate-0'
+                      open ? 'rotate-90' : 'rotate-0',
                     )}
                     color="#3D3D3D"
                   />
@@ -185,7 +175,7 @@ export const InputDepositAmount: FC<Props> = ({
               'bg-white flex flex-col p-0',
               'rounded-[14px]',
               'outline outline-1 outline-gray-400 -outline-offset-1',
-              'shadow-lg'
+              'shadow-lg',
             )}
           >
             {options.map((opt) => (
@@ -195,7 +185,7 @@ export const InputDepositAmount: FC<Props> = ({
                 className={cn(
                   'flex flex-row items-center justify-end gap-3 px-6 py-2',
                   'text-[#3D3D3D] text-base font-normal leading-8 font-aeonik',
-                  selected === opt.value
+                  selected === opt.value,
                 )}
               >
                 {/* Token logo */}
@@ -206,16 +196,12 @@ export const InputDepositAmount: FC<Props> = ({
                       alt="dollar"
                       className="w-6 h-6 rounded-full"
                       onError={(e) => {
-                        e.currentTarget.src =
-                          'https://placehold.co/24x24/cccccc/666666?text=?'
+                        e.currentTarget.src = 'https://placehold.co/24x24/cccccc/666666?text=?'
                       }}
                     />
                   ) : currentVault?.chainId && currentVault?.asset?.address ? (
                     <img
-                      src={getSvgAsset(
-                        currentVault.chainId,
-                        currentVault.asset.address
-                      )}
+                      src={getSvgAsset(currentVault.chainId, currentVault.asset.address)}
                       alt={vaultAsset}
                       className="w-6 h-6 rounded-full"
                     />

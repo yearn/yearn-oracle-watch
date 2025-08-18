@@ -1,7 +1,7 @@
 import type { QueryClient } from '@tanstack/query-core'
 import type { Config } from '@wagmi/core'
 import { CoreDataSource } from './datasources/CoreDataSource'
-import { SdkContext, SdkConfig } from './types'
+import { SdkConfig, SdkContext } from './types'
 
 export class Sdk {
   private readonly queryClient: QueryClient
@@ -70,11 +70,7 @@ export class Sdk {
     }
   }
 
-  static create(
-    queryClient: QueryClient,
-    wagmiConfig: Config,
-    config?: Partial<SdkConfig>,
-  ): Sdk {
+  static create(queryClient: QueryClient, wagmiConfig: Config, config?: Partial<SdkConfig>): Sdk {
     const sdk = new Sdk(queryClient, wagmiConfig, config)
     sdk.initialize().catch(console.error)
     return sdk

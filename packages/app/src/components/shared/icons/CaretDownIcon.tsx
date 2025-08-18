@@ -5,10 +5,7 @@ interface CaretDownIconProps {
   color?: string
 }
 
-export const CaretDownIcon: React.FC<CaretDownIconProps> = ({
-  className,
-  color = 'white',
-}) => (
+export const CaretDownIcon: React.FC<CaretDownIconProps> = ({ className, color = 'white' }) => (
   <svg
     width="18"
     height="10"

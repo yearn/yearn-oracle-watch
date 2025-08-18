@@ -1,9 +1,9 @@
+import { getSvgAsset } from '@/utils/logos'
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
+import { type Address, getAddress } from 'viem'
 import { useSdk } from '../context/Sdk'
 import { queryKeys } from '../utils/queryKeys'
-import { getSvgAsset } from '@/utils/logos'
-import { getAddress, type Address } from 'viem'
-import { useState } from 'react'
 
 type LoadingState =
   | 'fetching-data'
@@ -58,8 +58,7 @@ const preloadImage = (src: string): Promise<HTMLImageElement> => {
           console.log('✅ Loaded placeholder image')
           resolve(placeholderImg)
         }
-        placeholderImg.onerror = () =>
-          reject(new Error('Failed to load fallback image'))
+        placeholderImg.onerror = () => reject(new Error('Failed to load fallback image'))
       }
 
       img.src = src
@@ -69,8 +68,7 @@ const preloadImage = (src: string): Promise<HTMLImageElement> => {
 
 export const useVaultsWithLogos = () => {
   const sdk = useSdk()
-  const [loadingState, setLoadingState] =
-    useState<LoadingState>('fetching-data')
+  const [loadingState, setLoadingState] = useState<LoadingState>('fetching-data')
 
   const query = useQuery({
     queryKey: [...queryKeys.vaults(), 'with-logos'],
@@ -83,14 +81,8 @@ export const useVaultsWithLogos = () => {
         // Step 2: Generating logo URLs
         setLoadingState('generating-urls')
         const vaultsWithUrls = vaultsData.map((vault) => {
-          const vaultLogoUrl = getSvgAsset(
-            vault.chainId,
-            getAddress(vault.address)
-          )
-          const assetLogoUrl = getSvgAsset(
-            vault.chainId,
-            getAddress(vault.asset.address)
-          )
+          const vaultLogoUrl = getSvgAsset(vault.chainId, getAddress(vault.address))
+          const assetLogoUrl = getSvgAsset(vault.chainId, getAddress(vault.asset.address))
 
           return {
             ...vault,
@@ -105,18 +97,9 @@ export const useVaultsWithLogos = () => {
         setLoadingState('preloading-images')
 
         // Add whimsical timing messages
-        const timer1 = setTimeout(
-          () => setLoadingState('preloading-images-1s'),
-          2000
-        )
-        const timer2 = setTimeout(
-          () => setLoadingState('preloading-images-2s'),
-          4000
-        )
-        const timer3 = setTimeout(
-          () => setLoadingState('preloading-images-3s'),
-          6000
-        )
+        const timer1 = setTimeout(() => setLoadingState('preloading-images-1s'), 2000)
+        const timer2 = setTimeout(() => setLoadingState('preloading-images-2s'), 4000)
+        const timer3 = setTimeout(() => setLoadingState('preloading-images-3s'), 6000)
 
         let vaultsWithLogos: VaultWithLogos[]
         try {
@@ -140,17 +123,11 @@ export const useVaultsWithLogos = () => {
                 return {
                   ...vault,
                   preloadedImages: {
-                    vault:
-                      vaultImage.status === 'fulfilled'
-                        ? vaultImage.value
-                        : null,
-                    asset:
-                      assetImage.status === 'fulfilled'
-                        ? assetImage.value
-                        : null,
+                    vault: vaultImage.status === 'fulfilled' ? vaultImage.value : null,
+                    asset: assetImage.status === 'fulfilled' ? assetImage.value : null,
                   },
                 }
-              })
+              }),
             )
 
             results.push(...batchResults)

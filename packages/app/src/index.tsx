@@ -2,8 +2,8 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Route, Routes as Router } from 'react-router-dom'
 import { Home } from './components/pages/home'
-import { Navigation } from './components/shared/Navigation'
 import { ChainGuard } from './components/shared/ChainGuard'
+import { Navigation } from './components/shared/Navigation'
 import { Providers, Updaters } from './context'
 import './style.css'
 
@@ -20,5 +20,5 @@ root.render(
       </ChainGuard>
       <Updaters />
     </Providers>
-  </StrictMode>
+  </StrictMode>,
 )

@@ -26,9 +26,7 @@ export const UnsupportedChain: FC = () => {
             </svg>
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Chain Not Yet Supported</h1>
-          <p className="text-gray-600 mb-6">
-            {`Chain ${chainId}`} is not yet supported
-          </p>
+          <p className="text-gray-600 mb-6">{`Chain ${chainId}`} is not yet supported</p>
         </div>
 
         <div className="space-y-4">

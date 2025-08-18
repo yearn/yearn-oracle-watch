@@ -28,7 +28,7 @@ export const formatApr = (aprValue: bigint): string => {
  */
 export const calculatePercentChange = (
   currentApr: string | null,
-  projectedApr: string | null
+  projectedApr: string | null,
 ): string | null => {
   if (!currentApr || !projectedApr) return null
 
@@ -52,7 +52,7 @@ export const calculateDelta = (
   userInput: string,
   assetDecimals: number,
   isDenominationUSD = false,
-  assetPrice?: number
+  assetPrice?: number,
 ): bigint => {
   if (!userInput || Number.parseFloat(userInput) === 0) return 0n
 
