@@ -396,6 +396,36 @@ type ModalDataProps = {
   onSelect: (vault: VaultData) => void
 }
 
+// Helper components for common modal layouts
+const ModalContainer: React.FC<{
+  children: React.ReactNode
+  hasTopPadding?: boolean
+}> = ({ children, hasTopPadding = false }) => (
+  <div className={`flex flex-col gap-1 p-4 ${hasTopPadding ? '' : 'pt-0'}`}>
+    {children}
+  </div>
+)
+
+const CenteredContent: React.FC<{
+  children: React.ReactNode
+  variant?: 'single' | 'stacked'
+}> = ({ children, variant = 'single' }) => (
+  <div
+    className={`flex ${variant === 'single' ? 'justify-center items-center' : 'flex-col justify-center items-center'} h-[490px] ${variant === 'stacked' ? 'gap-2' : ''}`}
+  >
+    {children}
+  </div>
+)
+
+const CloseButton: React.FC<{
+  onClick: () => void
+  marginTop?: 'mt-2' | 'mt-4'
+}> = ({ onClick, marginTop = 'mt-2' }) => (
+  <Button className={marginTop} variant="outlined" onClick={onClick}>
+    Close
+  </Button>
+)
+
 const ModalData: React.FC<ModalDataProps> = ({
   data,
   searchTerm,
@@ -406,29 +436,25 @@ const ModalData: React.FC<ModalDataProps> = ({
 }) => {
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-1 p-4">
-        <div className="flex justify-center items-center h-[490px]">
+      <ModalContainer hasTopPadding>
+        <CenteredContent>
           <div className="text-gray-500">Loading vaults...</div>
-        </div>
-        <Button className="mt-4" variant="outlined" onClick={onClose}>
-          Close
-        </Button>
-      </div>
+        </CenteredContent>
+        <CloseButton onClick={onClose} marginTop="mt-4" />
+      </ModalContainer>
     )
   }
 
   if (error) {
     return (
-      <div className="flex flex-col gap-1 p-4 pt-0">
-        <div className="flex justify-center items-center h-[490px]">
+      <ModalContainer>
+        <CenteredContent>
           <div className="text-red-500">
             Error loading vaults: {error.message}
           </div>
-        </div>
-        <Button className="mt-2" variant="outlined" onClick={onClose}>
-          Close
-        </Button>
-      </div>
+        </CenteredContent>
+        <CloseButton onClick={onClose} />
+      </ModalContainer>
     )
   }
 
@@ -437,22 +463,20 @@ const ModalData: React.FC<ModalDataProps> = ({
   // Empty state when no results found after search
   if (searchTerm?.trim() && vaults.length === 0) {
     return (
-      <div className="flex flex-col gap-1 p-4 pt-0">
-        <div className="flex flex-col justify-center items-center h-[490px] gap-2">
+      <ModalContainer>
+        <CenteredContent variant="stacked">
           <div className="text-gray-500 text-lg">No vaults found</div>
           <div className="text-gray-400 text-sm">
             Try searching for a different vault name, chain, or address
           </div>
-        </div>
-        <Button className="mt-2" variant="outlined" onClick={onClose}>
-          Close
-        </Button>
-      </div>
+        </CenteredContent>
+        <CloseButton onClick={onClose} />
+      </ModalContainer>
     )
   }
 
   return (
-    <div className="flex flex-col gap-1 p-4 pt-0">
+    <ModalContainer>
       {/* Virtual Scrolling Vault List */}
       <VirtualScrollList
         items={vaults}
@@ -469,10 +493,7 @@ const ModalData: React.FC<ModalDataProps> = ({
           />
         )}
       />
-
-      <Button className="mt-2" variant="outlined" onClick={onClose}>
-        Close
-      </Button>
-    </div>
+      <CloseButton onClick={onClose} />
+    </ModalContainer>
   )
 }
