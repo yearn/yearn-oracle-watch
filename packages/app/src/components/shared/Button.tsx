@@ -8,10 +8,18 @@ const classNames = (...classes: (string | undefined | false | null)[]) =>
 
 // Loading indicator extracted for reuse
 const LoadingIndicator = () => (
-  <span className="absolute inset-0 flex items-center justify-center">Loading... </span>
+  <span className="absolute inset-0 flex items-center justify-center">
+    Loading...{' '}
+  </span>
 )
 
-export type TButtonVariant = 'filled' | 'outlined' | 'light' | 'inherit' | 'vault-select' | string
+export type TButtonVariant =
+  | 'filled'
+  | 'outlined'
+  | 'light'
+  | 'inherit'
+  | 'vault-select'
+  | string
 
 type ButtonAsButton = {
   as?: 'button'
@@ -35,14 +43,16 @@ type ButtonAsAnchor = {
 
 export type TButton = ButtonAsButton | ButtonAsAnchor
 
-export type TMouseEvent = React.MouseEvent<HTMLButtonElement> | React.MouseEvent<HTMLAnchorElement>
+export type TMouseEvent =
+  | React.MouseEvent<HTMLButtonElement>
+  | React.MouseEvent<HTMLAnchorElement>
 
 // Shared click handler
 function handleClick(
   event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>,
   isBusy: boolean,
   shouldStopPropagation: boolean,
-  onClick?: React.MouseEventHandler<any>,
+  onClick?: React.MouseEventHandler<any>
 ) {
   if (shouldStopPropagation) {
     event.stopPropagation()
@@ -53,73 +63,88 @@ function handleClick(
 }
 
 // eslint-disable-next-line react/display-name
-const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, TButton>(function Button(
-  props: TButton,
-  ref: ForwardedRef<HTMLButtonElement | HTMLAnchorElement>,
-): ReactElement {
-  const {
-    children,
-    as = 'button',
-    variant = 'filled',
-    shouldStopPropagation = false,
-    isBusy = false,
-    isDisabled = false,
-    overrideStyling = false,
-    ...rest
-  } = props as TButton
+const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, TButton>(
+  function Button(
+    props: TButton,
+    ref: ForwardedRef<HTMLButtonElement | HTMLAnchorElement>
+  ): ReactElement {
+    const {
+      children,
+      as = 'button',
+      variant = 'filled',
+      shouldStopPropagation = false,
+      isBusy = false,
+      isDisabled = false,
+      overrideStyling = false,
+      ...rest
+    } = props as TButton
 
-  // Anchor element
-  if (as === 'a') {
-    const anchorProps = rest as React.ComponentPropsWithoutRef<'a'>
+    // Anchor element rendered as button for accessibility
+    if (as === 'a') {
+      const anchorProps = rest as React.ComponentPropsWithoutRef<'a'>
+      return (
+        <button
+          type="button"
+          {...anchorProps}
+          ref={ref as ForwardedRef<HTMLButtonElement>}
+          className={
+            overrideStyling
+              ? anchorProps.className
+              : classNames(
+                  'yearn--button flex-center cursor-pointer',
+                  anchorProps.className
+                )
+          }
+          aria-busy={isBusy}
+          aria-disabled={isDisabled}
+          disabled={isDisabled}
+          tabIndex={isDisabled ? -1 : 0}
+          onClick={(event) => {
+            if (isDisabled) {
+              event.preventDefault()
+              return
+            }
+            handleClick(
+              event,
+              isBusy,
+              shouldStopPropagation,
+              anchorProps.onClick
+            )
+          }}
+        >
+          {children}
+          {isBusy ? <LoadingIndicator /> : null}
+        </button>
+      )
+    }
+
+    const buttonProps = rest as React.ComponentPropsWithoutRef<'button'>
+
     return (
-      <a
-        {...anchorProps}
-        ref={ref as ForwardedRef<HTMLAnchorElement>}
+      <button
+        type="button"
+        {...buttonProps}
+        ref={ref as ForwardedRef<HTMLButtonElement>}
+        data-variant={variant}
         className={
           overrideStyling
-            ? anchorProps.className
-            : classNames('yearn--button flex-center cursor-pointer', anchorProps.className)
+            ? buttonProps.className
+            : classNames(
+                'yearn--button flex-center cursor-pointer',
+                buttonProps.className
+              )
         }
         aria-busy={isBusy}
-        aria-disabled={isDisabled}
-        tabIndex={isDisabled ? -1 : 0}
+        disabled={isDisabled || buttonProps.disabled}
         onClick={(event) => {
-          if (isDisabled) {
-            event.preventDefault()
-            return
-          }
-          handleClick(event, isBusy, shouldStopPropagation, anchorProps.onClick)
+          handleClick(event, isBusy, shouldStopPropagation, buttonProps.onClick)
         }}
       >
         {children}
         {isBusy ? <LoadingIndicator /> : null}
-      </a>
+      </button>
     )
   }
-
-  const buttonProps = rest as React.ComponentPropsWithoutRef<'button'>
-
-  return (
-    <button
-      type="button"
-      {...buttonProps}
-      ref={ref as ForwardedRef<HTMLButtonElement>}
-      data-variant={variant}
-      className={
-        overrideStyling
-          ? buttonProps.className
-          : classNames('yearn--button flex-center cursor-pointer', buttonProps.className)
-      }
-      aria-busy={isBusy}
-      disabled={isDisabled || buttonProps.disabled}
-      onClick={(event) => {
-        handleClick(event, isBusy, shouldStopPropagation, buttonProps.onClick)
-      }}
-    >
-      {children}
-      {isBusy ? <LoadingIndicator /> : null}
-    </button>
-  )
-})
+)
 
 export default Button

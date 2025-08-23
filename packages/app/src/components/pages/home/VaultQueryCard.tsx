@@ -13,10 +13,11 @@ import { type VaultData, useGetVaults } from '@/hooks/useGetVaults'
 import { useInput } from '@/hooks/useInput'
 import { usePreloadTokenImages } from '@/hooks/usePreloadTokenImages'
 import { findTokenPrice, useTokenPrices } from '@/hooks/useTokenPrices'
+import { useDiscoverVaultByAddress } from '@/hooks/useDiscoverVaultByAddress'
 import { calculateDelta } from '@yearn-oracle-watch/sdk'
 import React from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Address } from 'viem'
+import { Address, isAddress } from 'viem'
 import { CHAIN_ID_TO_NAME } from '@/constants/chains'
 
 // Search utility function
@@ -58,6 +59,8 @@ const VaultQueryCard: React.FC = () => {
   )
   const [searchTerm, setSearchTerm] = React.useState('')
   const [filteredVaults, setFilteredVaults] = React.useState<VaultData[]>([])
+  const { data: discoveredVaults, isLoading: isDiscovering } =
+    useDiscoverVaultByAddress(searchTerm)
 
   const handleSelectVault = () => {
     setVaultModalOpen(true)
@@ -136,6 +139,28 @@ const VaultQueryCard: React.FC = () => {
     }
   }, [data, searchTerm])
 
+  // Compute display list by merging discovered entries when searching by address
+  const displayVaults: VaultData[] = React.useMemo(() => {
+    if (!searchTerm || !isAddress(searchTerm)) return filteredVaults
+    const merged = [...filteredVaults, ...(discoveredVaults || [])]
+    const seen = new Set<string>()
+    return merged.filter((v) => {
+      const key = `${v.chainId}-${v.address.toLowerCase()}`
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+  }, [filteredVaults, discoveredVaults, searchTerm])
+
+  // Track which items came from on-chain discovery for UI indicators
+  const discoveredSet = React.useMemo(() => {
+    const set = new Set<string>()
+    ;(discoveredVaults || []).forEach((v) =>
+      set.add(`${v.chainId}-${v.address.toLowerCase()}`)
+    )
+    return set
+  }, [discoveredVaults])
+
   const handleSearchChange = (value: string) => {
     setSearchTerm(value)
   }
@@ -198,7 +223,7 @@ const VaultQueryCard: React.FC = () => {
   if (isLoading) {
     return (
       <div className="w-full h-full flex justify-center items-center">
-        <YearnLoader />
+        <YearnLoader fixed={true} />
       </div>
     )
   }
@@ -242,10 +267,16 @@ const VaultQueryCard: React.FC = () => {
                 }
               >
                 <ModalData
-                  data={filteredVaults}
+                  data={displayVaults}
                   searchTerm={searchTerm}
                   isLoading={isLoading}
                   error={error}
+                  discoveredSet={discoveredSet}
+                  isProbingOnChain={
+                    isAddress(searchTerm) &&
+                    filteredVaults.length === 0 &&
+                    isDiscovering
+                  }
                   onClose={handleCloseVaultModal}
                   onSelect={(vault) => {
                     setSelectedVault(vault as KongVault)
@@ -392,6 +423,8 @@ type ModalDataProps = {
   searchTerm?: string
   isLoading?: boolean
   error?: Error | null
+  isProbingOnChain?: boolean
+  discoveredSet?: Set<string>
   onClose: () => void
   onSelect: (vault: VaultData) => void
 }
@@ -431,6 +464,8 @@ const ModalData: React.FC<ModalDataProps> = ({
   searchTerm,
   isLoading,
   error,
+  isProbingOnChain,
+  discoveredSet,
   onClose,
   onSelect,
 }) => {
@@ -465,10 +500,24 @@ const ModalData: React.FC<ModalDataProps> = ({
     return (
       <ModalContainer>
         <CenteredContent variant="stacked">
-          <div className="text-gray-500 text-lg">No vaults found</div>
-          <div className="text-gray-400 text-sm">
-            Try searching for a different vault name, chain, or address
-          </div>
+          {isProbingOnChain ? (
+            <>
+              <div className="mb-2">
+                <YearnLoader fixed={false} color="blue" />
+              </div>
+              <div className="text-gray-500 text-lg text-center">
+                No vaults found in Indexer with matching address, looking
+                directly on chain.
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="text-gray-500 text-lg">No vaults found</div>
+              <div className="text-gray-400 text-sm">
+                Try searching for a different vault name, chain, or address
+              </div>
+            </>
+          )}
         </CenteredContent>
         <CloseButton onClick={onClose} />
       </ModalContainer>
@@ -489,6 +538,9 @@ const ModalData: React.FC<ModalDataProps> = ({
             vault={vault}
             searchTerm={searchTerm}
             isVisible={isVisible}
+            discovered={discoveredSet?.has(
+              `${vault.chainId}-${vault.address.toLowerCase()}`
+            )}
             onClick={() => onSelect(vault)}
           />
         )}
