@@ -178,3 +178,40 @@ VaultQueryCard:
 
 - Implement SDK method and app hook, wire up, verify locally.
 - No breaking changes to existing flows or APIs.
+
+## Completed work summary (commit 87d21b12)
+
+Scope: Implement paste-address discovery across SDK, contracts, and app UI; integrate on-chain results into the modal with clear UX cues; keep APR flow unchanged.
+
+- Contracts
+  - Added `v3Vault.json` ABI and wired it into contracts exports (via wagmi manifest).
+
+- SDK
+  - Implemented `discoverVaultsFromContract` in `packages/sdk/src/datasources/CoreDataSource.ts` to probe supported chains using `v3VaultAbi` and `erc20Abi` to return `VaultData`-compatible entries.
+  - Updated Kong GraphQL artifacts (`schema.graphql`, `generated.ts`) via codegen.
+
+- App
+  - Added `useDiscoverVaultByAddress.ts` hook to call the new SDK method with app `supportedChains`.
+  - Updated `VaultQueryCard.tsx`:
+    - Debounced search continues to filter indexer results; when a valid address is entered, runs background on-chain discovery and merges results with de-duplication by `chainId-address`.
+    - Shows an inline loader and message in the empty-state when probing on-chain (address search with no indexer matches).
+    - Maintains URL updates on selection and triggers APR as before.
+  - Improved `YearnLoader.tsx`:
+    - New props: `fixed` (overlay vs flow; default true) and `color` ('white' | 'blue'; default 'white').
+    - Modal uses `fixed={false} color="blue"`; main page fallback uses `fixed={true}` default color.
+  - Enhanced `VaultListItem.tsx`:
+    - Accepts `discovered` flag. Displays a right-aligned warning icon (⚠️) with tooltip: "This vault was not found in the indexer and may not be endorsed by Yearn." for on-chain discovered entries.
+
+- Docs
+  - This plan document updated to reflect implementation details and status.
+
+Verification
+
+- Build and codegen completed successfully for SDK and app. App renders indexer results immediately; on-chain discoveries merge in with a clear loading state and indicator. APR querying path unchanged and functional when selecting either indexer or discovered vaults.
+
+Requirements coverage status
+
+- Address paste + v3 contract probing across chains: Done.
+- Present per-chain options; merge and de-duplicate with indexer results: Done.
+- APR Oracle querying on selection: Done (unchanged API).
+- UX polish: inline loader in modal empty-state; indicator for on-chain discovered items: Done.
