@@ -8,6 +8,7 @@ interface VaultListItemProps {
   searchTerm?: string
   onClick: () => void
   isVisible: boolean
+  discovered?: boolean // true when sourced from on-chain discovery
 }
 
 /**
@@ -18,6 +19,7 @@ export const VaultListItem: React.FC<VaultListItemProps> = ({
   searchTerm,
   onClick,
   isVisible,
+  discovered = false,
 }) => {
   // Only load image when item is visible
   const {
@@ -94,20 +96,32 @@ export const VaultListItem: React.FC<VaultListItemProps> = ({
       className="h-[70px] px-6 py-1 bg-gray-100/50 overflow-hidden rounded-[16px] flex items-center gap-2 cursor-pointer hover:bg-gray-200/50 transition-colors duration-150"
       onClick={onClick}
     >
-      <div className="flex items-center gap-2 px-2">
+      <div className="flex items-center gap-2 px-2 flex-1 min-w-0">
         {renderImage()}
-        <div className="flex flex-col items-start justify-start">
-          <div className="text-[#1E1E1E] text-[16px] font-aeonik font-normal leading-5">
+        <div className="flex flex-col items-start justify-start truncate">
+          <div className="text-[#1E1E1E] text-[16px] font-aeonik font-normal leading-5 truncate">
             {highlightMatch(vault.name || '', searchTerm)}
           </div>
-          <div className="text-center text-[#3D3D3D] text-[10px] font-aeonik font-normal leading-[14px]">
+          <div className="text-center text-[#3D3D3D] text-[10px] font-aeonik font-normal leading-[14px] truncate">
             {highlightMatch(chainName || '', searchTerm)}
           </div>
-          <div className="text-center text-[#3D3D3D] text-[10px] font-aeonik font-normal leading-[14px]">
+          <div className="text-center text-[#3D3D3D] text-[10px] font-aeonik font-normal leading-[14px] truncate">
             {highlightMatch(vault.address || '', searchTerm)}
           </div>
         </div>
       </div>
+      {discovered && (
+        <div
+          className="pl-2 pr-1 text-[#1A51B2] select-none"
+          title="This vault was not found in the indexer and may not be endorsed by Yearn."
+          aria-label="Unendorsed vault warning"
+        >
+          {/* Using a unicode warning symbol as requested */}
+          <span role="img" aria-hidden="true">
+            ⚠️
+          </span>
+        </div>
+      )}
     </div>
   )
 }
