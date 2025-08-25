@@ -79,42 +79,85 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, TButton>(
       ...rest
     } = props as TButton
 
-    // Anchor element rendered as button for accessibility
+    // Anchor element should remain an <a> to preserve link semantics
     if (as === 'a') {
       const anchorProps = rest as React.ComponentPropsWithoutRef<'a'>
+      const { href, target, rel, onClick, className, ...aRest } = anchorProps
+      const hasHref = typeof href === 'string' && href.trim().length > 0
+
+      // If no href provided, prefer a real button for accessibility semantics
+      if (!hasHref) {
+        const buttonLikeProps =
+          anchorProps as unknown as React.ComponentPropsWithoutRef<'button'>
+        return (
+          <button
+            type="button"
+            {...buttonLikeProps}
+            ref={ref as ForwardedRef<HTMLButtonElement>}
+            data-variant={variant}
+            className={
+              overrideStyling
+                ? className
+                : classNames(
+                    'yearn--button flex-center cursor-pointer',
+                    className
+                  )
+            }
+            aria-busy={isBusy}
+            aria-disabled={isDisabled}
+            disabled={isDisabled}
+            tabIndex={isDisabled ? -1 : 0}
+            onClick={(event) => {
+              if (isDisabled) {
+                event.preventDefault()
+                return
+              }
+              handleClick(event, isBusy, shouldStopPropagation, onClick as any)
+            }}
+          >
+            {children}
+            {isBusy ? <LoadingIndicator /> : null}
+          </button>
+        )
+      }
+
+      // For true links, render an anchor to preserve link semantics
+      const computedRel =
+        target === '_blank'
+          ? [rel, 'noopener', 'noreferrer'].filter(Boolean).join(' ')
+          : rel
+
       return (
-        <button
-          type="button"
-          {...anchorProps}
-          ref={ref as ForwardedRef<HTMLButtonElement>}
+        <a
+          {...aRest}
+          href={href}
+          target={target}
+          rel={computedRel}
+          ref={ref as ForwardedRef<HTMLAnchorElement>}
+          data-variant={variant}
           className={
             overrideStyling
-              ? anchorProps.className
+              ? className
               : classNames(
                   'yearn--button flex-center cursor-pointer',
-                  anchorProps.className
+                  className
                 )
           }
           aria-busy={isBusy}
           aria-disabled={isDisabled}
-          disabled={isDisabled}
           tabIndex={isDisabled ? -1 : 0}
           onClick={(event) => {
             if (isDisabled) {
               event.preventDefault()
+              // Don't navigate when visually disabled
               return
             }
-            handleClick(
-              event,
-              isBusy,
-              shouldStopPropagation,
-              anchorProps.onClick
-            )
+            handleClick(event, isBusy, shouldStopPropagation, onClick)
           }}
         >
           {children}
           {isBusy ? <LoadingIndicator /> : null}
-        </button>
+        </a>
       )
     }
 
