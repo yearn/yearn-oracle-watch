@@ -1,7 +1,7 @@
 overwrite: true
 generates:
   ./src/queries/kong/generated.ts:
-    schema: "https://kong.yearn.farm/api/gql"
+    schema: "https://kong.yearn.fi/api/gql"
     documents: "src/queries/kong/*.graphql"
     plugins:
       - "typescript"
@@ -10,7 +10,7 @@ generates:
     config:
       typesPrefix: "kong_"
   ./src/queries/kong/schema.graphql:
-    schema: "https://kong.yearn.farm/api/gql"
+    schema: "https://kong.yearn.fi/api/gql"
     plugins:
       - "schema-ast"
 
