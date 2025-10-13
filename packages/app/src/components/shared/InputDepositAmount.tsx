@@ -5,13 +5,35 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { useAccount } from '@/hooks/useAccount'
 import { type VaultData } from '@/hooks/useGetVaults'
 import { useInput } from '@/hooks/useInput'
 import { simpleToExact } from '@/utils'
 import { cn } from '@/utils/cn'
 import { getSvgAsset } from '@/utils/logos'
 import React, { ChangeEvent, FC } from 'react'
+
+const formatAmountDisplay = (value: string): string => {
+  if (!value) return ''
+
+  const hasDecimalPoint = value.includes('.')
+  const endsWithDecimal = value.endsWith('.')
+  const [whole = '', fraction = ''] = value.split('.')
+  const sign = whole.startsWith('-') ? '-' : ''
+  const unsignedWhole = sign ? whole.slice(1) : whole
+  const formattedWhole = unsignedWhole.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  const prefix = sign + (unsignedWhole ? formattedWhole : '')
+  const base = unsignedWhole ? prefix : sign ? sign : ''
+
+  if (!hasDecimalPoint) {
+    return base
+  }
+
+  if (endsWithDecimal) {
+    return `${base}.`
+  }
+
+  return `${base}.${fraction}`
+}
 
 interface Props {
   input: ReturnType<typeof useInput>
@@ -43,7 +65,6 @@ export const InputDepositAmount: FC<Props> = ({
   assetPrice,
   onCurrencyChange,
 }) => {
-  const account = useAccount()
   const [
     {
       formValue,
@@ -68,8 +89,9 @@ export const InputDepositAmount: FC<Props> = ({
   ]
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const rawValue = event.target.value.replace(/,/g, '')
     handleChangeInput(event)
-    onInputChange?.(simpleToExact(event.target.value))
+    onInputChange?.(simpleToExact(rawValue === '' ? 0 : rawValue))
   }
 
   // Currency conversion function
@@ -124,7 +146,7 @@ export const InputDepositAmount: FC<Props> = ({
         <input
           disabled={disabled}
           placeholder={placeholder ?? '0.00'}
-          value={formValue}
+          value={formatAmountDisplay(formValue)}
           onChange={handleInputChange}
           onFocus={() => setActive(true)}
           onBlur={() => setActive(false)}
