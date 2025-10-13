@@ -224,7 +224,7 @@ export type kong_Query = {
   newYieldSplitterLogs?: Maybe<Array<Maybe<kong_NewYieldSplitterLog>>>;
   prices?: Maybe<Array<Maybe<kong_Price>>>;
   projects?: Maybe<Array<Maybe<kong_Project>>>;
-  riskScores?: Maybe<Array<Maybe<kong_RiskScore>>>;
+  riskScores?: Maybe<Array<Maybe<kong_RiskScoreLegacy>>>;
   strategies?: Maybe<Array<Maybe<kong_Strategy>>>;
   strategy?: Maybe<kong_Strategy>;
   strategyReports?: Maybe<Array<Maybe<kong_StrategyReport>>>;
@@ -404,6 +404,8 @@ export type kong_QueryVaultsArgs = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   chainId?: InputMaybe<Scalars['Int']['input']>;
   erc4626?: InputMaybe<Scalars['Boolean']['input']>;
+  riskLevel?: InputMaybe<Scalars['Int']['input']>;
+  unratedOnly?: InputMaybe<Scalars['Boolean']['input']>;
   v3?: InputMaybe<Scalars['Boolean']['input']>;
   vaultType?: InputMaybe<Scalars['Int']['input']>;
   yearn?: InputMaybe<Scalars['Boolean']['input']>;
@@ -424,7 +426,7 @@ export type kong_QueueStatus = {
 export type kong_RedisInfo = {
   clients: Scalars['Int']['output'];
   memory: kong_RedisMemory;
-  mode: Scalars['String']['output'];
+  mode?: Maybe<Scalars['String']['output']>;
   os: Scalars['String']['output'];
   uptime: Scalars['Int']['output'];
   version: Scalars['String']['output'];
@@ -466,6 +468,26 @@ export type kong_Reward = {
 };
 
 export type kong_RiskScore = {
+  riskLevel?: Maybe<Scalars['Int']['output']>;
+  riskScore?: Maybe<kong_RiskScoreDetails>;
+};
+
+export type kong_RiskScoreDetails = {
+  centralizationRisk?: Maybe<Scalars['Int']['output']>;
+  comment?: Maybe<Scalars['String']['output']>;
+  complexity?: Maybe<Scalars['Int']['output']>;
+  externalProtocolAudit?: Maybe<Scalars['Int']['output']>;
+  externalProtocolCentralisation?: Maybe<Scalars['Int']['output']>;
+  externalProtocolLongevity?: Maybe<Scalars['Int']['output']>;
+  externalProtocolTvl?: Maybe<Scalars['Int']['output']>;
+  externalProtocolType?: Maybe<Scalars['Int']['output']>;
+  protocolIntegration?: Maybe<Scalars['Int']['output']>;
+  review?: Maybe<Scalars['Int']['output']>;
+  riskExposure?: Maybe<Scalars['Int']['output']>;
+  testing?: Maybe<Scalars['Int']['output']>;
+};
+
+export type kong_RiskScoreLegacy = {
   auditScore?: Maybe<Scalars['Float']['output']>;
   codeReviewScore?: Maybe<Scalars['Float']['output']>;
   complexityScore?: Maybe<Scalars['Float']['output']>;
@@ -569,7 +591,7 @@ export type kong_Strategy = {
   profitUnlockingRate?: Maybe<Scalars['BigInt']['output']>;
   proxy?: Maybe<Scalars['String']['output']>;
   rewards?: Maybe<Scalars['String']['output']>;
-  risk?: Maybe<kong_RiskScore>;
+  risk?: Maybe<kong_RiskScoreLegacy>;
   stakedBalance?: Maybe<Scalars['BigInt']['output']>;
   strategist?: Maybe<Scalars['String']['output']>;
   symbol?: Maybe<Scalars['String']['output']>;

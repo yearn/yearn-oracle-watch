@@ -12,7 +12,11 @@ export class Sdk {
   public readonly core: CoreDataSource
   private initialized = false
 
-  constructor(queryClient: QueryClient, wagmiConfig: Config, config?: Partial<SdkConfig>) {
+  constructor(
+    queryClient: QueryClient,
+    wagmiConfig: Config,
+    config?: Partial<SdkConfig>
+  ) {
     this.queryClient = queryClient
     this.wagmiConfig = wagmiConfig
     this.config = this.validateAndMergeConfig(config)
@@ -45,7 +49,7 @@ export class Sdk {
   private validateAndMergeConfig(config?: Partial<SdkConfig>): SdkConfig {
     const defaultConfig: SdkConfig = {
       endpoints: {
-        kong: 'https://kong.yearn.farm/api/gql',
+        kong: 'https://kong.yearn.fi/api/gql',
         yDaemon: 'https://ydaemon.yearn.fi',
       },
       defaultCacheOptions: {
@@ -70,7 +74,11 @@ export class Sdk {
     }
   }
 
-  static create(queryClient: QueryClient, wagmiConfig: Config, config?: Partial<SdkConfig>): Sdk {
+  static create(
+    queryClient: QueryClient,
+    wagmiConfig: Config,
+    config?: Partial<SdkConfig>
+  ): Sdk {
     const sdk = new Sdk(queryClient, wagmiConfig, config)
     sdk.initialize().catch(console.error)
     return sdk

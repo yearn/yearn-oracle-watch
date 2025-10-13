@@ -213,7 +213,7 @@ type Query {
   newYieldSplitterLogs(address: String, chainId: Int, splitter: String, vault: String, want: String): [NewYieldSplitterLog]
   prices(address: String, chainId: Int, timestamp: BigInt): [Price]
   projects(chainId: Int): [Project]
-  riskScores: [RiskScore]
+  riskScores: [RiskScoreLegacy]
   strategies(apiVersion: String, chainId: Int, erc4626: Boolean): [Strategy]
   strategy(address: String, chainId: Int): Strategy
   strategyReports(address: String, chainId: Int): [StrategyReport]
@@ -226,7 +226,7 @@ type Query {
   vaultAccounts(chainId: Int, vault: String): [AccountRole]
   vaultReports(address: String, chainId: Int): [VaultReport]
   vaultStrategies(chainId: Int, vault: String): [Strategy]
-  vaults(addresses: [String], apiVersion: String, chainId: Int, erc4626: Boolean, v3: Boolean, vaultType: Int, yearn: Boolean): [Vault]
+  vaults(addresses: [String], apiVersion: String, chainId: Int, erc4626: Boolean, riskLevel: Int, unratedOnly: Boolean, v3: Boolean, vaultType: Int, yearn: Boolean): [Vault]
   vestingEscrowCreatedLogs(recipient: String): [VestingEscrowCreatedLog]
 }
 
@@ -240,7 +240,7 @@ type QueueStatus {
 type RedisInfo {
   clients: Int!
   memory: RedisMemory!
-  mode: String!
+  mode: String
   os: String!
   uptime: Int!
   version: String!
@@ -282,6 +282,26 @@ type Reward {
 }
 
 type RiskScore {
+  riskLevel: Int
+  riskScore: RiskScoreDetails
+}
+
+type RiskScoreDetails {
+  centralizationRisk: Int
+  comment: String
+  complexity: Int
+  externalProtocolAudit: Int
+  externalProtocolCentralisation: Int
+  externalProtocolLongevity: Int
+  externalProtocolTvl: Int
+  externalProtocolType: Int
+  protocolIntegration: Int
+  review: Int
+  riskExposure: Int
+  testing: Int
+}
+
+type RiskScoreLegacy {
   auditScore: Float
   codeReviewScore: Float
   complexityScore: Float
@@ -385,7 +405,7 @@ type Strategy {
   profitUnlockingRate: BigInt
   proxy: String
   rewards: String
-  risk: RiskScore
+  risk: RiskScoreLegacy
   stakedBalance: BigInt
   strategist: String
   symbol: String
