@@ -58,7 +58,7 @@ const createUseInputHook =
       (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | undefined) => {
         if (!event) return
 
-        let nextUserInput = event.target.value.replace(/,/g, '.')
+        let nextUserInput = event.target.value.replace(/,/g, '')
 
         if (nextUserInput === '' || inputRegex.test(escapeRegExp(nextUserInput))) {
           const [whole, fraction] = nextUserInput.split('.')
