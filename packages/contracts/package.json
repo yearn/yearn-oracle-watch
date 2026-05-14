@@ -5,7 +5,10 @@
   "main": "./dist/wagmi.js",
   "module": "./dist/wagmi.js",
   "types": "./dist/wagmi.d.ts",
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "exports": {
     ".": {
       "types": "./dist/wagmi.d.ts",
@@ -21,19 +24,19 @@
     }
   },
   "devDependencies": {
-    "@tanstack/query-core": "*",
-    "@wagmi/cli": "*",
-    "typescript": "*"
+    "@tanstack/query-core": "5.80.7",
+    "@wagmi/cli": "2.3.1",
+    "typescript": "5.8.3"
   },
   "peerDependencies": {
-    "@types/node": "*",
-    "@wagmi/core": "*",
-    "abitype": "*",
-    "lodash": "*",
-    "react": "*",
-    "react-dom": "*",
-    "viem": "*",
-    "wagmi": "*"
+    "@types/node": "22.15.32",
+    "@wagmi/core": "2.17.3",
+    "abitype": "1.0.8",
+    "lodash": "4.17.21",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "viem": "2.33.2",
+    "wagmi": "2.15.6"
   },
   "scripts": {
     "build": "tsc -p ./tsconfig.build.json",

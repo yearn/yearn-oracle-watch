@@ -5,7 +5,10 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -16,27 +19,27 @@
   },
   "dependencies": {
     "@yearn-oracle-watch/contracts": "workspace:*",
-    "graphql": "*",
-    "graphql-request": "^6.0.0",
-    "graphql-tag": "^2.12.6",
-    "lodash": "*",
-    "viem": "*"
+    "graphql": "16.11.0",
+    "graphql-request": "6.1.0",
+    "graphql-tag": "2.12.6",
+    "lodash": "4.17.21",
+    "viem": "2.33.2"
   },
   "peerDependencies": {
-    "react": "*",
-    "@tanstack/react-query": "*",
-    "typescript": "*"
+    "react": "18.3.1",
+    "@tanstack/react-query": "5.80.7",
+    "typescript": "5.8.3"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^5.0.0",
-    "@graphql-codegen/typescript": "^4.0.1",
-    "@graphql-codegen/typescript-graphql-request": "^5.0.0",
-    "@graphql-codegen/typescript-operations": "^4.0.1",
-    "@types/node": "*",
-    "merkletreejs": "^0.3.11",
-    "msw": "*",
-    "vite": "*",
-    "vitest": "*"
+    "@graphql-codegen/cli": "5.0.7",
+    "@graphql-codegen/typescript": "4.1.6",
+    "@graphql-codegen/typescript-graphql-request": "5.0.0",
+    "@graphql-codegen/typescript-operations": "4.6.1",
+    "@types/node": "22.15.32",
+    "merkletreejs": "0.3.11",
+    "msw": "2.10.2",
+    "vite": "6.3.5",
+    "vitest": "2.1.9"
   },
   "scripts": {
     "format": "biome format . --write",
