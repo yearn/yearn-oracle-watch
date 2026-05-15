@@ -463,10 +463,14 @@ const ModalContainer: React.FC<{
 
 const CenteredContent: React.FC<{
   children: React.ReactNode
-  variant?: 'single' | 'stacked'
+  variant?: 'single' | 'stacked' | 'compact'
 }> = ({ children, variant = 'single' }) => (
   <div
-    className={`flex ${variant === 'single' ? 'justify-center items-center' : 'flex-col justify-center items-center'} h-[490px] ${variant === 'stacked' ? 'gap-2' : ''}`}
+    className={`flex ${
+      variant === 'single' ? 'justify-center items-center' : 'flex-col justify-center items-center'
+    } ${variant === 'compact' ? 'min-h-[180px] py-8 gap-2' : 'h-[490px]'} ${
+      variant === 'stacked' ? 'gap-2' : ''
+    }`}
   >
     {children}
   </div>
@@ -588,7 +592,7 @@ const ModalData: React.FC<ModalDataProps> = ({
   if ((searchTerm?.trim() || hasActiveFilters) && vaults.length === 0) {
     return (
       <ModalContainer>
-        <CenteredContent variant="stacked">
+        <CenteredContent variant={hasFilterOnlyEmptyState ? 'compact' : 'stacked'}>
           {hasFilterOnlyEmptyState ? (
             <>
               <div className="text-gray-500 text-lg">No vaults match this filter</div>
