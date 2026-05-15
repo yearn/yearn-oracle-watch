@@ -468,9 +468,7 @@ const CenteredContent: React.FC<{
   <div
     className={`flex ${
       variant === 'single' ? 'justify-center items-center' : 'flex-col justify-center items-center'
-    } ${variant === 'compact' ? 'min-h-[180px] py-8 gap-2' : 'h-[490px]'} ${
-      variant === 'stacked' ? 'gap-2' : ''
-    }`}
+    } h-[420px] ${variant === 'stacked' ? 'gap-2' : ''} ${variant === 'compact' ? 'gap-2' : ''}`}
   >
     {children}
   </div>
