@@ -305,10 +305,13 @@ const VaultQueryCard: React.FC = () => {
                   searchTerm={searchTerm}
                   isLoading={isLoading}
                   error={error}
+                  hasActiveFilters={selectedChainId !== null}
+                  unfilteredResultCount={displayVaults.length}
                   discoveredSet={discoveredSet}
                   isProbingOnChain={
                     isAddress(searchTerm) && chainFilteredVaults.length === 0 && isDiscovering
                   }
+                  onClearFilters={() => setSelectedChainId(null)}
                   onClose={handleCloseVaultModal}
                   onSelect={(vault) => {
                     setSelectedVault(vault as KongVault)
@@ -440,7 +443,10 @@ type ModalDataProps = {
   isLoading?: boolean
   error?: Error | null
   isProbingOnChain?: boolean
+  hasActiveFilters?: boolean
+  unfilteredResultCount?: number
   discoveredSet?: Set<string>
+  onClearFilters: () => void
   onClose: () => void
   onSelect: (vault: VaultData) => void
 }
@@ -546,7 +552,10 @@ const ModalData: React.FC<ModalDataProps> = ({
   isLoading,
   error,
   isProbingOnChain,
+  hasActiveFilters = false,
+  unfilteredResultCount = 0,
   discoveredSet,
+  onClearFilters,
   onClose,
   onSelect,
 }) => {
@@ -573,13 +582,24 @@ const ModalData: React.FC<ModalDataProps> = ({
   }
 
   const vaults = Array.isArray(data) && data.length > 0 ? data : []
+  const hasFilterOnlyEmptyState = hasActiveFilters && unfilteredResultCount > 0
 
   // Empty state when no results found after search
-  if (searchTerm?.trim() && vaults.length === 0) {
+  if ((searchTerm?.trim() || hasActiveFilters) && vaults.length === 0) {
     return (
       <ModalContainer>
         <CenteredContent variant="stacked">
-          {isProbingOnChain ? (
+          {hasFilterOnlyEmptyState ? (
+            <>
+              <div className="text-gray-500 text-lg">No vaults match this filter</div>
+              <div className="text-gray-400 text-sm text-center">
+                Remove filters to show {unfilteredResultCount} matching vaults.
+              </div>
+              <Button className="mt-2" variant="outlined" onClick={onClearFilters}>
+                Remove filters
+              </Button>
+            </>
+          ) : isProbingOnChain ? (
             <>
               <div className="mb-2">
                 <YearnLoader fixed={false} color="blue" />
