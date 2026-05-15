@@ -5,6 +5,29 @@ import { exactToSimple, simpleToExact } from '@/utils'
 import { cn } from '@/utils/cn'
 import { ChangeEvent, FC } from 'react'
 
+const formatAmountDisplay = (value: string): string => {
+  if (!value) return ''
+
+  const hasDecimalPoint = value.includes('.')
+  const endsWithDecimal = value.endsWith('.')
+  const [whole = '', fraction = ''] = value.split('.')
+  const sign = whole.startsWith('-') ? '-' : ''
+  const unsignedWhole = sign ? whole.slice(1) : whole
+  const formattedWhole = unsignedWhole.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  const prefix = sign + (unsignedWhole ? formattedWhole : '')
+  const base = unsignedWhole ? prefix : sign ? sign : ''
+
+  if (!hasDecimalPoint) {
+    return base
+  }
+
+  if (endsWithDecimal) {
+    return `${base}.`
+  }
+
+  return `${base}.${fraction}`
+}
+
 interface Props {
   input: ReturnType<typeof useInput>
   className?: string
@@ -43,8 +66,9 @@ export const InputTokenAmount: FC<Props> = ({
   const disabled = _disabled || !account
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const rawValue = event.target.value.replace(/,/g, '')
     handleChangeInput(event)
-    onInputChange?.(simpleToExact(event.target.value))
+    onInputChange?.(simpleToExact(rawValue === '' ? 0 : rawValue))
   }
 
   return (
@@ -59,10 +83,11 @@ export const InputTokenAmount: FC<Props> = ({
           <input
             disabled={disabled}
             placeholder={placeholder ?? '0.00'}
-            value={formValue}
+            value={formatAmountDisplay(formValue)}
             onChange={handleInputChange}
             onFocus={() => setActive(true)}
             onBlur={() => setActive(false)}
+            inputMode="decimal"
             className={cn(
               'flex-grow bg-transparent outline-none text-lg sm:text-[20px] font-mono min-w-0',
               disabled ? 'text-gray-700' : 'text-gray-900',

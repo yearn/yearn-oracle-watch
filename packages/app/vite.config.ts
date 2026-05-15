@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => {
     VITE_RPC_URI_FOR_146: env.RPC_URI_FOR_146,
     VITE_RPC_URI_FOR_8453: env.RPC_URI_FOR_8453,
     VITE_RPC_URI_FOR_42161: env.RPC_URI_FOR_42161,
+    VITE_RPC_URI_FOR_747474: env.RPC_URI_FOR_747474,
     VITE_WALLETCONNECT_PROJECT_ID: env.WALLETCONNECT_PROJECT_ID,
   }
 
@@ -38,39 +39,34 @@ export default defineConfig(({ mode }) => {
         jsx: 'automatic',
       },
       // Include workspace packages to be pre-bundled
-      include: isDev
-        ? []
-        : ['@yearn-oracle-watch/sdk', '@yearn-oracle-watch/contracts'],
-      exclude: isDev
-        ? ['@yearn-oracle-watch/sdk', '@yearn-oracle-watch/contracts']
-        : [],
+      include: isDev ? [] : ['@yearn-oracle-watch/sdk', '@yearn-oracle-watch/contracts'],
+      exclude: isDev ? ['@yearn-oracle-watch/sdk', '@yearn-oracle-watch/contracts'] : [],
     },
     define: {
       global: 'globalThis',
       // Define environment variables for the frontend
-      'import.meta.env.VITE_RPC_URI_FOR_1': JSON.stringify(
-        envWithVitePrefix.VITE_RPC_URI_FOR_1
-      ),
-      'import.meta.env.VITE_RPC_URI_FOR_10': JSON.stringify(
-        envWithVitePrefix.VITE_RPC_URI_FOR_10
-      ),
+      'import.meta.env.VITE_RPC_URI_FOR_1': JSON.stringify(envWithVitePrefix.VITE_RPC_URI_FOR_1),
+      'import.meta.env.VITE_RPC_URI_FOR_10': JSON.stringify(envWithVitePrefix.VITE_RPC_URI_FOR_10),
       'import.meta.env.VITE_RPC_URI_FOR_100': JSON.stringify(
-        envWithVitePrefix.VITE_RPC_URI_FOR_100
+        envWithVitePrefix.VITE_RPC_URI_FOR_100,
       ),
       'import.meta.env.VITE_RPC_URI_FOR_137': JSON.stringify(
-        envWithVitePrefix.VITE_RPC_URI_FOR_137
+        envWithVitePrefix.VITE_RPC_URI_FOR_137,
       ),
       'import.meta.env.VITE_RPC_URI_FOR_146': JSON.stringify(
-        envWithVitePrefix.VITE_RPC_URI_FOR_146
+        envWithVitePrefix.VITE_RPC_URI_FOR_146,
       ),
       'import.meta.env.VITE_RPC_URI_FOR_8453': JSON.stringify(
-        envWithVitePrefix.VITE_RPC_URI_FOR_8453
+        envWithVitePrefix.VITE_RPC_URI_FOR_8453,
       ),
       'import.meta.env.VITE_RPC_URI_FOR_42161': JSON.stringify(
-        envWithVitePrefix.VITE_RPC_URI_FOR_42161
+        envWithVitePrefix.VITE_RPC_URI_FOR_42161,
+      ),
+      'import.meta.env.VITE_RPC_URI_FOR_747474': JSON.stringify(
+        envWithVitePrefix.VITE_RPC_URI_FOR_747474,
       ),
       'import.meta.env.VITE_WALLETCONNECT_PROJECT_ID': JSON.stringify(
-        envWithVitePrefix.VITE_WALLETCONNECT_PROJECT_ID
+        envWithVitePrefix.VITE_WALLETCONNECT_PROJECT_ID,
       ),
     },
     server: {
@@ -86,14 +82,8 @@ export default defineConfig(({ mode }) => {
         // In production, Vite will use the package.json exports
         ...(isDev
           ? {
-              '@yearn-oracle-watch/sdk': path.resolve(
-                __dirname,
-                '../sdk/src/index.ts'
-              ),
-              '@yearn-oracle-watch/contracts': path.resolve(
-                __dirname,
-                '../contracts/src/wagmi.ts'
-              ),
+              '@yearn-oracle-watch/sdk': path.resolve(__dirname, '../sdk/src/index.ts'),
+              '@yearn-oracle-watch/contracts': path.resolve(__dirname, '../contracts/src/wagmi.ts'),
             }
           : {}),
       },

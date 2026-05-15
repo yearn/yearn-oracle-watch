@@ -1,7 +1,7 @@
-import React from 'react'
-import { CHAIN_ID_TO_NAME } from '@/constants/chains'
-import { useTokenImage } from '@/hooks/useTokenImage'
+import { CHAIN_ID_TO_ICON, CHAIN_ID_TO_NAME } from '@/constants/chains'
 import { type VaultData } from '@/hooks/useGetVaults'
+import { useTokenImage } from '@/hooks/useTokenImage'
+import React from 'react'
 
 interface VaultListItemProps {
   vault: VaultData
@@ -52,14 +52,30 @@ export const VaultListItem: React.FC<VaultListItemProps> = ({
   }
 
   const chainName = CHAIN_ID_TO_NAME[Number(vault.chainId)]
+  const chainIcon = CHAIN_ID_TO_ICON[Number(vault.chainId)]
 
   // Render image with loading states
   const renderImage = () => {
+    const imageClassName = 'w-10 h-10 min-w-10 min-h-10 max-w-10 max-h-10 rounded-full'
+    const badge = chainIcon ? (
+      <span className="absolute -bottom-0.5 -left-0.5 h-4 w-4 rounded-full border-2 border-gray-100 bg-white shadow-sm">
+        <img
+          className="h-full w-full rounded-full"
+          src={chainIcon}
+          alt=""
+          referrerPolicy="no-referrer"
+        />
+      </span>
+    ) : null
+
     if (!isVisible) {
       // Show placeholder when not visible
       return (
-        <div className="w-8 h-8 min-w-8 min-h-8 max-w-8 max-h-8 bg-gray-200 rounded-full flex items-center justify-center">
-          <div className="w-4 h-4 bg-gray-300 rounded-full" />
+        <div className="relative shrink-0">
+          <div className={`${imageClassName} bg-gray-200 flex items-center justify-center`}>
+            <div className="w-5 h-5 bg-gray-300 rounded-full" />
+          </div>
+          {badge}
         </div>
       )
     }
@@ -67,8 +83,13 @@ export const VaultListItem: React.FC<VaultListItemProps> = ({
     if (imageError) {
       // Show question mark icon on error
       return (
-        <div className="w-8 h-8 min-w-8 min-h-8 max-w-8 max-h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-sm">
-          ?
+        <div className="relative shrink-0">
+          <div
+            className={`${imageClassName} bg-gray-200 flex items-center justify-center text-gray-500 text-sm`}
+          >
+            ?
+          </div>
+          {badge}
         </div>
       )
     }
@@ -76,18 +97,24 @@ export const VaultListItem: React.FC<VaultListItemProps> = ({
     if (imageLoading || !imageSrc) {
       // Show subtle loading placeholder
       return (
-        <div className="w-8 h-8 min-w-8 min-h-8 max-w-8 max-h-8 bg-gray-200 rounded-full animate-pulse" />
+        <div className="relative shrink-0">
+          <div className={`${imageClassName} bg-gray-200 animate-pulse`} />
+          {badge}
+        </div>
       )
     }
 
     // Show actual image
     return (
-      <img
-        className="w-8 h-8 min-w-8 min-h-8 max-w-8 max-h-8 relative rounded-full"
-        src={imageSrc}
-        alt={vault.name as string}
-        referrerPolicy="no-referrer"
-      />
+      <div className="relative shrink-0">
+        <img
+          className={imageClassName}
+          src={imageSrc}
+          alt={vault.name as string}
+          referrerPolicy="no-referrer"
+        />
+        {badge}
+      </div>
     )
   }
 
@@ -96,7 +123,7 @@ export const VaultListItem: React.FC<VaultListItemProps> = ({
       className="h-[70px] px-6 py-1 bg-gray-100/50 overflow-hidden rounded-[16px] flex items-center gap-2 cursor-pointer hover:bg-gray-200/50 transition-colors duration-150"
       onClick={onClick}
     >
-      <div className="flex items-center gap-2 px-2 flex-1 min-w-0">
+      <div className="flex items-center gap-4 px-2 flex-1 min-w-0">
         {renderImage()}
         <div className="flex flex-col items-start justify-start truncate">
           <div className="text-[#1E1E1E] text-[16px] font-aeonik font-normal leading-5 truncate">
