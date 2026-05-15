@@ -49,6 +49,7 @@ export class KongDataSource extends BaseDataSource {
     const data = await this.gql.GetVaultData()
     const vaults = (data.vaults || [])
       .filter((vault): vault is NonNullable<typeof vault> => vault !== null)
+      .filter((vault) => !vault.meta?.isHidden)
       .map((vault) => ({
         address: (vault.address || '') as Address,
         symbol: vault.symbol || '',
@@ -61,6 +62,6 @@ export class KongDataSource extends BaseDataSource {
           symbol: vault.asset?.symbol || '',
         },
       }))
-    return filterVaultsByChainIds(vaults, [747474, 250])
+    return filterVaultsByChainIds(vaults, [250])
   }
 }

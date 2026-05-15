@@ -1,24 +1,22 @@
 import Button from '@/components/shared/Button'
 import { InputDepositAmount } from '@/components/shared/InputDepositAmount'
 import { Modal } from '@/components/shared/Modal'
-import VaultSelectButton, {
-  type KongVault,
-} from '@/components/shared/VaultSelectButton'
 import { VaultListItem } from '@/components/shared/VaultListItem'
+import VaultSelectButton, { type KongVault } from '@/components/shared/VaultSelectButton'
 import YearnLoader from '@/components/shared/YearnLoader'
 import { VirtualScrollList } from '@/components/ui/VirtualScrollList'
 import { SupportedChain } from '@/config/supportedChains'
+import { CHAIN_ID_TO_ICON, CHAIN_ID_TO_NAME } from '@/constants/chains'
 import { useAprOracle } from '@/hooks/useAprOracle'
+import { useDiscoverVaultByAddress } from '@/hooks/useDiscoverVaultByAddress'
 import { type VaultData, useGetVaults } from '@/hooks/useGetVaults'
 import { useInput } from '@/hooks/useInput'
 import { usePreloadTokenImages } from '@/hooks/usePreloadTokenImages'
 import { findTokenPrice, useTokenPrices } from '@/hooks/useTokenPrices'
-import { useDiscoverVaultByAddress } from '@/hooks/useDiscoverVaultByAddress'
 import { calculateDelta } from '@yearn-oracle-watch/sdk'
 import React from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Address, isAddress } from 'viem'
-import { CHAIN_ID_TO_NAME } from '@/constants/chains'
 
 // Search utility function
 const searchVaults = (vaults: VaultData[], searchTerm: string) => {
@@ -30,14 +28,21 @@ const searchVaults = (vaults: VaultData[], searchTerm: string) => {
     (vault) =>
       vault.name?.toLowerCase().includes(term) ||
       CHAIN_ID_TO_NAME[Number(vault.chainId)]?.toLowerCase().includes(term) ||
-      vault.address?.toLowerCase().includes(term)
+      vault.address?.toLowerCase().includes(term),
   )
+}
+
+type ChainOption = {
+  id: number | null
+  name: string
+  icon?: string
+  count: number
 }
 
 // Debounce utility function
 const debounce = <T extends (...args: any[]) => void>(
   func: T,
-  delay: number
+  delay: number,
 ): ((...args: Parameters<T>) => void) => {
   let timeoutId: NodeJS.Timeout
   return (...args: Parameters<T>) => {
@@ -54,13 +59,11 @@ const VaultQueryCard: React.FC = () => {
   const [selectedAsset, setSelectedAsset] = React.useState('USD')
   const [selectedVault, setSelectedVault] = React.useState({} as KongVault)
   const [vaultModalOpen, setVaultModalOpen] = React.useState(false)
-  const [deltaValue, setDeltaValue] = React.useState<bigint | undefined>(
-    undefined
-  )
+  const [deltaValue, setDeltaValue] = React.useState<bigint | undefined>(undefined)
   const [searchTerm, setSearchTerm] = React.useState('')
+  const [selectedChainId, setSelectedChainId] = React.useState<number | null>(null)
   const [filteredVaults, setFilteredVaults] = React.useState<VaultData[]>([])
-  const { data: discoveredVaults, isLoading: isDiscovering } =
-    useDiscoverVaultByAddress(searchTerm)
+  const { data: discoveredVaults, isLoading: isDiscovering } = useDiscoverVaultByAddress(searchTerm)
 
   const handleSelectVault = () => {
     setVaultModalOpen(true)
@@ -104,7 +107,7 @@ const VaultQueryCard: React.FC = () => {
         const foundVault = data.find(
           (vault) =>
             vault.address.toLowerCase() === vaultAddress.toLowerCase() &&
-            vault.chainId === Number(chainId)
+            vault.chainId === Number(chainId),
         )
 
         if (foundVault && !selectedVault?.address) {
@@ -122,7 +125,7 @@ const VaultQueryCard: React.FC = () => {
         const filtered = searchVaults(data || [], term)
         setFilteredVaults(filtered)
       }, 150),
-    [data]
+    [data],
   )
 
   // Effect to handle search term changes
@@ -152,12 +155,43 @@ const VaultQueryCard: React.FC = () => {
     })
   }, [filteredVaults, discoveredVaults, searchTerm])
 
+  const chainOptions: ChainOption[] = React.useMemo(() => {
+    const counts = displayVaults.reduce<Record<number, number>>((acc, vault) => {
+      acc[vault.chainId] = (acc[vault.chainId] || 0) + 1
+      return acc
+    }, {})
+
+    const options = Object.entries(counts)
+      .map(([chainId, count]) => {
+        const id = Number(chainId)
+        return {
+          id,
+          name: CHAIN_ID_TO_NAME[id] || `Chain ${id}`,
+          icon: CHAIN_ID_TO_ICON[id],
+          count,
+        }
+      })
+      .sort((a, b) => a.name.localeCompare(b.name))
+
+    return [
+      {
+        id: null,
+        name: 'All',
+        count: displayVaults.length,
+      },
+      ...options,
+    ]
+  }, [displayVaults])
+
+  const chainFilteredVaults = React.useMemo(() => {
+    if (!selectedChainId) return displayVaults
+    return displayVaults.filter((vault) => vault.chainId === selectedChainId)
+  }, [displayVaults, selectedChainId])
+
   // Track which items came from on-chain discovery for UI indicators
   const discoveredSet = React.useMemo(() => {
     const set = new Set<string>()
-    ;(discoveredVaults || []).forEach((v) =>
-      set.add(`${v.chainId}-${v.address.toLowerCase()}`)
-    )
+    ;(discoveredVaults || []).forEach((v) => set.add(`${v.chainId}-${v.address.toLowerCase()}`))
     return set
   }, [discoveredVaults])
 
@@ -186,11 +220,7 @@ const VaultQueryCard: React.FC = () => {
   const vaultSymbol = selectedVault?.asset?.symbol || 'yvUSDC'
   const assetPrice =
     pricesData && selectedVault?.asset?.address && selectedVault?.chainId
-      ? findTokenPrice(
-          pricesData,
-          selectedVault.asset.address,
-          selectedVault.chainId
-        )
+      ? findTokenPrice(pricesData, selectedVault.asset.address, selectedVault.chainId)
       : null
 
   const handleQuery = () => {
@@ -207,7 +237,7 @@ const VaultQueryCard: React.FC = () => {
       inputAmount,
       selectedVault.asset?.decimals || 18,
       selectedAsset === 'USD',
-      assetPrice || undefined
+      assetPrice || undefined,
     )
 
     setDeltaValue(delta)
@@ -216,9 +246,7 @@ const VaultQueryCard: React.FC = () => {
   const balance = 0n
 
   // Find the full vault with logos for InputDepositAmount
-  const selectedVaultWithLogos = data?.find(
-    (vault) => vault.address === selectedVault?.address
-  )
+  const selectedVaultWithLogos = data?.find((vault) => vault.address === selectedVault?.address)
 
   if (isLoading) {
     return (
@@ -252,8 +280,9 @@ const VaultQueryCard: React.FC = () => {
               <Modal
                 open={vaultModalOpen}
                 onClose={handleCloseVaultModal}
+                maxWidth="max-w-lg"
                 title={
-                  <div className="flex items-center gap-2 w-full">
+                  <div className="flex w-full flex-col gap-2">
                     <div className="relative flex-1">
                       <input
                         type="text"
@@ -263,19 +292,22 @@ const VaultQueryCard: React.FC = () => {
                         onChange={(e) => handleSearchChange(e.target.value)}
                       />
                     </div>
+                    <ChainSelector
+                      options={chainOptions}
+                      selectedChainId={selectedChainId}
+                      onSelect={setSelectedChainId}
+                    />
                   </div>
                 }
               >
                 <ModalData
-                  data={displayVaults}
+                  data={chainFilteredVaults}
                   searchTerm={searchTerm}
                   isLoading={isLoading}
                   error={error}
                   discoveredSet={discoveredSet}
                   isProbingOnChain={
-                    isAddress(searchTerm) &&
-                    filteredVaults.length === 0 &&
-                    isDiscovering
+                    isAddress(searchTerm) && chainFilteredVaults.length === 0 && isDiscovering
                   }
                   onClose={handleCloseVaultModal}
                   onSelect={(vault) => {
@@ -302,13 +334,9 @@ const VaultQueryCard: React.FC = () => {
                   balance={balance}
                   currentVault={selectedVaultWithLogos}
                   assetPrice={assetPrice}
-                  onCurrencyChange={(newCurrency) =>
-                    setSelectedAsset(newCurrency)
-                  }
+                  onCurrencyChange={(newCurrency) => setSelectedAsset(newCurrency)}
                   onButtonClick={() =>
-                    setSelectedAsset(
-                      selectedAsset === 'USD' ? vaultSymbol : 'USD'
-                    )
+                    setSelectedAsset(selectedAsset === 'USD' ? vaultSymbol : 'USD')
                   }
                 />
               </div>
@@ -336,13 +364,9 @@ const VaultQueryCard: React.FC = () => {
                       isAprOracleLoading ? (
                         <span className="text-[#9E9E9E]">Loading...</span>
                       ) : aprOracleError ? (
-                        <span className="text-[#9E9E9E]">
-                          Error loading APR
-                        </span>
+                        <span className="text-[#9E9E9E]">Error loading APR</span>
                       ) : aprOracleResult?.currentApr ? (
-                        <span className="text-[#1E1E1E]">
-                          {aprOracleResult.currentApr}
-                        </span>
+                        <span className="text-[#1E1E1E]">{aprOracleResult.currentApr}</span>
                       ) : (
                         <span className="text-[#9E9E9E]">Error</span>
                       )
@@ -360,20 +384,14 @@ const VaultQueryCard: React.FC = () => {
                       isAprOracleLoading ? (
                         <span className="text-[#9E9E9E]">Loading...</span>
                       ) : aprOracleError ? (
-                        <span className="text-[#9E9E9E]">
-                          Error loading APR
-                        </span>
+                        <span className="text-[#9E9E9E]">Error loading APR</span>
                       ) : aprOracleResult?.projectedApr ? (
-                        <span className="text-[#1E1E1E]">
-                          {aprOracleResult.projectedApr}
-                        </span>
+                        <span className="text-[#1E1E1E]">{aprOracleResult.projectedApr}</span>
                       ) : (
                         <span className="text-[#9E9E9E]">Error</span>
                       )
                     ) : (
-                      <span className="text-[#9E9E9E]">
-                        Input deposit value
-                      </span>
+                      <span className="text-[#9E9E9E]">Input deposit value</span>
                     )}
                   </div>
                 </div>
@@ -399,9 +417,7 @@ const VaultQueryCard: React.FC = () => {
                         <span className="text-[#9E9E9E]">Error</span>
                       )
                     ) : (
-                      <span className="text-[#9E9E9E]">
-                        Input deposit value
-                      </span>
+                      <span className="text-[#9E9E9E]">Input deposit value</span>
                     )}
                   </div>
                 </div>
@@ -434,7 +450,7 @@ const ModalContainer: React.FC<{
   children: React.ReactNode
   hasTopPadding?: boolean
 }> = ({ children, hasTopPadding = false }) => (
-  <div className={`flex flex-col gap-1 p-4 ${hasTopPadding ? '' : 'pt-0'}`}>
+  <div className={`flex flex-col gap-1 px-4 pb-4 ${hasTopPadding ? 'pt-4' : 'pt-3'}`}>
     {children}
   </div>
 )
@@ -457,6 +473,71 @@ const CloseButton: React.FC<{
   <Button className={marginTop} variant="outlined" onClick={onClick}>
     Close
   </Button>
+)
+
+const ChainSelector: React.FC<{
+  options: ChainOption[]
+  selectedChainId: number | null
+  onSelect: (chainId: number | null) => void
+}> = ({ options, selectedChainId, onSelect }) => (
+  <div className="w-full overflow-x-auto">
+    <div className="inline-flex min-w-max items-center overflow-hidden rounded-[10px] border border-black/10 bg-white">
+      {options.map((option) => {
+        const selected = option.id === selectedChainId
+        const isAllChains = option.id === null
+
+        return (
+          <button
+            key={option.id ?? 'all'}
+            type="button"
+            onClick={() => onSelect(option.id)}
+            title={`${option.name} (${option.count})`}
+            aria-label={`${option.name} (${option.count})`}
+            className={`h-10 border-r border-black/10 flex items-center justify-center transition-colors last:border-r-0 ${
+              isAllChains ? 'gap-1.5 px-3' : 'w-9 px-0'
+            } ${selected ? 'bg-[#F5F5F5]' : 'hover:bg-black/5'}`}
+          >
+            {isAllChains ? (
+              <>
+                <span className="h-5 w-5 overflow-hidden rounded-full bg-black flex items-center justify-center">
+                  <img
+                    src="/images/yearn.svg"
+                    alt=""
+                    className="h-3.5 w-3.5 invert"
+                    referrerPolicy="no-referrer"
+                  />
+                </span>
+                <span className="text-sm font-bold leading-none text-black font-aeonik">
+                  All Chains
+                </span>
+              </>
+            ) : option.icon ? (
+              <span
+                className={`h-5 w-5 rounded-full flex items-center justify-center ${
+                  selected ? 'ring-2 ring-black/15' : ''
+                }`}
+              >
+                <img
+                  src={option.icon}
+                  alt=""
+                  className="h-5 w-5 rounded-full"
+                  referrerPolicy="no-referrer"
+                />
+              </span>
+            ) : (
+              <span
+                className={`h-5 w-5 rounded-full border border-black/10 bg-black/5 flex items-center justify-center text-[10px] font-bold text-black ${
+                  selected ? 'ring-2 ring-black/15' : ''
+                }`}
+              >
+                {option.name.slice(0, 1)}
+              </span>
+            )}
+          </button>
+        )
+      })}
+    </div>
+  </div>
 )
 
 const ModalData: React.FC<ModalDataProps> = ({
@@ -484,9 +565,7 @@ const ModalData: React.FC<ModalDataProps> = ({
     return (
       <ModalContainer>
         <CenteredContent>
-          <div className="text-red-500">
-            Error loading vaults: {error.message}
-          </div>
+          <div className="text-red-500">Error loading vaults: {error.message}</div>
         </CenteredContent>
         <CloseButton onClick={onClose} />
       </ModalContainer>
@@ -506,8 +585,7 @@ const ModalData: React.FC<ModalDataProps> = ({
                 <YearnLoader fixed={false} color="blue" />
               </div>
               <div className="text-gray-500 text-lg text-center">
-                No vaults found in Indexer with matching address, looking
-                directly on chain.
+                No vaults found in Indexer with matching address, looking directly on chain.
               </div>
             </>
           ) : (
@@ -530,7 +608,7 @@ const ModalData: React.FC<ModalDataProps> = ({
       <VirtualScrollList
         items={vaults}
         itemHeight={70} // 70px item height
-        containerHeight={490} // 70px * 7 rows
+        containerHeight={420} // 70px * 6 rows
         className="w-full"
         renderItem={(vault, index, isVisible) => (
           <VaultListItem
@@ -538,9 +616,7 @@ const ModalData: React.FC<ModalDataProps> = ({
             vault={vault}
             searchTerm={searchTerm}
             isVisible={isVisible}
-            discovered={discoveredSet?.has(
-              `${vault.chainId}-${vault.address.toLowerCase()}`
-            )}
+            discovered={discoveredSet?.has(`${vault.chainId}-${vault.address.toLowerCase()}`)}
             onClick={() => onSelect(vault)}
           />
         )}

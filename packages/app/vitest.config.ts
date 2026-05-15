@@ -19,6 +19,7 @@ export default defineConfig(({ mode }) => {
     VITE_RPC_URI_FOR_146: env.RPC_URI_FOR_146,
     VITE_RPC_URI_FOR_8453: env.RPC_URI_FOR_8453,
     VITE_RPC_URI_FOR_42161: env.RPC_URI_FOR_42161,
+    VITE_RPC_URI_FOR_747474: env.RPC_URI_FOR_747474,
     VITE_WALLETCONNECT_PROJECT_ID: env.WALLETCONNECT_PROJECT_ID,
   }
 
@@ -35,42 +36,35 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': path.resolve(__dirname, 'src'),
         // Use source files in test environment for better debugging
-        '@yearn-oracle-watch/sdk': path.resolve(
-          __dirname,
-          '../sdk/src/index.ts'
-        ),
-        '@yearn-oracle-watch/contracts': path.resolve(
-          __dirname,
-          '../contracts/src/wagmi.ts'
-        ),
+        '@yearn-oracle-watch/sdk': path.resolve(__dirname, '../sdk/src/index.ts'),
+        '@yearn-oracle-watch/contracts': path.resolve(__dirname, '../contracts/src/wagmi.ts'),
       },
     },
     define: {
       global: 'globalThis',
       // Make environment variables available to the test code
-      'import.meta.env.VITE_RPC_URI_FOR_1': JSON.stringify(
-        envWithVitePrefix.VITE_RPC_URI_FOR_1
-      ),
-      'import.meta.env.VITE_RPC_URI_FOR_10': JSON.stringify(
-        envWithVitePrefix.VITE_RPC_URI_FOR_10
-      ),
+      'import.meta.env.VITE_RPC_URI_FOR_1': JSON.stringify(envWithVitePrefix.VITE_RPC_URI_FOR_1),
+      'import.meta.env.VITE_RPC_URI_FOR_10': JSON.stringify(envWithVitePrefix.VITE_RPC_URI_FOR_10),
       'import.meta.env.VITE_RPC_URI_FOR_100': JSON.stringify(
-        envWithVitePrefix.VITE_RPC_URI_FOR_100
+        envWithVitePrefix.VITE_RPC_URI_FOR_100,
       ),
       'import.meta.env.VITE_RPC_URI_FOR_137': JSON.stringify(
-        envWithVitePrefix.VITE_RPC_URI_FOR_137
+        envWithVitePrefix.VITE_RPC_URI_FOR_137,
       ),
       'import.meta.env.VITE_RPC_URI_FOR_146': JSON.stringify(
-        envWithVitePrefix.VITE_RPC_URI_FOR_146
+        envWithVitePrefix.VITE_RPC_URI_FOR_146,
       ),
       'import.meta.env.VITE_RPC_URI_FOR_8453': JSON.stringify(
-        envWithVitePrefix.VITE_RPC_URI_FOR_8453
+        envWithVitePrefix.VITE_RPC_URI_FOR_8453,
       ),
       'import.meta.env.VITE_RPC_URI_FOR_42161': JSON.stringify(
-        envWithVitePrefix.VITE_RPC_URI_FOR_42161
+        envWithVitePrefix.VITE_RPC_URI_FOR_42161,
+      ),
+      'import.meta.env.VITE_RPC_URI_FOR_747474': JSON.stringify(
+        envWithVitePrefix.VITE_RPC_URI_FOR_747474,
       ),
       'import.meta.env.VITE_WALLETCONNECT_PROJECT_ID': JSON.stringify(
-        envWithVitePrefix.VITE_WALLETCONNECT_PROJECT_ID
+        envWithVitePrefix.VITE_WALLETCONNECT_PROJECT_ID,
       ),
     },
     test: {
@@ -80,15 +74,7 @@ export default defineConfig(({ mode }) => {
       css: true,
       // Test file patterns
       include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-      exclude: [
-        'node_modules',
-        'dist',
-        'build',
-        '.next',
-        '.nuxt',
-        '.vercel',
-        '.swc',
-      ],
+      exclude: ['node_modules', 'dist', 'build', '.next', '.nuxt', '.vercel', '.swc'],
       // Timeouts for blockchain operations
       testTimeout: 60000, // Increased for blockchain calls
       hookTimeout: 30000,
@@ -101,13 +87,7 @@ export default defineConfig(({ mode }) => {
       coverage: {
         provider: 'v8',
         reporter: ['text', 'json', 'html'],
-        exclude: [
-          'node_modules/',
-          'src/tests/',
-          '**/*.d.ts',
-          '**/*.config.*',
-          '**/coverage/**',
-        ],
+        exclude: ['node_modules/', 'src/tests/', '**/*.d.ts', '**/*.config.*', '**/coverage/**'],
       },
     },
   }

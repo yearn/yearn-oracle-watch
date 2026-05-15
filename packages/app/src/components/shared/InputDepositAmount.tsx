@@ -150,6 +150,7 @@ export const InputDepositAmount: FC<Props> = ({
           onChange={handleInputChange}
           onFocus={() => setActive(true)}
           onBlur={() => setActive(false)}
+          inputMode="decimal"
           className={cn(
             'self-stretch px-6 rounded-[12px] bg-transparent outline-none text-xl font-normal leading-8 font-mono min-w-0',
             disabled ? 'text-gray-700' : 'text-[#1E1E1E]',

@@ -48,7 +48,7 @@ export const Modal: FC<PropsWithChildren<Props>> = ({
           >
             {/* Header */}
             {hasHeader && (
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between px-6 pt-6 pb-3 border-b border-gray-200">
                 {typeof title === 'string' ? (
                   <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
                 ) : (

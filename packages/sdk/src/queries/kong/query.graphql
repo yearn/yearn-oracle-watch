@@ -4,6 +4,9 @@ query GetVaultData {
     symbol
     name
     chainId
+    meta {
+      isHidden
+    }
     asset {
       decimals
       address

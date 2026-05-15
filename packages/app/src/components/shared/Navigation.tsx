@@ -5,6 +5,8 @@ interface NavigationProps {
   showConnectButton?: boolean
 }
 
+const ORACLE_CONTRACT_ADDRESS = '0x1981AD9F44F2EA9aDd2dC4AD7D075c102C70aF92'
+
 export function Navigation({ showConnectButton = false }: NavigationProps) {
   return (
     <nav className="border-b border-white/5">
@@ -27,16 +29,36 @@ export function Navigation({ showConnectButton = false }: NavigationProps) {
             <div className="hidden sm:flex items-center gap-4">
               <nav className="flex items-center gap-4 mr-6">
                 <a
-                  href="https://yearn.fi/v3"
+                  href="https://yearn.fi/vaults"
+                  target="_blank"
+                  rel="noreferrer"
                   className="text-white/80 text-sm hover:text-white transition-colors"
                 >
                   Vaults
                 </a>
                 <a
                   href="https://docs.yearn.fi/"
+                  target="_blank"
+                  rel="noreferrer"
                   className="text-white/80 text-sm hover:text-white transition-colors"
                 >
                   Docs
+                </a>
+                <a
+                  href="https://github.com/yearn/yearn-oracle-watch"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-white/80 text-sm hover:text-white transition-colors"
+                >
+                  GitHub
+                </a>
+                <a
+                  href={`https://etherscan.io/address/${ORACLE_CONTRACT_ADDRESS}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-white/80 text-sm hover:text-white transition-colors"
+                >
+                  Contract
                 </a>
               </nav>
               {showConnectButton && (

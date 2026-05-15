@@ -48,8 +48,11 @@ type Apy {
   grossApr: Float
   inceptionNet: Float
   monthlyNet: Float
+  monthlyPricePerShare: BigInt
   net: Float
+  pricePerShare: BigInt
   weeklyNet: Float
+  weeklyPricePerShare: BigInt
 }
 
 """BigInt override"""
@@ -105,9 +108,40 @@ type Erc20 {
   symbol: String
 }
 
+type EstimatedApr {
+  apr: Float
+  apy: Float
+  components: EstimatedAprComponents!
+  type: String!
+}
+
+type EstimatedAprComponents {
+  baseAPR: Float
+  baseNetAPR: Float
+  baseNetAPY: Float
+  boost: Float
+  boostedAPR: Float
+  cvxAPR: Float
+  grossAPR: Float
+  keepCRV: Float
+  keepVelo: Float
+  lockerBonusAPR: Float
+  lockerBonusAPY: Float
+  poolAPY: Float
+  rewardsAPR: Float
+  rewardsAPY: Float
+}
+
 type Fees {
   managementFee: Float
   performanceFee: Float
+}
+
+type Historical {
+  inceptionNet: Float
+  monthlyNet: Float
+  net: Float
+  weeklyNet: Float
 }
 
 type IngestCpu {
@@ -135,6 +169,12 @@ type LenderStatus {
   assets: BigInt
   name: String
   rate: BigInt
+}
+
+type Locker {
+  cooldownDuration: Float
+  lockerBonus: Float
+  withdrawalWindow: Float
 }
 
 type Monitor {
@@ -167,6 +207,12 @@ type NewYieldSplitterLog {
   want: String!
 }
 
+type Oracle {
+  apr: Float
+  apy: Float
+  netAPR: Float
+}
+
 type Output {
   address: String!
   chainId: Int!
@@ -175,6 +221,12 @@ type Output {
   period: String!
   time: BigInt
   value: Float!
+}
+
+type Performance {
+  estimated: EstimatedApr
+  historical: Historical
+  oracle: Oracle
 }
 
 type Price {
@@ -226,7 +278,7 @@ type Query {
   vaultAccounts(chainId: Int, vault: String): [AccountRole]
   vaultReports(address: String, chainId: Int): [VaultReport]
   vaultStrategies(chainId: Int, vault: String): [Strategy]
-  vaults(addresses: [String], apiVersion: String, chainId: Int, erc4626: Boolean, riskLevel: Int, unratedOnly: Boolean, v3: Boolean, vaultType: Int, yearn: Boolean): [Vault]
+  vaults(addresses: [String], apiVersion: String, chainId: Int, erc4626: Boolean, origin: String, riskLevel: Int, unratedOnly: Boolean, v3: Boolean, vaultType: Int, yearn: Boolean): [Vault]
   vestingEscrowCreatedLogs(recipient: String): [VestingEscrowCreatedLog]
 }
 
@@ -356,6 +408,25 @@ type Sparklines {
   tvl: [SparklinePoint]
 }
 
+type Staking {
+  address: String
+  available: Boolean
+  rewards: [StakingReward!]
+  source: String
+}
+
+type StakingReward {
+  address: String!
+  apr: Float!
+  decimals: Int!
+  finishedAt: BigInt!
+  isFinished: Boolean!
+  name: String!
+  perWeek: Float!
+  price: Float!
+  symbol: String!
+}
+
 type Strategy {
   DOMAIN_SEPARATOR: String
   FACTORY: String
@@ -363,6 +434,7 @@ type Strategy {
   MIN_FEE: Int
   address: String
   apiVersion: String
+  apy: Apy
   balanceOfWant: BigInt
   baseFeeOracle: String
   chainId: Int
@@ -397,6 +469,7 @@ type Strategy {
   metadataURI: String
   minReportDelay: BigInt
   name: String
+  origin: String
   pendingManagement: String
   performanceFee: Int
   performanceFeeRecipient: String
@@ -406,6 +479,7 @@ type Strategy {
   proxy: String
   rewards: String
   risk: RiskScoreLegacy
+  sparklines: Sparklines
   stakedBalance: BigInt
   strategist: String
   symbol: String
@@ -415,6 +489,7 @@ type Strategy {
   totalIdle: BigInt
   totalSupply: BigInt
   tradeFactory: String
+  tvl: SparklinePoint
   v3: Boolean
   vault: String
   want: String
@@ -424,6 +499,7 @@ type Strategy {
 type StrategyMeta {
   description: String
   displayName: String
+  isRetired: Boolean
   protocols: [String]
 }
 
@@ -460,10 +536,12 @@ type Thing {
 
 type TokenMeta {
   category: String
+  decimals: Int
   description: String
   displayName: String
   displaySymbol: String
   icon: String
+  symbol: String
   type: String
 }
 
@@ -529,12 +607,15 @@ type Vault {
   lastReportDetail: ReportDetail
   lockedProfit: BigInt
   lockedProfitDegradation: BigInt
+  locker: Locker
   management: String
   managementFee: BigInt
   maxAvailableShares: BigInt
   meta: VaultMeta
   minimum_total_idle: BigInt
   name: String
+  origin: String
+  performance: Performance
   performanceFee: BigInt
   pricePerShare: BigInt
   profitMaxUnlockTime: BigInt
@@ -547,6 +628,7 @@ type Vault {
   role_manager: String
   roles: [Role]
   sparklines: Sparklines
+  staking: Staking
   strategies: [String]
   symbol: String
   token: String
@@ -566,11 +648,48 @@ type Vault {
 }
 
 type VaultMeta {
+  category: String
   description: String
   displayName: String
   displaySymbol: String
+  inclusion: VaultMetaInclusion
+  isAggregator: Boolean
+  isAutomated: Boolean
+  isBoosted: Boolean
+  isHidden: Boolean
+  isHighlighted: Boolean
+  isPool: Boolean
+  isRetired: Boolean
+  kind: String
+  migration: VaultMetaMigration
   protocols: [String]
+  shouldUseV2APR: Boolean
+  sourceURI: String
+  stability: VaultMetaStability
   token: TokenMeta
+  type: String
+  uiNotice: String
+}
+
+type VaultMetaInclusion {
+  isCove: Boolean
+  isGimme: Boolean
+  isKatana: Boolean
+  isMorpho: Boolean
+  isPoolTogether: Boolean
+  isPublicERC4626: Boolean
+  isYearn: Boolean
+}
+
+type VaultMetaMigration {
+  available: Boolean!
+  contract: String
+  target: String
+}
+
+type VaultMetaStability {
+  stability: String!
+  stableBaseAsset: String
 }
 
 type VaultReport {

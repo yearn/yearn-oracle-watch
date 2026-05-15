@@ -62,8 +62,11 @@ export type kong_Apy = {
   grossApr?: Maybe<Scalars['Float']['output']>;
   inceptionNet?: Maybe<Scalars['Float']['output']>;
   monthlyNet?: Maybe<Scalars['Float']['output']>;
+  monthlyPricePerShare?: Maybe<Scalars['BigInt']['output']>;
   net?: Maybe<Scalars['Float']['output']>;
+  pricePerShare?: Maybe<Scalars['BigInt']['output']>;
   weeklyNet?: Maybe<Scalars['Float']['output']>;
+  weeklyPricePerShare?: Maybe<Scalars['BigInt']['output']>;
 };
 
 export enum kong_CacheControlScope {
@@ -116,9 +119,40 @@ export type kong_Erc20 = {
   symbol?: Maybe<Scalars['String']['output']>;
 };
 
+export type kong_EstimatedApr = {
+  apr?: Maybe<Scalars['Float']['output']>;
+  apy?: Maybe<Scalars['Float']['output']>;
+  components: kong_EstimatedAprComponents;
+  type: Scalars['String']['output'];
+};
+
+export type kong_EstimatedAprComponents = {
+  baseAPR?: Maybe<Scalars['Float']['output']>;
+  baseNetAPR?: Maybe<Scalars['Float']['output']>;
+  baseNetAPY?: Maybe<Scalars['Float']['output']>;
+  boost?: Maybe<Scalars['Float']['output']>;
+  boostedAPR?: Maybe<Scalars['Float']['output']>;
+  cvxAPR?: Maybe<Scalars['Float']['output']>;
+  grossAPR?: Maybe<Scalars['Float']['output']>;
+  keepCRV?: Maybe<Scalars['Float']['output']>;
+  keepVelo?: Maybe<Scalars['Float']['output']>;
+  lockerBonusAPR?: Maybe<Scalars['Float']['output']>;
+  lockerBonusAPY?: Maybe<Scalars['Float']['output']>;
+  poolAPY?: Maybe<Scalars['Float']['output']>;
+  rewardsAPR?: Maybe<Scalars['Float']['output']>;
+  rewardsAPY?: Maybe<Scalars['Float']['output']>;
+};
+
 export type kong_Fees = {
   managementFee?: Maybe<Scalars['Float']['output']>;
   performanceFee?: Maybe<Scalars['Float']['output']>;
+};
+
+export type kong_Historical = {
+  inceptionNet?: Maybe<Scalars['Float']['output']>;
+  monthlyNet?: Maybe<Scalars['Float']['output']>;
+  net?: Maybe<Scalars['Float']['output']>;
+  weeklyNet?: Maybe<Scalars['Float']['output']>;
 };
 
 export type kong_IngestCpu = {
@@ -146,6 +180,12 @@ export type kong_LenderStatus = {
   assets?: Maybe<Scalars['BigInt']['output']>;
   name?: Maybe<Scalars['String']['output']>;
   rate?: Maybe<Scalars['BigInt']['output']>;
+};
+
+export type kong_Locker = {
+  cooldownDuration?: Maybe<Scalars['Float']['output']>;
+  lockerBonus?: Maybe<Scalars['Float']['output']>;
+  withdrawalWindow?: Maybe<Scalars['Float']['output']>;
 };
 
 export type kong_Monitor = {
@@ -178,6 +218,12 @@ export type kong_NewYieldSplitterLog = {
   want: Scalars['String']['output'];
 };
 
+export type kong_Oracle = {
+  apr?: Maybe<Scalars['Float']['output']>;
+  apy?: Maybe<Scalars['Float']['output']>;
+  netAPR?: Maybe<Scalars['Float']['output']>;
+};
+
 export type kong_Output = {
   address: Scalars['String']['output'];
   chainId: Scalars['Int']['output'];
@@ -186,6 +232,12 @@ export type kong_Output = {
   period: Scalars['String']['output'];
   time?: Maybe<Scalars['BigInt']['output']>;
   value: Scalars['Float']['output'];
+};
+
+export type kong_Performance = {
+  estimated?: Maybe<kong_EstimatedApr>;
+  historical?: Maybe<kong_Historical>;
+  oracle?: Maybe<kong_Oracle>;
 };
 
 export type kong_Price = {
@@ -404,6 +456,7 @@ export type kong_QueryVaultsArgs = {
   apiVersion?: InputMaybe<Scalars['String']['input']>;
   chainId?: InputMaybe<Scalars['Int']['input']>;
   erc4626?: InputMaybe<Scalars['Boolean']['input']>;
+  origin?: InputMaybe<Scalars['String']['input']>;
   riskLevel?: InputMaybe<Scalars['Int']['input']>;
   unratedOnly?: InputMaybe<Scalars['Boolean']['input']>;
   v3?: InputMaybe<Scalars['Boolean']['input']>;
@@ -542,6 +595,25 @@ export type kong_Sparklines = {
   tvl?: Maybe<Array<Maybe<kong_SparklinePoint>>>;
 };
 
+export type kong_Staking = {
+  address?: Maybe<Scalars['String']['output']>;
+  available?: Maybe<Scalars['Boolean']['output']>;
+  rewards?: Maybe<Array<kong_StakingReward>>;
+  source?: Maybe<Scalars['String']['output']>;
+};
+
+export type kong_StakingReward = {
+  address: Scalars['String']['output'];
+  apr: Scalars['Float']['output'];
+  decimals: Scalars['Int']['output'];
+  finishedAt: Scalars['BigInt']['output'];
+  isFinished: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  perWeek: Scalars['Float']['output'];
+  price: Scalars['Float']['output'];
+  symbol: Scalars['String']['output'];
+};
+
 export type kong_Strategy = {
   DOMAIN_SEPARATOR?: Maybe<Scalars['String']['output']>;
   FACTORY?: Maybe<Scalars['String']['output']>;
@@ -549,6 +621,7 @@ export type kong_Strategy = {
   MIN_FEE?: Maybe<Scalars['Int']['output']>;
   address?: Maybe<Scalars['String']['output']>;
   apiVersion?: Maybe<Scalars['String']['output']>;
+  apy?: Maybe<kong_Apy>;
   balanceOfWant?: Maybe<Scalars['BigInt']['output']>;
   baseFeeOracle?: Maybe<Scalars['String']['output']>;
   chainId?: Maybe<Scalars['Int']['output']>;
@@ -583,6 +656,7 @@ export type kong_Strategy = {
   metadataURI?: Maybe<Scalars['String']['output']>;
   minReportDelay?: Maybe<Scalars['BigInt']['output']>;
   name?: Maybe<Scalars['String']['output']>;
+  origin?: Maybe<Scalars['String']['output']>;
   pendingManagement?: Maybe<Scalars['String']['output']>;
   performanceFee?: Maybe<Scalars['Int']['output']>;
   performanceFeeRecipient?: Maybe<Scalars['String']['output']>;
@@ -592,6 +666,7 @@ export type kong_Strategy = {
   proxy?: Maybe<Scalars['String']['output']>;
   rewards?: Maybe<Scalars['String']['output']>;
   risk?: Maybe<kong_RiskScoreLegacy>;
+  sparklines?: Maybe<kong_Sparklines>;
   stakedBalance?: Maybe<Scalars['BigInt']['output']>;
   strategist?: Maybe<Scalars['String']['output']>;
   symbol?: Maybe<Scalars['String']['output']>;
@@ -601,6 +676,7 @@ export type kong_Strategy = {
   totalIdle?: Maybe<Scalars['BigInt']['output']>;
   totalSupply?: Maybe<Scalars['BigInt']['output']>;
   tradeFactory?: Maybe<Scalars['String']['output']>;
+  tvl?: Maybe<kong_SparklinePoint>;
   v3?: Maybe<Scalars['Boolean']['output']>;
   vault?: Maybe<Scalars['String']['output']>;
   want?: Maybe<Scalars['String']['output']>;
@@ -610,6 +686,7 @@ export type kong_Strategy = {
 export type kong_StrategyMeta = {
   description?: Maybe<Scalars['String']['output']>;
   displayName?: Maybe<Scalars['String']['output']>;
+  isRetired?: Maybe<Scalars['Boolean']['output']>;
   protocols?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
 };
 
@@ -646,10 +723,12 @@ export type kong_Thing = {
 
 export type kong_TokenMeta = {
   category?: Maybe<Scalars['String']['output']>;
+  decimals?: Maybe<Scalars['Int']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   displayName?: Maybe<Scalars['String']['output']>;
   displaySymbol?: Maybe<Scalars['String']['output']>;
   icon?: Maybe<Scalars['String']['output']>;
+  symbol?: Maybe<Scalars['String']['output']>;
   type?: Maybe<Scalars['String']['output']>;
 };
 
@@ -715,12 +794,15 @@ export type kong_Vault = {
   lastReportDetail?: Maybe<kong_ReportDetail>;
   lockedProfit?: Maybe<Scalars['BigInt']['output']>;
   lockedProfitDegradation?: Maybe<Scalars['BigInt']['output']>;
+  locker?: Maybe<kong_Locker>;
   management?: Maybe<Scalars['String']['output']>;
   managementFee?: Maybe<Scalars['BigInt']['output']>;
   maxAvailableShares?: Maybe<Scalars['BigInt']['output']>;
   meta?: Maybe<kong_VaultMeta>;
   minimum_total_idle?: Maybe<Scalars['BigInt']['output']>;
   name?: Maybe<Scalars['String']['output']>;
+  origin?: Maybe<Scalars['String']['output']>;
+  performance?: Maybe<kong_Performance>;
   performanceFee?: Maybe<Scalars['BigInt']['output']>;
   pricePerShare?: Maybe<Scalars['BigInt']['output']>;
   profitMaxUnlockTime?: Maybe<Scalars['BigInt']['output']>;
@@ -733,6 +815,7 @@ export type kong_Vault = {
   role_manager?: Maybe<Scalars['String']['output']>;
   roles?: Maybe<Array<Maybe<kong_Role>>>;
   sparklines?: Maybe<kong_Sparklines>;
+  staking?: Maybe<kong_Staking>;
   strategies?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   symbol?: Maybe<Scalars['String']['output']>;
   token?: Maybe<Scalars['String']['output']>;
@@ -752,11 +835,48 @@ export type kong_Vault = {
 };
 
 export type kong_VaultMeta = {
+  category?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   displayName?: Maybe<Scalars['String']['output']>;
   displaySymbol?: Maybe<Scalars['String']['output']>;
+  inclusion?: Maybe<kong_VaultMetaInclusion>;
+  isAggregator?: Maybe<Scalars['Boolean']['output']>;
+  isAutomated?: Maybe<Scalars['Boolean']['output']>;
+  isBoosted?: Maybe<Scalars['Boolean']['output']>;
+  isHidden?: Maybe<Scalars['Boolean']['output']>;
+  isHighlighted?: Maybe<Scalars['Boolean']['output']>;
+  isPool?: Maybe<Scalars['Boolean']['output']>;
+  isRetired?: Maybe<Scalars['Boolean']['output']>;
+  kind?: Maybe<Scalars['String']['output']>;
+  migration?: Maybe<kong_VaultMetaMigration>;
   protocols?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
+  shouldUseV2APR?: Maybe<Scalars['Boolean']['output']>;
+  sourceURI?: Maybe<Scalars['String']['output']>;
+  stability?: Maybe<kong_VaultMetaStability>;
   token?: Maybe<kong_TokenMeta>;
+  type?: Maybe<Scalars['String']['output']>;
+  uiNotice?: Maybe<Scalars['String']['output']>;
+};
+
+export type kong_VaultMetaInclusion = {
+  isCove?: Maybe<Scalars['Boolean']['output']>;
+  isGimme?: Maybe<Scalars['Boolean']['output']>;
+  isKatana?: Maybe<Scalars['Boolean']['output']>;
+  isMorpho?: Maybe<Scalars['Boolean']['output']>;
+  isPoolTogether?: Maybe<Scalars['Boolean']['output']>;
+  isPublicERC4626?: Maybe<Scalars['Boolean']['output']>;
+  isYearn?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type kong_VaultMetaMigration = {
+  available: Scalars['Boolean']['output'];
+  contract?: Maybe<Scalars['String']['output']>;
+  target?: Maybe<Scalars['String']['output']>;
+};
+
+export type kong_VaultMetaStability = {
+  stability: Scalars['String']['output'];
+  stableBaseAsset?: Maybe<Scalars['String']['output']>;
 };
 
 export type kong_VaultReport = {
@@ -812,7 +932,7 @@ export type kong_VestingEscrowCreatedLog = {
 export type kong_GetVaultDataQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type kong_GetVaultDataQuery = { vaults?: Array<{ address?: string | null, symbol?: string | null, name?: string | null, chainId?: number | null, asset?: { decimals?: number | null, address?: string | null, name?: string | null, symbol?: string | null } | null } | null> | null };
+export type kong_GetVaultDataQuery = { vaults?: Array<{ address?: string | null, symbol?: string | null, name?: string | null, chainId?: number | null, meta?: { isHidden?: boolean | null } | null, asset?: { decimals?: number | null, address?: string | null, name?: string | null, symbol?: string | null } | null } | null> | null };
 
 
 export const GetVaultDataDocument = /*#__PURE__*/ gql`
@@ -822,6 +942,9 @@ export const GetVaultDataDocument = /*#__PURE__*/ gql`
     symbol
     name
     chainId
+    meta {
+      isHidden
+    }
     asset {
       decimals
       address
