@@ -592,7 +592,7 @@ const ModalData: React.FC<ModalDataProps> = ({
   if ((searchTerm?.trim() || hasActiveFilters) && vaults.length === 0) {
     return (
       <ModalContainer>
-        <CenteredContent variant={hasFilterOnlyEmptyState ? 'compact' : 'stacked'}>
+        <CenteredContent variant="compact">
           {hasFilterOnlyEmptyState ? (
             <>
               <div className="text-gray-500 text-lg">No vaults match this filter</div>
