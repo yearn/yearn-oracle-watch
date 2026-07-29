@@ -18,6 +18,7 @@ import { getVaultDisplayName, getVaultIconAddress } from '../utils/featuredVault
 import { BaseDataSource } from './BaseDataSource'
 
 export type VaultCategory = 'allocator' | 'strategy'
+export const EXCLUDED_VAULT_CHAIN_IDS = [250, 80094] as const
 
 export type NonNullableVaultData = {
   address: Address
@@ -82,6 +83,6 @@ export class KongDataSource extends BaseDataSource {
           },
         }
       })
-    return filterVaultsByChainIds(vaults, [250])
+    return filterVaultsByChainIds(vaults, [...EXCLUDED_VAULT_CHAIN_IDS])
   }
 }

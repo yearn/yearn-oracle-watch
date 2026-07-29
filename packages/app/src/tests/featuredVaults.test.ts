@@ -1,4 +1,5 @@
 import {
+  EXCLUDED_VAULT_CHAIN_IDS,
   YBOLD_STAKING_ADDRESS,
   YBOLD_VAULT_ADDRESS,
   YVUSD_LOCKED_ADDRESS,
@@ -48,5 +49,9 @@ describe('featured vault behavior', () => {
     expect(isSelectableVaultMeta({ isHidden: false, isRetired: false })).toBe(true)
     expect(isSelectableVaultMeta({ isHidden: true, isRetired: false })).toBe(false)
     expect(isSelectableVaultMeta({ isHidden: false, isRetired: true })).toBe(false)
+  })
+
+  it('excludes Berachain from vault selector data', () => {
+    expect(EXCLUDED_VAULT_CHAIN_IDS).toContain(80094)
   })
 })
