@@ -932,7 +932,7 @@ export type kong_VestingEscrowCreatedLog = {
 export type kong_GetVaultDataQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type kong_GetVaultDataQuery = { vaults?: Array<{ address?: string | null, symbol?: string | null, name?: string | null, chainId?: number | null, meta?: { isHidden?: boolean | null } | null, asset?: { decimals?: number | null, address?: string | null, name?: string | null, symbol?: string | null } | null } | null> | null };
+export type kong_GetVaultDataQuery = { vaults?: Array<{ address?: string | null, symbol?: string | null, name?: string | null, chainId?: number | null, meta?: { isHidden?: boolean | null, isRetired?: boolean | null, kind?: string | null } | null, asset?: { decimals?: number | null, address?: string | null, name?: string | null, symbol?: string | null } | null } | null> | null };
 
 
 export const GetVaultDataDocument = /*#__PURE__*/ gql`
@@ -944,6 +944,8 @@ export const GetVaultDataDocument = /*#__PURE__*/ gql`
     chainId
     meta {
       isHidden
+      isRetired
+      kind
     }
     asset {
       decimals

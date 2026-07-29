@@ -8,6 +8,8 @@ export type VaultData = {
   symbol: string
   name: string
   chainId: number
+  category: 'allocator' | 'strategy'
+  iconAddress?: Address
   asset: {
     decimals: number
     address: Address

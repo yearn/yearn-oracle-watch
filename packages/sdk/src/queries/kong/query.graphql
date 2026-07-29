@@ -6,6 +6,8 @@ query GetVaultData {
     chainId
     meta {
       isHidden
+      isRetired
+      kind
     }
     asset {
       decimals

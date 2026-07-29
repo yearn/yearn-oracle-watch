@@ -62,6 +62,8 @@ export const Tooltip: FC<TooltipProps> = ({ children, content, position = 'top' 
         className="inline-block"
         onMouseEnter={() => setIsVisible(true)}
         onMouseLeave={() => setIsVisible(false)}
+        onFocus={() => setIsVisible(true)}
+        onBlur={() => setIsVisible(false)}
       >
         {children}
       </div>
@@ -69,7 +71,7 @@ export const Tooltip: FC<TooltipProps> = ({ children, content, position = 'top' 
         createPortal(
           <div
             ref={tooltipRef}
-            className="fixed z-[9999] px-3 py-2 text-sm text-white bg-gray-900 rounded-lg shadow-lg whitespace-nowrap pointer-events-none"
+            className="fixed z-[9999] max-w-[min(24rem,calc(100vw-1rem))] px-3 py-2 text-left text-sm text-white bg-gray-900 rounded-lg shadow-lg whitespace-normal pointer-events-none"
             style={{ top: `${coords.top}px`, left: `${coords.left}px` }}
           >
             {content}

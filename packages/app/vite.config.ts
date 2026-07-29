@@ -72,6 +72,9 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 3000,
     },
+    preview: {
+      allowedHosts: ['dev-vm.tail197cc7.ts.net'],
+    },
     build: {
       outDir: 'build',
     },
