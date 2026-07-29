@@ -607,7 +607,7 @@ const VaultCategoryTabs: React.FC<{
 }> = ({ counts, selectedCategory, onSelect }) => {
   const tabs: Array<{ id: VaultCategory; label: string }> = [
     { id: 'allocator', label: 'Allocator Vaults' },
-    { id: 'strategy', label: 'Tokenized Strategy Vaults' },
+    { id: 'strategy', label: 'Tokenized Strategies' },
   ]
 
   return (
