@@ -1,3 +1,4 @@
+import { resolveRpcUrls } from '@/config/rpc'
 import {
   EXCLUDED_VAULT_CHAIN_IDS,
   YBOLD_STAKING_ADDRESS,
@@ -53,5 +54,22 @@ describe('featured vault behavior', () => {
 
   it('excludes Berachain from vault selector data', () => {
     expect(EXCLUDED_VAULT_CHAIN_IDS).toContain(80094)
+  })
+
+  it('uses a public RPC fallback when preview credentials are absent', () => {
+    expect(resolveRpcUrls(undefined, 'https://public.example', 'https://default.example')).toEqual([
+      'https://public.example',
+      'https://default.example',
+    ])
+    expect(
+      resolveRpcUrls(
+        'https://configured.example',
+        'https://public.example',
+        'https://default.example',
+      ),
+    ).toEqual(['https://configured.example', 'https://public.example', 'https://default.example'])
+    expect(resolveRpcUrls('', 'https://same.example', 'https://same.example')).toEqual([
+      'https://same.example',
+    ])
   })
 })

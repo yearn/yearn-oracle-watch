@@ -161,13 +161,17 @@ export class CoreDataSource {
     const currentApr = sumAprResults(0)
     const projectedApr = sumAprResults(valuesPerDelta)
 
+    if (currentApr === undefined || projectedApr === undefined) {
+      throw new Error(`APR oracle reads failed for ${vaultAddress} on chain ${chainId}`)
+    }
+
     devLog('🔢 Extracted APR values:', {
-      currentApr: currentApr ? currentApr.toString() : null,
-      projectedApr: projectedApr ? projectedApr.toString() : null,
+      currentApr: currentApr.toString(),
+      projectedApr: projectedApr.toString(),
     })
 
-    const currentAprFormatted = currentApr ? formatApr(currentApr) : formatApr(0n)
-    const projectedAprFormatted = projectedApr ? formatApr(projectedApr) : formatApr(0n)
+    const currentAprFormatted = formatApr(currentApr)
+    const projectedAprFormatted = formatApr(projectedApr)
 
     devLog('✨ Formatted APR values:', {
       currentAprFormatted,
