@@ -14,13 +14,19 @@ import { Address } from 'viem'
 import { createCachedSdk } from '../graphql/cache'
 import type { CachedSdk } from '../graphql/types'
 import { getSdk as kong_getSdk } from '../queries/kong/generated'
+import { getVaultDisplayName, getVaultIconAddress } from '../utils/featuredVaults'
 import { BaseDataSource } from './BaseDataSource'
+
+export type VaultCategory = 'allocator' | 'strategy'
+export const EXCLUDED_VAULT_CHAIN_IDS = [250, 80094] as const
 
 export type NonNullableVaultData = {
   address: Address
   symbol: string
   name: string
   chainId: number
+  category: VaultCategory
+  iconAddress: Address
   asset: {
     decimals: number
     address: Address
@@ -28,6 +34,13 @@ export type NonNullableVaultData = {
     symbol: string
   }
 }
+
+export const getVaultCategory = (kind?: string | null): VaultCategory =>
+  kind?.toLowerCase().includes('single') ? 'strategy' : 'allocator'
+
+export const isSelectableVaultMeta = (
+  meta?: { isHidden?: boolean | null; isRetired?: boolean | null } | null,
+): boolean => !meta?.isHidden && !meta?.isRetired
 
 export class KongDataSource extends BaseDataSource {
   private gql!: CachedSdk<typeof kong_getSdk>
@@ -49,19 +62,27 @@ export class KongDataSource extends BaseDataSource {
     const data = await this.gql.GetVaultData()
     const vaults = (data.vaults || [])
       .filter((vault): vault is NonNullable<typeof vault> => vault !== null)
-      .filter((vault) => !vault.meta?.isHidden)
-      .map((vault) => ({
-        address: (vault.address || '') as Address,
-        symbol: vault.symbol || '',
-        name: vault.name || '',
-        chainId: vault.chainId || 0,
-        asset: {
-          decimals: vault.asset?.decimals || 0,
-          address: (vault.asset?.address || '') as Address,
-          name: vault.asset?.name || '',
-          symbol: vault.asset?.symbol || '',
-        },
-      }))
-    return filterVaultsByChainIds(vaults, [250])
+      .filter((vault) => isSelectableVaultMeta(vault.meta))
+      .map((vault) => {
+        const address = (vault.address || '') as Address
+        const chainId = vault.chainId || 0
+        const assetAddress = (vault.asset?.address || '') as Address
+
+        return {
+          address,
+          symbol: vault.symbol || '',
+          name: getVaultDisplayName(chainId, address, vault.name || ''),
+          chainId,
+          category: getVaultCategory(vault.meta?.kind),
+          iconAddress: getVaultIconAddress(chainId, address, assetAddress),
+          asset: {
+            decimals: vault.asset?.decimals || 0,
+            address: assetAddress,
+            name: vault.asset?.name || '',
+            symbol: vault.asset?.symbol || '',
+          },
+        }
+      })
+    return filterVaultsByChainIds(vaults, [...EXCLUDED_VAULT_CHAIN_IDS])
   }
 }

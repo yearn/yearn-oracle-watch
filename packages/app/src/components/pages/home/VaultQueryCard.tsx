@@ -1,6 +1,7 @@
 import Button from '@/components/shared/Button'
 import { InputDepositAmount } from '@/components/shared/InputDepositAmount'
 import { Modal } from '@/components/shared/Modal'
+import { Tooltip } from '@/components/shared/Tooltip'
 import { VaultListItem } from '@/components/shared/VaultListItem'
 import VaultSelectButton, { type KongVault } from '@/components/shared/VaultSelectButton'
 import YearnLoader from '@/components/shared/YearnLoader'
@@ -13,7 +14,8 @@ import { type VaultData, useGetVaults } from '@/hooks/useGetVaults'
 import { useInput } from '@/hooks/useInput'
 import { usePreloadTokenImages } from '@/hooks/usePreloadTokenImages'
 import { findTokenPrice, useTokenPrices } from '@/hooks/useTokenPrices'
-import { calculateDelta } from '@yearn-oracle-watch/sdk'
+import { calculateDelta, isYvUsdVault } from '@yearn-oracle-watch/sdk'
+import { TriangleAlert } from 'lucide-react'
 import React from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Address, isAddress } from 'viem'
@@ -39,6 +41,8 @@ type ChainOption = {
   count: number
 }
 
+type VaultCategory = VaultData['category']
+
 // Debounce utility function
 const debounce = <T extends (...args: any[]) => void>(
   func: T,
@@ -62,6 +66,7 @@ const VaultQueryCard: React.FC = () => {
   const [deltaValue, setDeltaValue] = React.useState<bigint | undefined>(undefined)
   const [searchTerm, setSearchTerm] = React.useState('')
   const [selectedChainId, setSelectedChainId] = React.useState<number | null>(null)
+  const [selectedCategory, setSelectedCategory] = React.useState<VaultCategory>('allocator')
   const [filteredVaults, setFilteredVaults] = React.useState<VaultData[]>([])
   const { data: discoveredVaults, isLoading: isDiscovering } = useDiscoverVaultByAddress(searchTerm)
 
@@ -188,6 +193,31 @@ const VaultQueryCard: React.FC = () => {
     return displayVaults.filter((vault) => vault.chainId === selectedChainId)
   }, [displayVaults, selectedChainId])
 
+  const categoryCounts = React.useMemo(
+    () =>
+      chainFilteredVaults.reduce(
+        (counts, vault) => {
+          counts[vault.category] += 1
+          return counts
+        },
+        { allocator: 0, strategy: 0 } satisfies Record<VaultCategory, number>,
+      ),
+    [chainFilteredVaults],
+  )
+
+  React.useEffect(() => {
+    if (categoryCounts[selectedCategory] > 0) return
+    const alternateCategory = selectedCategory === 'allocator' ? 'strategy' : 'allocator'
+    if (categoryCounts[alternateCategory] > 0) {
+      setSelectedCategory(alternateCategory)
+    }
+  }, [categoryCounts, selectedCategory])
+
+  const visibleVaults = React.useMemo(
+    () => chainFilteredVaults.filter((vault) => vault.category === selectedCategory),
+    [chainFilteredVaults, selectedCategory],
+  )
+
   // Track which items came from on-chain discovery for UI indicators
   const discoveredSet = React.useMemo(() => {
     const set = new Set<string>()
@@ -197,10 +227,6 @@ const VaultQueryCard: React.FC = () => {
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value)
-  }
-
-  const clearSearch = () => {
-    setSearchTerm('')
   }
 
   // APR Oracle integration
@@ -244,6 +270,9 @@ const VaultQueryCard: React.FC = () => {
   }
 
   const balance = 0n
+  const usesExternalApiOracle = Boolean(
+    selectedVault?.address && isYvUsdVault(Number(selectedVault.chainId), selectedVault.address),
+  )
 
   // Find the full vault with logos for InputDepositAmount
   const selectedVaultWithLogos = data?.find((vault) => vault.address === selectedVault?.address)
@@ -297,11 +326,16 @@ const VaultQueryCard: React.FC = () => {
                       selectedChainId={selectedChainId}
                       onSelect={setSelectedChainId}
                     />
+                    <VaultCategoryTabs
+                      counts={categoryCounts}
+                      selectedCategory={selectedCategory}
+                      onSelect={setSelectedCategory}
+                    />
                   </div>
                 }
               >
                 <ModalData
-                  data={chainFilteredVaults}
+                  data={visibleVaults}
                   searchTerm={searchTerm}
                   isLoading={isLoading}
                   error={error}
@@ -309,7 +343,7 @@ const VaultQueryCard: React.FC = () => {
                   unfilteredResultCount={displayVaults.length}
                   discoveredSet={discoveredSet}
                   isProbingOnChain={
-                    isAddress(searchTerm) && chainFilteredVaults.length === 0 && isDiscovering
+                    isAddress(searchTerm) && visibleVaults.length === 0 && isDiscovering
                   }
                   onClearFilters={() => setSelectedChainId(null)}
                   onClose={handleCloseVaultModal}
@@ -379,11 +413,27 @@ const VaultQueryCard: React.FC = () => {
                   </div>
                 </div>
                 <div className="w-full h-8 px-5 overflow-hidden border-b border-[#1A51B2] flex justify-center items-center gap-2.5">
-                  <div className="flex-1 text-[#1E1E1E] text-base font-normal leading-8 font-aeonik">
-                    Projected APY:
+                  <div className="flex flex-1 items-center gap-1.5 text-[#1E1E1E] text-base font-normal leading-8 font-aeonik">
+                    <span>Projected APY:</span>
+                    {usesExternalApiOracle && (
+                      <Tooltip
+                        content="Projected APY is unavailable because this oracle reads from an external API and does not calculate deposit deltas."
+                        position="top"
+                      >
+                        <button
+                          type="button"
+                          className="flex h-5 w-5 items-center justify-center rounded text-amber-600 transition-colors hover:bg-amber-50 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-600"
+                          aria-label="Why projected APY is unavailable"
+                        >
+                          <TriangleAlert className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                      </Tooltip>
+                    )}
                   </div>
                   <div className="flex-1 text-right text-base font-normal text-sm leading-8 font-aeonik-mono">
-                    {deltaValue !== undefined && deltaValue > 0n ? (
+                    {usesExternalApiOracle ? (
+                      <span className="text-[#9E9E9E]">N/A</span>
+                    ) : deltaValue !== undefined && deltaValue > 0n ? (
                       isAprOracleLoading ? (
                         <span className="text-[#9E9E9E]">Loading...</span>
                       ) : aprOracleError ? (
@@ -403,7 +453,9 @@ const VaultQueryCard: React.FC = () => {
                     Percent Change:
                   </div>
                   <div className="flex-1 text-right text-base font-normal text-sm leading-8 font-aeonik-mono">
-                    {deltaValue !== undefined && deltaValue > 0n ? (
+                    {usesExternalApiOracle ? (
+                      <span className="text-[#9E9E9E]">N/A</span>
+                    ) : deltaValue !== undefined && deltaValue > 0n ? (
                       aprOracleResult?.percentChange ? (
                         <span
                           className={
@@ -547,6 +599,41 @@ const ChainSelector: React.FC<{
     </div>
   </div>
 )
+
+const VaultCategoryTabs: React.FC<{
+  counts: Record<VaultCategory, number>
+  selectedCategory: VaultCategory
+  onSelect: (category: VaultCategory) => void
+}> = ({ counts, selectedCategory, onSelect }) => {
+  const tabs: Array<{ id: VaultCategory; label: string }> = [
+    { id: 'allocator', label: 'Allocator Vaults' },
+    { id: 'strategy', label: 'Tokenized Strategies' },
+  ]
+
+  return (
+    <div className="grid w-full grid-cols-2 border-b border-black/10" role="tablist">
+      {tabs.map((tab) => {
+        const selected = tab.id === selectedCategory
+        return (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={selected}
+            onClick={() => onSelect(tab.id)}
+            className={`min-h-10 border-b-2 px-2 py-2 text-center text-xs font-aeonik transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#1A51B2] ${
+              selected
+                ? 'border-[#1A51B2] font-bold text-[#1A51B2]'
+                : 'border-transparent text-[#5C5C5C] hover:bg-black/5 hover:text-[#1E1E1E]'
+            }`}
+          >
+            {tab.label} <span className="font-aeonik-mono">({counts[tab.id]})</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
 
 const ModalData: React.FC<ModalDataProps> = ({
   data,

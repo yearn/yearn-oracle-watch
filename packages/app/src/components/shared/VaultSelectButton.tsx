@@ -10,6 +10,8 @@ export type KongVault = {
   symbol?: string
   name?: string
   chainId?: number
+  category?: 'allocator' | 'strategy'
+  iconAddress?: Address
   asset?: {
     decimals?: number
     address?: Address
@@ -36,7 +38,7 @@ const VaultSelectButton: FC<VaultSelectButtonProps & ComponentProps<typeof Butto
         className="w-8 h-8 min-w-8 min-h-8 max-w-8 max-h-8 relative"
         src={getSvgAsset(
           Number(selectedVault.chainId),
-          getAddress(selectedVault.asset?.address as string),
+          getAddress((selectedVault.iconAddress || selectedVault.asset?.address) as string),
         )}
         alt={selectedVault.name as string}
         referrerPolicy="no-referrer"

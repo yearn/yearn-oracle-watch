@@ -26,7 +26,7 @@ export const VaultListItem: React.FC<VaultListItemProps> = ({
     src: imageSrc,
     isLoading: imageLoading,
     error: imageError,
-  } = useTokenImage(vault.chainId, vault.asset.address)
+  } = useTokenImage(vault.chainId, vault.iconAddress || vault.asset.address)
 
   // Helper function to highlight matching text
   const highlightMatch = (text: string, searchTerm?: string) => {

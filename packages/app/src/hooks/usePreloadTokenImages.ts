@@ -1,7 +1,7 @@
-import { useQueryClient } from '@tanstack/react-query'
-import { useEffect, useRef } from 'react'
 import { type VaultData } from '@/hooks/useGetVaults'
 import { getSvgAsset } from '@/utils/logos'
+import { useQueryClient } from '@tanstack/react-query'
+import { useEffect, useRef } from 'react'
 
 /**
  * Hook to preload token images in the background
@@ -58,16 +58,16 @@ export function usePreloadTokenImages(vaults: VaultData[]) {
     const delay = 150 // Slightly longer delay to be server-friendly
 
     const preloadInBatches = async () => {
-      console.log(
-        `Starting to preload ${vaults.length} token images in batches of ${batchSize}`
-      )
+      console.log(`Starting to preload ${vaults.length} token images in batches of ${batchSize}`)
 
       for (let i = 0; i < vaults.length; i += batchSize) {
         const batch = vaults.slice(i, i + batchSize)
 
         // Preload all images in this batch concurrently
         await Promise.allSettled(
-          batch.map((vault) => preloadImage(vault.chainId, vault.asset.address))
+          batch.map((vault) =>
+            preloadImage(vault.chainId, vault.iconAddress || vault.asset.address),
+          ),
         )
 
         // Add delay between batches (except for the last batch)

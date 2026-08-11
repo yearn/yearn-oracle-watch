@@ -10,7 +10,6 @@ export const CHAIN_ID_TO_NAME: Record<number, string> = {
   8453: 'Base',
   42161: 'Arbitrum',
   747474: 'Katana',
-  80094: 'Berachain',
 }
 
 export function getChainIdByName(name: string): number | undefined {
@@ -28,7 +27,6 @@ export const CHAIN_ID_TO_ICON: Record<number, string> = {
   8453: 'https://token-assets-one.vercel.app/api/chains/8453/logo-32.png',
   42161: 'https://token-assets-one.vercel.app/api/chains/42161/logo-32.png',
   747474: 'https://token-assets-one.vercel.app/api/chains/747474/logo-32.png',
-  80094: 'https://token-assets-one.vercel.app/api/chains/80094/logo-32.png',
 }
 
 export const CHAIN_ID_TO_BLOCK_EXPLORER: Record<number, string> = {
@@ -41,7 +39,6 @@ export const CHAIN_ID_TO_BLOCK_EXPLORER: Record<number, string> = {
   8453: 'https://basescan.org/',
   42161: 'https://arbiscan.io',
   747474: 'https://explorer.katanarpc.com/',
-  80094: 'https://berascan.com',
 }
 
 export const VAULT_TYPE_TO_NAME: Record<string, string> = {

@@ -1,14 +1,14 @@
 import { readContracts } from '@wagmi/core'
-import {
-  aprOracleAbi,
-  aprOracleAddress,
-  erc20Abi,
-  v3VaultAbi,
-} from '@yearn-oracle-watch/contracts'
+import { aprOracleAbi, aprOracleAddress, erc20Abi, v3VaultAbi } from '@yearn-oracle-watch/contracts'
 import _ from 'lodash'
 import { KongDataSource } from 'src/datasources/KongDataSource'
 import { YDaemonDataSource } from 'src/datasources/YDaemonDataSource'
 import { calculatePercentChange, formatApr } from 'src/utils/apr'
+import {
+  getAprOracleVaultAddresses,
+  getVaultIconAddress,
+  sumAprOracleValues,
+} from 'src/utils/featuredVaults'
 import { Address, getAddress } from 'viem'
 import { SdkContext } from '../types'
 
@@ -16,10 +16,8 @@ import { SdkContext } from '../types'
 const isDevelopment = (() => {
   try {
     return (
-      (typeof process !== 'undefined' &&
-        process.env?.NODE_ENV === 'development') ||
-      (typeof window !== 'undefined' &&
-        window.location?.hostname === 'localhost')
+      (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') ||
+      (typeof window !== 'undefined' && window.location?.hostname === 'localhost')
     )
   } catch {
     return false
@@ -53,33 +51,23 @@ export class CoreDataSource {
     this.yDaemon.dispose()
   }
 
-  async getAprOracleData(
-    vaultAddress: Address,
-    chainId: number,
-    delta: bigint
-  ) {
+  async getAprOracleData(vaultAddress: Address, chainId: number, delta: bigint) {
     devLog('🔍 getAprOracleData called with:', {
       vaultAddress,
       chainId,
       delta: delta.toString(),
     })
 
-    const expectedAprContracts = [
-      {
+    const oracleVaultAddresses = getAprOracleVaultAddresses(vaultAddress, chainId)
+    const expectedAprContracts = [0n, delta].flatMap((queryDelta) =>
+      oracleVaultAddresses.map((oracleVaultAddress) => ({
         address: aprOracleAddress[chainId as keyof typeof aprOracleAddress],
         abi: aprOracleAbi,
         functionName: 'getStrategyApr' as const,
-        args: [vaultAddress, 0n] as const,
+        args: [oracleVaultAddress, queryDelta] as const,
         chainId,
-      },
-      {
-        address: aprOracleAddress[chainId as keyof typeof aprOracleAddress],
-        abi: aprOracleAbi,
-        functionName: 'getStrategyApr' as const,
-        args: [vaultAddress, delta] as const,
-        chainId,
-      },
-    ]
+      })),
+    )
 
     devLog('📋 Contract calls prepared:', {
       oracleAddress: aprOracleAddress[chainId as keyof typeof aprOracleAddress],
@@ -87,7 +75,7 @@ export class CoreDataSource {
       contracts: expectedAprContracts.map((c) => ({
         functionName: c.functionName,
         args: c.args.map((arg: Address | bigint) =>
-          typeof arg === 'bigint' ? arg.toString() : arg
+          typeof arg === 'bigint' ? arg.toString() : arg,
         ),
       })),
     })
@@ -103,7 +91,7 @@ export class CoreDataSource {
         status: result.status,
         result: result.result ? (result.result as bigint).toString() : null,
         error: result.error,
-      }))
+      })),
     )
 
     // Check for failed calls and create fallback contracts
@@ -115,9 +103,7 @@ export class CoreDataSource {
     const finalResults = [...expectedAprResults]
 
     if (failedIndices.length > 0) {
-      devLog(
-        `🔄 Found ${failedIndices.length} failed calls, attempting fallback to getExpectedApr`
-      )
+      devLog(`🔄 Found ${failedIndices.length} failed calls, attempting fallback to getExpectedApr`)
 
       const fallbackContracts = failedIndices.map((index) => ({
         address: aprOracleAddress[chainId as keyof typeof aprOracleAddress],
@@ -128,13 +114,12 @@ export class CoreDataSource {
       }))
 
       devLog('📋 Fallback contract calls prepared:', {
-        oracleAddress:
-          aprOracleAddress[chainId as keyof typeof aprOracleAddress],
+        oracleAddress: aprOracleAddress[chainId as keyof typeof aprOracleAddress],
         contractsCount: fallbackContracts.length,
         contracts: fallbackContracts.map((c) => ({
           functionName: c.functionName,
           args: c.args.map((arg: Address | bigint) =>
-            typeof arg === 'bigint' ? arg.toString() : arg
+            typeof arg === 'bigint' ? arg.toString() : arg,
           ),
         })),
       })
@@ -150,37 +135,43 @@ export class CoreDataSource {
           status: result.status,
           result: result.result ? (result.result as bigint).toString() : null,
           error: result.error,
-        }))
+        })),
       )
 
       // Replace failed results with fallback results
       failedIndices.forEach((originalIndex, fallbackIndex) => {
         if (fallbackResults[fallbackIndex].status === 'success') {
           finalResults[originalIndex] = fallbackResults[fallbackIndex]
-          devLog(
-            `✅ Successfully recovered index ${originalIndex} using getExpectedApr fallback`
-          )
+          devLog(`✅ Successfully recovered index ${originalIndex} using getExpectedApr fallback`)
         } else {
           devLog(`❌ Fallback also failed for index ${originalIndex}`)
         }
       })
     }
 
-    const [currentApr, projectedApr] = _.chain(finalResults)
-      .map((v) => v.result as bigint)
-      .value() as [bigint, bigint]
+    const valuesPerDelta = oracleVaultAddresses.length
+    const sumAprResults = (offset: number): bigint | undefined => {
+      const results = finalResults.slice(offset, offset + valuesPerDelta)
+      return sumAprOracleValues(
+        results.map((result) =>
+          result.status === 'success' ? (result.result as bigint) : undefined,
+        ),
+      )
+    }
+    const currentApr = sumAprResults(0)
+    const projectedApr = sumAprResults(valuesPerDelta)
+
+    if (currentApr === undefined || projectedApr === undefined) {
+      throw new Error(`APR oracle reads failed for ${vaultAddress} on chain ${chainId}`)
+    }
 
     devLog('🔢 Extracted APR values:', {
-      currentApr: currentApr ? currentApr.toString() : null,
-      projectedApr: projectedApr ? projectedApr.toString() : null,
+      currentApr: currentApr.toString(),
+      projectedApr: projectedApr.toString(),
     })
 
-    const currentAprFormatted = currentApr
-      ? formatApr(currentApr)
-      : formatApr(0n)
-    const projectedAprFormatted = projectedApr
-      ? formatApr(projectedApr)
-      : formatApr(0n)
+    const currentAprFormatted = formatApr(currentApr)
+    const projectedAprFormatted = formatApr(projectedApr)
 
     devLog('✨ Formatted APR values:', {
       currentAprFormatted,
@@ -188,10 +179,7 @@ export class CoreDataSource {
     })
 
     // Calculate percent change between current and projected APR
-    const percentChange = calculatePercentChange(
-      currentAprFormatted,
-      projectedAprFormatted
-    )
+    const percentChange = calculatePercentChange(currentAprFormatted, projectedAprFormatted)
 
     devLog('📈 Calculated percent change:', percentChange)
 
@@ -216,13 +204,15 @@ export class CoreDataSource {
    */
   async discoverVaultsFromContract(
     vaultAddress: Address,
-    chainIds: number[] = []
+    chainIds: number[] = [],
   ): Promise<
     Array<{
       address: Address
       symbol: string
       name: string
       chainId: number
+      category: 'allocator'
+      iconAddress: Address
       asset: {
         address: Address
         name: string
@@ -238,6 +228,8 @@ export class CoreDataSource {
       symbol: string
       name: string
       chainId: number
+      category: 'allocator'
+      iconAddress: Address
       asset: {
         address: Address
         name: string
@@ -337,6 +329,8 @@ export class CoreDataSource {
           symbol: vaultSymbol,
           name: vaultName,
           chainId,
+          category: 'allocator',
+          iconAddress: getVaultIconAddress(chainId, checksumVault, assetAddr),
           asset: {
             address: assetAddr,
             name: assetName,
