@@ -1,5 +1,8 @@
 {
   "buildCommand": "bun run build",
   "installCommand": "bun install --frozen-lockfile",
-  "framework": null
+  "framework": null,
+  "git": {
+    "deploymentEnabled": false
+  }
 }
