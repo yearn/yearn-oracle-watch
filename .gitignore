@@ -118,3 +118,5 @@ packages/contracts/src/wagmi.ts
 # Test outputs
 tests/output/*
 packages/app/src/tests/output/
+# cloudflare
+.wrangler

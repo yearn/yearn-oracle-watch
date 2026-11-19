@@ -16,6 +16,7 @@
     "build:deps": "bun run build:contracts && bun run build:sdk",
     "build:gen": "bun run --filter ./packages/contracts codegen && bun run --filter ./packages/sdk codegen",
     "build:app": "bun run --filter ./packages/app build",
+    "build:cloudflare": "bun run build",
     "build": "bun run build:gen && bun run build:deps && bun run build:app",
     "build:debug": "echo 'Starting codegen...' && bun run build:gen && echo 'Codegen complete. Starting deps build...' && bun run build:deps && echo 'Deps complete. Checking files...' && ls -la packages/contracts/dist/ && ls -la packages/sdk/dist/ && echo 'Starting app build...' && bun run build:app",
     "serve": "bun run --filter ./packages/app serve",
@@ -59,6 +60,7 @@
     "vite-plugin-static-copy": "2.3.1",
     "vite-plugin-svgr": "4.3.0",
     "vite-tsconfig-paths": "5.1.4",
-    "vitest": "2.1.9"
+    "vitest": "2.1.9",
+    "wrangler": "4.161.0"
   }
 }
