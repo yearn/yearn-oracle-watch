@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "apr-oracle",
+  "compatibility_date": "2026-11-10",
+  "assets": {
+    "directory": "packages/app/build",
+    "not_found_handling": "single-page-application"
+  },
+  "workers_dev": true,
+  "routes": [{ "pattern": "oracle.yearn.fi/*", "zone_name": "yearn.fi" }],
+  "env": {
+    "preview": {
+      "workers_dev": true,
+      "routes": []
+    }
+  }
+}
