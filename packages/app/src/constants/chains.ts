@@ -18,15 +18,15 @@ export function getChainIdByName(name: string): number | undefined {
 }
 
 export const CHAIN_ID_TO_ICON: Record<number, string> = {
-  1: 'https://token-assets-one.vercel.app/api/chains/1/logo-32.png',
-  10: 'https://token-assets-one.vercel.app/api/chains/10/logo-32.png',
-  100: 'https://token-assets-one.vercel.app/api/chains/100/logo-32.png',
-  137: 'https://token-assets-one.vercel.app/api/chains/137/logo-32.png',
-  146: 'https://token-assets-one.vercel.app/api/chains/146/logo-32.png',
-  250: 'https://token-assets-one.vercel.app/api/chains/250/logo-32.png',
-  8453: 'https://token-assets-one.vercel.app/api/chains/8453/logo-32.png',
-  42161: 'https://token-assets-one.vercel.app/api/chains/42161/logo-32.png',
-  747474: 'https://token-assets-one.vercel.app/api/chains/747474/logo-32.png',
+  1: 'https://assets.yearn.fi/api/chains/1/logo-32.png',
+  10: 'https://assets.yearn.fi/api/chains/10/logo-32.png',
+  100: 'https://assets.yearn.fi/api/chains/100/logo-32.png',
+  137: 'https://assets.yearn.fi/api/chains/137/logo-32.png',
+  146: 'https://assets.yearn.fi/api/chains/146/logo-32.png',
+  250: 'https://assets.yearn.fi/api/chains/250/logo-32.png',
+  8453: 'https://assets.yearn.fi/api/chains/8453/logo-32.png',
+  42161: 'https://assets.yearn.fi/api/chains/42161/logo-32.png',
+  747474: 'https://assets.yearn.fi/api/chains/747474/logo-32.png',
 }
 
 export const CHAIN_ID_TO_BLOCK_EXPLORER: Record<number, string> = {
